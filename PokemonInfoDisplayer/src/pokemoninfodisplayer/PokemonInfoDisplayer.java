@@ -31,7 +31,7 @@ public class PokemonInfoDisplayer {
 	public static final int CELL_WIDTH = 200;
 	public static final int CELL_HEIGHT = 200;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		// TODO code application logic here
 		
 		IVBExtractor memoryExtractor = new VBExtractorJNI();
@@ -64,7 +64,6 @@ public class PokemonInfoDisplayer {
 			new Point(1,2)
 		};
 		
-		memoryExtractor.closeProcess();
 		
 		
 		
@@ -102,23 +101,15 @@ public class PokemonInfoDisplayer {
 		panel.setPreferredSize(frame.getSize());
 		
 		frame.add(panel);
-		long startTime = System.currentTimeMillis();
-		long deltaTime = 0;
 		while(true) {
-			deltaTime += System.currentTimeMillis()-startTime;
-			if (deltaTime > 1000) {
-				memoryExtractor.openProcess();
 				memoryExtractor.readWRAM(bytes);
-				memoryExtractor.closeProcess();
 				
-				for(int i = 0; i < party.length; i++){
-					partyMemory[i].update(Utils.getPartyPokemon(i, bytes));
-					party[i] = partyMemory[i].toPokemonModel();
-				}
-				panel.repaint();
-				deltaTime = 0;
-				startTime = System.currentTimeMillis();
+			for(int i = 0; i < party.length; i++){
+				partyMemory[i].update(Utils.getPartyPokemon(i, bytes));
+				party[i] = partyMemory[i].toPokemonModel();
 			}
+			panel.repaint();
+			Thread.sleep(1000);
 		}
 		
 	}
