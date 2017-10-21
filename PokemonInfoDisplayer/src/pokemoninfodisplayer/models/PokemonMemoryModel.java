@@ -46,6 +46,7 @@ public class PokemonMemoryModel {
 		model.max_hp = Utils.byteArrayToUint(total_hp);
 		model.level = Utils.byteArrayToUint(level);
 		model.setDexEntry(new Data(data, personality_value, OT_ID).getDexEntry());
+		model.setStatusCondition(status_condition);
 				
 		return model;
 	}

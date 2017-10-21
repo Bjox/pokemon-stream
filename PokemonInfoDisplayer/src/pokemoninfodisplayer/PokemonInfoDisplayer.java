@@ -7,13 +7,19 @@
 package pokemoninfodisplayer;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Arrays;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import pokemoninfodisplayer.graphics.PokemonCellRenderer;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
 import vbajni.*;
@@ -28,16 +34,17 @@ public class PokemonInfoDisplayer {
 	 * @param args the command line arguments
 	 */
 	
-	public static final int CELL_WIDTH = 200;
-	public static final int CELL_HEIGHT = 200;
+	public static final int CELL_WIDTH = PokemonCellRenderer.SIZE_OVERLAY_TILE.x;
+	public static final int CELL_HEIGHT = PokemonCellRenderer.SIZE_OVERLAY_TILE.y;
+	public static final double SCALE_FACTOR = PokemonCellRenderer.SCALE_FACTOR;
 	
-	public static void main(String[] args) throws InterruptedException {
-		// TODO code application logic here
-		
+	public static void main(String[] args) throws Exception {
 		IVBExtractor memoryExtractor = new VBExtractorJNI();
+		
 		byte[] bytes = new byte[0x40000];
 		memoryExtractor.openProcess();
 		memoryExtractor.readWRAM(bytes);
+		
 		PokemonMemoryModel[] partyMemory = new PokemonMemoryModel[] {
 			new PokemonMemoryModel(Utils.getPartyPokemon(0, bytes)),
 			new PokemonMemoryModel(Utils.getPartyPokemon(1, bytes)),
@@ -46,6 +53,7 @@ public class PokemonInfoDisplayer {
 			new PokemonMemoryModel(Utils.getPartyPokemon(4, bytes)),
 			new PokemonMemoryModel(Utils.getPartyPokemon(5, bytes))
 		};
+		
 		PokemonModel[] party = new PokemonModel[] {
 			partyMemory[0].toPokemonModel(),
 			partyMemory[1].toPokemonModel(),
@@ -65,42 +73,48 @@ public class PokemonInfoDisplayer {
 		};
 		
 		
-		
-		
 		JFrame frame = new JFrame("Party Info");
-		frame.setSize((int)(CELL_WIDTH*2.5), (int)(CELL_HEIGHT*3.5));
 		frame.setResizable(false);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		JPanel panel = new JPanel(){
+		
+		JPanel panel = new JPanel() {
 			
 			@Override
-			public void paint(Graphics g){
+			public void paint(Graphics g) {
 				super.paint(g);
 				
 				Graphics2D g2 = (Graphics2D) g;
 
 				//Set  anti-alias!
-				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON); 
+//				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+//				RenderingHints.VALUE_ANTIALIAS_ON); 
 
 				// Set anti-alias for text
-				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_ON); 
+//				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+//				RenderingHints.VALUE_TEXT_ANTIALIAS_ON); 
 				
-				g2.setColor(Color.MAGENTA);
-				g2.fillRect(0, 0, CELL_WIDTH*3, CELL_HEIGHT*4);
+				this.setBackground(Color.MAGENTA);
+				g2.setColor(Color.WHITE);
+				
 				for (int i = 0; i < party.length; i++){
-					if (party[i].getDexEntry() != 0)
-						PokemonCellRenderer.renderPokemonCell(party[i], structure[i], g2);
+					if (party[i].getDexEntry() != 0) {
+						Point cellPos = structure[i];
+						AffineTransform trans = g2.getTransform();
+						g2.scale(PokemonCellRenderer.SCALE_FACTOR, PokemonCellRenderer.SCALE_FACTOR);
+						g2.translate(cellPos.x * PokemonCellRenderer.SIZE_OVERLAY_TILE.x, cellPos.y * PokemonCellRenderer.SIZE_OVERLAY_TILE.y);
+						PokemonCellRenderer.renderPokemonCell(party[i], g2);
+						g2.setTransform(trans);
+					}
 				}
 			}
 		};
-		panel.setSize(frame.getSize());
-		panel.setPreferredSize(frame.getSize());
 		
+		panel.setPreferredSize(new Dimension((int)(CELL_WIDTH*SCALE_FACTOR*2), (int)(CELL_HEIGHT*SCALE_FACTOR*3)));
 		frame.add(panel);
+		frame.pack();
+		
 		while(true) {
 				memoryExtractor.readWRAM(bytes);
 				

@@ -6,6 +6,7 @@
 
 package pokemoninfodisplayer;
 
+
 /**
  *
  * @author Endre
@@ -905,4 +906,5 @@ public abstract class Utils {
 		358, //411
 		999, //412
 	};
+
 }
