@@ -48,11 +48,11 @@ public class PokemonInfoDisplayer {
 		};
 		PokemonModel[] party = new PokemonModel[] {
 			partyMemory[0].toPokemonModel(),
-			partyMemory[0].toPokemonModel(),
-			partyMemory[0].toPokemonModel(),
-			partyMemory[0].toPokemonModel(),
-			partyMemory[0].toPokemonModel(),
-			partyMemory[0].toPokemonModel()
+			partyMemory[1].toPokemonModel(),
+			partyMemory[2].toPokemonModel(),
+			partyMemory[3].toPokemonModel(),
+			partyMemory[4].toPokemonModel(),
+			partyMemory[5].toPokemonModel()
 		};
 		
 		Point[] structure = new Point[] {
@@ -111,6 +111,20 @@ public class PokemonInfoDisplayer {
 			panel.repaint();
 			Thread.sleep(1000);
 		}
+		
+		/*for (int i = 0; i < 412; i++){
+			boolean added = false;
+			for (int j = 0; j < Utils.DEX_TO_SPECIES_LOOKUP.length; j++) {
+				if (i == Utils.DEX_TO_SPECIES_LOOKUP[j]) {
+					System.out.println(j + ", //"+i);
+					added = true;
+					break;
+				}
+			}
+			if (!added){
+				System.out.println(0 + ", //"+i);
+			}
+		}*/
 		
 	}
 	

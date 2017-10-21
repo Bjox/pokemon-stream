@@ -122,6 +122,6 @@ public class Data {
 	}
 	
 	public int getDexEntry(){
-		return Byte.toUnsignedInt(species[0]) | (Byte.toUnsignedInt(species[1]) << 4);
+		return Utils.SPECIES_TO_DEX_LOOKUP[Byte.toUnsignedInt(species[0]) | (Byte.toUnsignedInt(species[1]) << 8)];
 	}
 }
