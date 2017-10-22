@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import pokemoninfodisplayer.graphics.PokemonCellRenderer;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
@@ -38,7 +39,15 @@ public class PokemonInfoDisplayer {
 	public static final int CELL_HEIGHT = PokemonCellRenderer.SIZE_OVERLAY_TILE.y;
 	public static final double SCALE_FACTOR = PokemonCellRenderer.SCALE_FACTOR;
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
+		try {
+			run();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e.toString(), "An exception occurred", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	public static void run() throws Exception {
 		IVBExtractor memoryExtractor = new VBExtractorJNI();
 		
 		byte[] bytes = new byte[0x40000];
@@ -118,28 +127,16 @@ public class PokemonInfoDisplayer {
 		while(true) {
 				memoryExtractor.readWRAM(bytes);
 				
-			for(int i = 0; i < party.length; i++){
-				partyMemory[i].update(Utils.getPartyPokemon(i, bytes));
-				party[i] = partyMemory[i].toPokemonModel();
+			for(int i = 0; i < party.length; i++) {
+				try {
+					partyMemory[i].update(Utils.getPartyPokemon(i, bytes));
+					party[i] = partyMemory[i].toPokemonModel();
+				} catch (SkipRenderTileException e) {
+				}
 			}
 			panel.repaint();
 			Thread.sleep(1000);
 		}
-		
-		/*for (int i = 0; i < 412; i++){
-			boolean added = false;
-			for (int j = 0; j < Utils.DEX_TO_SPECIES_LOOKUP.length; j++) {
-				if (i == Utils.DEX_TO_SPECIES_LOOKUP[j]) {
-					System.out.println(j + ", //"+i);
-					added = true;
-					break;
-				}
-			}
-			if (!added){
-				System.out.println(0 + ", //"+i);
-			}
-		}*/
-		
 	}
 	
 }

@@ -74,6 +74,9 @@ public class PokemonModel {
 	}
 	
 	public void setDexEntry(int dex_entry) {
+		if (dex_entry == -1) {
+			return;
+		}
 		this.dex_entry = dex_entry;
 		this.img = null;
 	}

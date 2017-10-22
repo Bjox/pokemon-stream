@@ -6,6 +6,7 @@
 
 package pokemoninfodisplayer.models;
 
+import pokemoninfodisplayer.SkipRenderTileException;
 import pokemoninfodisplayer.Utils;
 
 /**
@@ -121,7 +122,11 @@ public class Data {
 		System.arraycopy(dec_data, 8+12*order[M], ribbons_obedience, 0, ribbons_obedience.length);
 	}
 	
-	public int getDexEntry(){
-		return Utils.SPECIES_TO_DEX_LOOKUP[Byte.toUnsignedInt(species[0]) | (Byte.toUnsignedInt(species[1]) << 8)];
+	public int getDexEntry() throws SkipRenderTileException {
+		int index = Byte.toUnsignedInt(species[0]) | (Byte.toUnsignedInt(species[1]) << 8);
+		if (index < 0 || index >= Utils.SPECIES_TO_DEX_LOOKUP.length) {
+			throw new SkipRenderTileException();
+		}
+		return Utils.SPECIES_TO_DEX_LOOKUP[index];
 	}
 }

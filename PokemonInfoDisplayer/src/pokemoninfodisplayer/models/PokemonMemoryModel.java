@@ -6,6 +6,7 @@
 
 package pokemoninfodisplayer.models;
 
+import pokemoninfodisplayer.SkipRenderTileException;
 import pokemoninfodisplayer.Utils;
 
 /**
@@ -38,7 +39,7 @@ public class PokemonMemoryModel {
 		this.update(memory_snapshot);
 	}
 	
-	public PokemonModel toPokemonModel(){
+	public PokemonModel toPokemonModel() throws SkipRenderTileException {
 		PokemonModel model = new PokemonModel();
 		
 		model.nickname = Utils.decodeString(nickname);
