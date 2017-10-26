@@ -1,4 +1,4 @@
-package pokemoninfodisplayer.jna;
+package pokemoninfodisplayer.lowlevel.process.windows;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;

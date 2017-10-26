@@ -1,4 +1,4 @@
-package pokemoninfodisplayer.jna;
+package pokemoninfodisplayer.lowlevel.process.exceptions;
 
 /**
  *

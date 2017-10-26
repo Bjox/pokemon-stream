@@ -22,9 +22,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import pokemoninfodisplayer.graphics.FireRedLeafGreenCellRenderer;
 import pokemoninfodisplayer.graphics.PokemonCellRenderer;
+import pokemoninfodisplayer.lowlevel.emulator.IEmulatorExtractor;
+import pokemoninfodisplayer.lowlevel.emulator.VBAExtractor;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
-import vbajni.*;
 
 /**
  *
@@ -51,10 +52,9 @@ public class PokemonInfoDisplayer {
 	}
 	
 	public static void run() throws Exception {
-		IVBExtractor memoryExtractor = new VBExtractorJNI();
+		IEmulatorExtractor memoryExtractor = new VBAExtractor();
 		
 		byte[] bytes = new byte[0x40000];
-		memoryExtractor.openProcess();
 		memoryExtractor.readWRAM(bytes);
 		
 		PokemonMemoryModel[] partyMemory = new PokemonMemoryModel[] {
