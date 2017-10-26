@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import pokemoninfodisplayer.graphics.FireRedLeafGreenCellRenderer;
 import pokemoninfodisplayer.graphics.PokemonCellRenderer;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
@@ -35,9 +36,11 @@ public class PokemonInfoDisplayer {
 	 * @param args the command line arguments
 	 */
 	
-	public static final int CELL_WIDTH = PokemonCellRenderer.SIZE_OVERLAY_TILE.x;
-	public static final int CELL_HEIGHT = PokemonCellRenderer.SIZE_OVERLAY_TILE.y;
-	public static final double SCALE_FACTOR = PokemonCellRenderer.SCALE_FACTOR;
+	public static PokemonCellRenderer renderer = DisplayerOptions.RENDERER();
+	
+	public static final int CELL_WIDTH = renderer.SIZE_OVERLAY_TILE.x;
+	public static final int CELL_HEIGHT = renderer.SIZE_OVERLAY_TILE.y;
+	public static final double SCALE_FACTOR = renderer.SCALE_FACTOR;
 	
 	public static void main(String[] args) {
 		try {
@@ -111,9 +114,9 @@ public class PokemonInfoDisplayer {
 					if (party[i].getDexEntry() != 0) {
 						Point cellPos = structure[i];
 						AffineTransform trans = g2.getTransform();
-						g2.scale(PokemonCellRenderer.SCALE_FACTOR, PokemonCellRenderer.SCALE_FACTOR);
-						g2.translate(cellPos.x * PokemonCellRenderer.SIZE_OVERLAY_TILE.x, cellPos.y * PokemonCellRenderer.SIZE_OVERLAY_TILE.y);
-						PokemonCellRenderer.renderPokemonCell(party[i], g2);
+						g2.scale(renderer.SCALE_FACTOR, renderer.SCALE_FACTOR);
+						g2.translate(cellPos.x * renderer.SIZE_OVERLAY_TILE.x, cellPos.y * renderer.SIZE_OVERLAY_TILE.y);
+						renderer.renderPokemonCell(party[i], g2);
 						g2.setTransform(trans);
 					}
 				}

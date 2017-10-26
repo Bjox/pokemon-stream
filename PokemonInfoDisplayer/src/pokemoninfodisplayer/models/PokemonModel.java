@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
+import pokemoninfodisplayer.DisplayerOptions;
 
 /**
  *
@@ -58,7 +59,7 @@ public class PokemonModel {
 	public BufferedImage getImage() {
 		if (img == null) {
 			try {
-				File input = new File("./res/dex_imgs/" + dex_entry + ".png");
+				File input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + "/regular/" + dex_entry + ".png");
 				img = ImageIO.read(input);
 			} catch (FileNotFoundException e){
 				System.out.println("File not found");
