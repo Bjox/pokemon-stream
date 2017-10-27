@@ -9,7 +9,7 @@ package pokemoninfodisplayer.graphics;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
+import java.awt.geom.AffineTransform;
 import pokemoninfodisplayer.DisplayerOptions;
 import pokemoninfodisplayer.models.PokemonModel;
 
@@ -45,4 +45,15 @@ public class PlatinumCellRenderer extends PokemonCellRenderer{
 	protected void renderLevelText(PokemonModel pokemon, Graphics2D g2){
 		this.renderTextWithShadow("Lv"+String.valueOf(pokemon.level), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
 	}
+
+	@Override
+	protected void renderName(PokemonModel pokemon, Graphics2D g2) {
+		AffineTransform orig = g2.getTransform();
+		int overflowChars = Math.max(pokemon.nickname.length() - 8, 0);
+		g2.scale(1.0 - overflowChars * 0.1, 1.0); // Not 100% accurate scaling, but works for <=10 chars.
+		super.renderName(pokemon, g2);
+		g2.setTransform(orig);
+	}
+	
+	
 }

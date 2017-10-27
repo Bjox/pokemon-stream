@@ -25,6 +25,7 @@ import pokemoninfodisplayer.graphics.FireRedLeafGreenCellRenderer;
 import pokemoninfodisplayer.graphics.PokemonCellRenderer;
 import pokemoninfodisplayer.lowlevel.emulator.IEmulatorExtractor;
 import pokemoninfodisplayer.lowlevel.emulator.VBAExtractor;
+import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
 
@@ -54,7 +55,11 @@ public class PokemonInfoDisplayer {
 		}
 		try {
 			run();
-		} catch (Exception e) {
+		}
+		catch (ProcessNotFoundException e) {
+			JOptionPane.showMessageDialog(null, "Please start VisualBoyAdvance first!", "Info", JOptionPane.INFORMATION_MESSAGE);
+		}
+		catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e.toString(), "An exception occurred", JOptionPane.ERROR_MESSAGE);
 		}
 	}

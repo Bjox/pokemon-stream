@@ -196,7 +196,7 @@ public abstract class PokemonCellRenderer {
 
 		// Draw pokemon name
 		g2.setFont(FONT);
-		this.renderTextWithShadow(pokemon.nickname, POS_TEXT_NAME.x, POS_TEXT_NAME.y, g2);
+		renderName(pokemon, g2);
 
 		// Draw lvl text
 		this.renderLevelText(pokemon, g2);
@@ -215,6 +215,10 @@ public abstract class PokemonCellRenderer {
 		else {
 			this.renderHPBar(pokemon.current_hp, pokemon.max_hp, g2);
 		}
+	}
+	
+	protected void renderName(PokemonModel pokekmon, Graphics2D g2) {
+		this.renderTextWithShadow(pokekmon.nickname, POS_TEXT_NAME.x, POS_TEXT_NAME.y, g2);
 	}
 	
 	protected void renderLevelText(PokemonModel pokemon, Graphics2D g2){
