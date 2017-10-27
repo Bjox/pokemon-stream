@@ -50,7 +50,7 @@ public class PlatinumCellRenderer extends PokemonCellRenderer{
 	protected void renderName(PokemonModel pokemon, Graphics2D g2) {
 		AffineTransform orig = g2.getTransform();
 		int overflowChars = Math.max(pokemon.nickname.length() - 8, 0);
-		g2.scale(1.0 - overflowChars * 0.1, 1.0); // Not 100% accurate scaling, but works for <=10 chars.
+		g2.scale(1.0 - overflowChars * 0.1, 1.0); // Not 100% accurate scaling, but works for nick length up to 10 chars.
 		super.renderName(pokemon, g2);
 		g2.setTransform(orig);
 	}
