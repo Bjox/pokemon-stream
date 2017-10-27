@@ -28,7 +28,10 @@ public class PokemonModel {
 	
 	public String nickname;
 	
+	public boolean shiny;
+	
 	private BufferedImage img;
+	private BufferedImage gray_img;
 	
 	
 	public enum StatusCondition {
@@ -59,8 +62,22 @@ public class PokemonModel {
 	public BufferedImage getImage() {
 		if (img == null) {
 			try {
-				File input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + "/regular/" + dex_entry + ".png");
+				File input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + (shiny ? "/shiny/" : "/regular/") + dex_entry + ".png");
 				img = ImageIO.read(input);
+				gray_img = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				for (int x = 0; x < img.getWidth(); x++){
+					for (int y = 0; y < img.getHeight(); y++){
+						int p = img.getRGB(x,y);
+						int a = (p>>>24)&0xff;
+						int r = (p>>>16)&0xff;
+						int g = (p>>>8)&0xff;
+						int b = p&0xff;
+						int avg = (r+g+b)/3;
+						
+						p = (a<<24) | (avg<<16) | (avg<<8) | avg;
+						gray_img.setRGB(x, y, p);
+					}
+				}
 			} catch (FileNotFoundException e){
 				System.out.println("File not found");
 			} catch (IOException e){
@@ -71,7 +88,7 @@ public class PokemonModel {
 				System.out.println("nick: "+nickname);
 			}
 		}
-		return img;
+		return isFainted() ? gray_img : img;
 	}
 	
 	public void setDexEntry(int dex_entry) {

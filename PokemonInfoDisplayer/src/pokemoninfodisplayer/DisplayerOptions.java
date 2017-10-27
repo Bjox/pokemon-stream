@@ -27,7 +27,8 @@ public class DisplayerOptions {
 		}
 	}
 	
-	private static Skin SKIN = Skin.PLATINUM;
+	private static Skin SKIN = Skin.FIRERED_LEAFGREEN;
+	//private static Skin SKIN = Skin.PLATINUM;
 	
 	public static PokemonCellRenderer RENDERER() {
 		switch(SKIN){
@@ -43,5 +44,9 @@ public class DisplayerOptions {
 			case PLATINUM: return Skin.PLATINUM.path_prefix;
 		}
 		return null;
+	}
+	
+	public static void setSkin(Skin skin){
+		SKIN = skin;
 	}
 }

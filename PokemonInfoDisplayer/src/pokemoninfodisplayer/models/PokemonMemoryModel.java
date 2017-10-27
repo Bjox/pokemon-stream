@@ -48,6 +48,7 @@ public class PokemonMemoryModel {
 		model.level = Utils.byteArrayToUint(level);
 		model.setDexEntry(new Data(data, personality_value, OT_ID).getDexEntry());
 		model.setStatusCondition(status_condition);
+		model.shiny = isShiny();
 				
 		return model;
 	}
@@ -72,6 +73,32 @@ public class PokemonMemoryModel {
 		System.arraycopy(memory, 94, speed, 0, speed.length);
 		System.arraycopy(memory, 96, sp_attack, 0, sp_attack.length);
 		System.arraycopy(memory, 98, sp_defense, 0, sp_defense.length);
+	}
+	
+	public boolean isShiny() {
+		byte[] trainer_id = new byte[2];
+		System.arraycopy(OT_ID, 0, trainer_id, 0, trainer_id.length);
+		byte[] secret_id = new byte[2];
+		System.arraycopy(OT_ID, 2, secret_id, 0, secret_id.length);
+		
+		byte[] ids_xor = Utils.XOR(trainer_id, secret_id);
+		
+		byte[] pv_first = new byte[2];
+		System.arraycopy(personality_value, 0, pv_first, 0, pv_first.length);
+		byte[] pv_last = new byte[2];
+		System.arraycopy(personality_value, 2, pv_last, 0, pv_last.length);
+		
+		byte[] pvs_xor = Utils.XOR(pv_first, pv_last);
+		
+		byte[] result = Utils.XOR(ids_xor, pvs_xor);
+		
+		int value = 0;
+		
+		for (int i = 0; i < result.length; i++) {
+			value |= Byte.toUnsignedInt(result[i]) << (i*8);
+		}
+		
+		return value < 8;
 	}
 
 

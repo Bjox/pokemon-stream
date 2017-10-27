@@ -5,7 +5,9 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -39,6 +41,8 @@ public abstract class PokemonCellRenderer {
 		this.loadImages();
 		
 		this.SIZE_OVERLAY_TILE = new Point(IMG_OVERLAY_TILE.getWidth(), IMG_OVERLAY_TILE.getHeight());
+		this.FONT_NAME = "./res/skins/" + skin.path_prefix + "/font.ttf";
+		this.FONT = getFont(FONT_NAME, Font.PLAIN, FONT_SIZE);
 	}
 	
 	private final String PATH_SPRITE;
@@ -78,9 +82,9 @@ public abstract class PokemonCellRenderer {
 	protected Point POS_HP_BAR_START = new Point(20, 81);
 	protected Point POS_HP_BAR_END = new Point(83, 83);
 	
-	public static final String FONT_NAME = "./res/skins/Platinum/gen4.ttf";
+	public String FONT_NAME;
 	public static final int FONT_SIZE = 11;
-	public static final Font FONT = getFont(FONT_NAME, Font.PLAIN, FONT_SIZE);
+	public Font FONT;
 	
 	public static final double SCALE_FACTOR = 2;
 	public final Point SIZE_OVERLAY_TILE;
@@ -138,13 +142,13 @@ public abstract class PokemonCellRenderer {
 	}
 	
 	
-	protected static void renderTextWithShadow(String str, int x, int y, Color textColor, Color shadowColor, Graphics2D g2) {
-		g2.setColor(shadowColor);
+	protected void renderTextWithShadow(String str, int x, int y, Graphics2D g2) {
+		g2.setColor(this.COLOR_TEXT_SHADOW);
 		g2.drawString(str, x+1, y);
 		g2.drawString(str, x, y+1);
 		g2.drawString(str, x+1, y+1);
 		
-		g2.setColor(textColor);
+		g2.setColor(this.COLOR_TEXT_NORMAL);
 		g2.drawString(str, x, y);
 	}
 	
@@ -182,7 +186,40 @@ public abstract class PokemonCellRenderer {
 	}
 	
 	
-	public abstract void renderPokemonCell(PokemonModel pokemon, Graphics2D g2);
+	public void renderPokemonCell(PokemonModel pokemon, Graphics2D g2) {
+		// Draw tile overlay
+		g2.drawImage(IMG_OVERLAY_TILE, 0, 0, SIZE_OVERLAY_TILE.x, SIZE_OVERLAY_TILE.y, null);
+
+		// Draw pokemon image
+		BufferedImage pokemonImg = pokemon.getImage();
+		g2.drawImage(pokemonImg, POS_POKEMON_IMG.x, POS_POKEMON_IMG.y, null);
+
+		// Draw pokemon name
+		g2.setFont(FONT);
+		this.renderTextWithShadow(pokemon.nickname, POS_TEXT_NAME.x, POS_TEXT_NAME.y, g2);
+
+		// Draw lvl text
+		this.renderLevelText(pokemon, g2);
+
+		// Draw status overlay
+		BufferedImage statusCondImg = getStatusConditionImg(pokemon.getStatusCondition());
+		if (statusCondImg != null) {
+			g2.drawImage(statusCondImg, POS_OVERLAY_STATUS.x, POS_OVERLAY_STATUS.y, null);
+		}
+
+		// If fainted, draw fainted overlay
+		if (pokemon.isFainted()) {
+			g2.drawImage(IMG_OVERLAY_FAINTED, POS_OVERLAY_STATUS.x, POS_OVERLAY_STATUS.y, null);
+		}
+		// else draw HP bar
+		else {
+			this.renderHPBar(pokemon.current_hp, pokemon.max_hp, g2);
+		}
+	}
+	
+	protected void renderLevelText(PokemonModel pokemon, Graphics2D g2){
+		this.renderTextWithShadow(String.valueOf(pokemon.level), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
+	}
 	
 	private static Font getFont(String filename, int style, int size) {
 		try {

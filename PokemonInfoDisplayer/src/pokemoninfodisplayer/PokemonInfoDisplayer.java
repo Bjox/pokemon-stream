@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import pokemoninfodisplayer.DisplayerOptions.Skin;
 import pokemoninfodisplayer.graphics.FireRedLeafGreenCellRenderer;
 import pokemoninfodisplayer.graphics.PokemonCellRenderer;
 import pokemoninfodisplayer.lowlevel.emulator.IEmulatorExtractor;
@@ -39,11 +40,18 @@ public class PokemonInfoDisplayer {
 	
 	public static PokemonCellRenderer renderer = DisplayerOptions.RENDERER();
 	
+	
 	public static final int CELL_WIDTH = renderer.SIZE_OVERLAY_TILE.x;
 	public static final int CELL_HEIGHT = renderer.SIZE_OVERLAY_TILE.y;
 	public static final double SCALE_FACTOR = renderer.SCALE_FACTOR;
 	
 	public static void main(String[] args) {
+		if (args.length != 0){
+			switch(args[0].toLowerCase()) {
+				case "fireredleafgreen": DisplayerOptions.setSkin(Skin.FIRERED_LEAFGREEN); break;
+				case "platinum": DisplayerOptions.setSkin(Skin.PLATINUM); break;
+			}
+		}
 		try {
 			run();
 		} catch (Exception e) {
