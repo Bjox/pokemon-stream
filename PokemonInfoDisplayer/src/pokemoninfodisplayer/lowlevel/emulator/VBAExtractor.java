@@ -1,5 +1,6 @@
 package pokemoninfodisplayer.lowlevel.emulator;
 
+import pokemoninfodisplayer.lowlevel.process.Access;
 import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
 
@@ -12,8 +13,17 @@ import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException
 public class VBAExtractor extends EmulatorExtractor {
 	
 	public VBAExtractor() throws ProcessNotFoundException, UnsupportedPlatformException {
-		super("VisualBoyAdvance", ACCESS_READ);
+		super("VisualBoyAdvance", Access.READ);
+	}
+	
+	@Override
+	public void open() throws ProcessNotFoundException {
 		processReader.openProcess();
+	}
+	
+	@Override
+	public boolean close() {
+		return processReader.closeProcess();
 	}
 	
 	public long getWRAMStartAddress() {
@@ -29,9 +39,7 @@ public class VBAExtractor extends EmulatorExtractor {
 		return processReader.readBytes(getWRAMStartAddress(), buffer, 0x40000);
 	}
 
-	@Override
-	public boolean close() {
-		return processReader.closeProcess();
-	}
+	
+
 	
 }
