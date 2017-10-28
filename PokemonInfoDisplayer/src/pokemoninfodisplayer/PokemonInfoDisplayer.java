@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import pokemoninfodisplayer.DisplayerOptions.Skin;
 import pokemoninfodisplayer.graphics.PokemonCellRenderer;
 import pokemoninfodisplayer.lowlevel.emulator.IEmulatorExtractor;
-import pokemoninfodisplayer.lowlevel.emulator.VBAExtractor;
+import pokemoninfodisplayer.lowlevel.emulator.visualboyadvance.VBAExtractor;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
