@@ -23,4 +23,14 @@ public abstract class EmulatorExtractor implements IEmulatorExtractor {
 			throws ProcessNotFoundException, UnsupportedPlatformException {
 		this.processReader = ProcessReaderFactory.create(pid, access);
 	}
+	
+	@Override
+	public void open() throws ProcessNotFoundException {
+		processReader.openProcess();
+	}
+	
+	@Override
+	public boolean close() {
+		return processReader.closeProcess();
+	}
 }

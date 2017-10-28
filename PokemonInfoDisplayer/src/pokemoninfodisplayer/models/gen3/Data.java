@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package pokemoninfodisplayer.models;
+package pokemoninfodisplayer.models.gen3;
 
 import pokemoninfodisplayer.SkipRenderTileException;
 import pokemoninfodisplayer.Utils;

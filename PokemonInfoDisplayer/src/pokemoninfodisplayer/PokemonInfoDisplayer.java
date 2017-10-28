@@ -19,7 +19,7 @@ import pokemoninfodisplayer.graphics.PokemonCellRenderer;
 import pokemoninfodisplayer.lowlevel.emulator.IEmulatorExtractor;
 import pokemoninfodisplayer.lowlevel.emulator.visualboyadvance.VBAExtractor;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
-import pokemoninfodisplayer.models.PokemonMemoryModel;
+import pokemoninfodisplayer.models.gen3.Gen3MemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.util.ArgumentParser;
 
@@ -72,13 +72,13 @@ public class PokemonInfoDisplayer {
 		byte[] bytes = new byte[0x40000];
 		memoryExtractor.readWRAM(bytes);
 
-		PokemonMemoryModel[] partyMemory = new PokemonMemoryModel[]{
-			new PokemonMemoryModel(Utils.getPartyPokemon(0, bytes)),
-			new PokemonMemoryModel(Utils.getPartyPokemon(1, bytes)),
-			new PokemonMemoryModel(Utils.getPartyPokemon(2, bytes)),
-			new PokemonMemoryModel(Utils.getPartyPokemon(3, bytes)),
-			new PokemonMemoryModel(Utils.getPartyPokemon(4, bytes)),
-			new PokemonMemoryModel(Utils.getPartyPokemon(5, bytes))
+		Gen3MemoryModel[] partyMemory = new Gen3MemoryModel[]{
+			new Gen3MemoryModel(Utils.getPartyPokemon(0, bytes)),
+			new Gen3MemoryModel(Utils.getPartyPokemon(1, bytes)),
+			new Gen3MemoryModel(Utils.getPartyPokemon(2, bytes)),
+			new Gen3MemoryModel(Utils.getPartyPokemon(3, bytes)),
+			new Gen3MemoryModel(Utils.getPartyPokemon(4, bytes)),
+			new Gen3MemoryModel(Utils.getPartyPokemon(5, bytes))
 		};
 
 		PokemonModel[] party = new PokemonModel[]{

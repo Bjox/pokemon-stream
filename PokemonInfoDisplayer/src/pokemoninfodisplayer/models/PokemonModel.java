@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import javax.imageio.ImageIO;
 import pokemoninfodisplayer.DisplayerOptions;
 
@@ -25,9 +24,7 @@ public class PokemonModel {
 	public int current_hp;
 	public int level;
 	private StatusCondition statusCondition;
-	
 	public String nickname;
-	
 	public boolean shiny;
 	
 	private BufferedImage img;

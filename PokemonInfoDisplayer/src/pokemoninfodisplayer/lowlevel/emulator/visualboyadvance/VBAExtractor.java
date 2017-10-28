@@ -10,22 +10,14 @@ import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedExceptio
  * An EmulatorExtractor implementation for the
  * Visual Boy Advance GB/GBC/GBA emulator.
  * 
+ * Currently only supports GBA games.
+ * 
  * @author Bjørnar W. Alvestad
  */
 public class VBAExtractor extends EmulatorExtractor {
 	
 	public VBAExtractor() throws ProcessNotFoundException, UnsupportedPlatformException {
 		super("VisualBoyAdvance", Access.READ);
-	}
-	
-	@Override
-	public void open() throws ProcessNotFoundException {
-		processReader.openProcess();
-	}
-	
-	@Override
-	public boolean close() {
-		return processReader.closeProcess();
 	}
 	
 	public long getWRAMStartAddress() throws ProcessNotOpenedException {
