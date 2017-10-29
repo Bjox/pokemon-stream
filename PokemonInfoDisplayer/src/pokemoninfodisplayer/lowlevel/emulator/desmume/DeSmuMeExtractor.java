@@ -28,7 +28,7 @@ public class DeSmuMeExtractor extends EmulatorExtractor {
 		if (buffer.length < 0x400000) {
 			throw new RuntimeException("The supplied buffer is too small.");
 		}
-		return processReader.readBytes(0x16378040L, buffer, 0x400000);
+		return processReader.readBytes(0x145411250L, buffer, 0x400000);
 	}
 	
 }
