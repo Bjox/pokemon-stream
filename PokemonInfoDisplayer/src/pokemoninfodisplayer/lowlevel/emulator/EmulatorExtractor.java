@@ -5,15 +5,16 @@ import pokemoninfodisplayer.lowlevel.process.IProcessMemoryReader;
 import pokemoninfodisplayer.lowlevel.process.ProcessReaderFactory;
 import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
+import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedException;
 
 /**
  *
  * @author Bjørnar W. Alvestad
  */
-public abstract class EmulatorExtractor implements IEmulatorExtractor {
+public abstract class EmulatorExtractor {
 	
 	protected final IProcessMemoryReader processReader;
-
+	
 	public EmulatorExtractor(String windowTitle, Access access)
 			throws ProcessNotFoundException, UnsupportedPlatformException {
 		this.processReader = ProcessReaderFactory.create(windowTitle, access);
@@ -24,13 +25,30 @@ public abstract class EmulatorExtractor implements IEmulatorExtractor {
 		this.processReader = ProcessReaderFactory.create(pid, access);
 	}
 	
-	@Override
 	public void open() throws ProcessNotFoundException {
 		processReader.openProcess();
 	}
 	
-	@Override
 	public boolean close() {
 		return processReader.closeProcess();
 	}
+	
+	public boolean isOpen() {
+		return processReader.isOpen();
+	}
+	
+	public byte[] createWRAMBuffer() {
+		return new byte[getWRAMSize()];
+	}
+	
+	public boolean readWRAM(byte[] buffer) throws ProcessNotOpenedException {
+		int wramSize = getWRAMSize();
+		if (buffer.length < wramSize) {
+			throw new RuntimeException("The supplied buffer is too small.");
+		}
+		return processReader.readBytes(getWRAMStartAddress(), buffer, wramSize);
+	}
+	
+	public abstract int getWRAMSize();
+	protected abstract long getWRAMStartAddress() throws ProcessNotOpenedException;
 }

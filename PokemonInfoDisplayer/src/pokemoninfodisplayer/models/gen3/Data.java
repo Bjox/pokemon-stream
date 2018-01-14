@@ -1,19 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package pokemoninfodisplayer.models.gen3;
 
-import pokemoninfodisplayer.SkipRenderTileException;
 import pokemoninfodisplayer.Utils;
 
 /**
  *
  * @author Endre
  */
-public class Data {
+class Data {
 	
 	public final static int G = 0;
 	public final static int A = 1;
@@ -122,10 +115,12 @@ public class Data {
 		System.arraycopy(dec_data, 8+12*order[M], ribbons_obedience, 0, ribbons_obedience.length);
 	}
 	
-	public int getDexEntry() throws SkipRenderTileException {
+	public int getDexEntry() {
 		int index = Byte.toUnsignedInt(species[0]) | (Byte.toUnsignedInt(species[1]) << 8);
 		if (index < 0 || index >= Utils.SPECIES_TO_DEX_LOOKUP.length) {
-			throw new SkipRenderTileException();
+			//throw new SkipRenderTileException();
+			index = 0;
+			System.out.println("SKIP RENDER TILE");
 		}
 		return Utils.SPECIES_TO_DEX_LOOKUP[index];
 	}

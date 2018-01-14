@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package pokemoninfodisplayer.models;
 
 import java.awt.image.BufferedImage;
@@ -54,6 +48,7 @@ public class PokemonModel {
 	
 	
 	public PokemonModel() {
+		nickname = "";
 	}
 	
 	public BufferedImage getImage() {
@@ -97,8 +92,8 @@ public class PokemonModel {
 	}
 	
 	public void setStatusCondition(byte[] dataBytes) {
-		if (dataBytes.length != 4) {
-			System.err.printf("Wrong number of bytes passed to setStatusCondition. Expected 4, got %d\n", dataBytes.length);
+		if (dataBytes.length < 1) {
+			System.err.printf("Wrong number of bytes passed to setStatusCondition. Got %d\n", dataBytes.length);
 			this.statusCondition = null;
 			return;
 		}

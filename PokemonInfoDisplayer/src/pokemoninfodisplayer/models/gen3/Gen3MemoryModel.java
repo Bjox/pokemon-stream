@@ -1,12 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package pokemoninfodisplayer.models.gen3;
 
-import pokemoninfodisplayer.SkipRenderTileException;
 import pokemoninfodisplayer.Utils;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
@@ -15,7 +8,7 @@ import pokemoninfodisplayer.models.PokemonModel;
  *
  * @author Endre
  */
-public class Gen3MemoryModel /*extends PokemonMemoryModel*/ {
+public class Gen3MemoryModel extends PokemonMemoryModel {
 	
 	private final byte[] personality_value = new byte[4];	
 	private final byte[] OT_ID = new byte[4];
@@ -37,25 +30,11 @@ public class Gen3MemoryModel /*extends PokemonMemoryModel*/ {
 	private final byte[] sp_attack = new byte[2];
 	private final byte[] sp_defense = new byte[2];
 	
-	public Gen3MemoryModel(byte[] memory_snapshot) {
-		this.update(memory_snapshot);
+	public Gen3MemoryModel(byte[] plainPartyElementBytes) {
+		update(plainPartyElementBytes);
 	}
 	
-	public PokemonModel toPokemonModel() throws SkipRenderTileException {
-		PokemonModel model = new PokemonModel();
-		
-		model.nickname = Utils.decodeString(nickname);
-		model.current_hp = Utils.byteArrayToUint(current_hp);
-		model.max_hp = Utils.byteArrayToUint(total_hp);
-		model.level = Utils.byteArrayToUint(level);
-		model.setDexEntry(new Data(data, personality_value, OT_ID).getDexEntry());
-		model.setStatusCondition(status_condition);
-		model.shiny = isShiny();
-				
-		return model;
-	}
-	
-	public void update(byte[] memory){
+	private void update(byte[] memory) {
 		System.arraycopy(memory, 0, personality_value, 0, personality_value.length);
 		System.arraycopy(memory, 4, OT_ID, 0, OT_ID.length);
 		System.arraycopy(memory, 8, nickname, 0, nickname.length);
@@ -75,6 +54,22 @@ public class Gen3MemoryModel /*extends PokemonMemoryModel*/ {
 		System.arraycopy(memory, 94, speed, 0, speed.length);
 		System.arraycopy(memory, 96, sp_attack, 0, sp_attack.length);
 		System.arraycopy(memory, 98, sp_defense, 0, sp_defense.length);
+	}
+	
+	@Override
+	public PokemonModel toPokemonModel() {
+		PokemonModel model = new PokemonModel();
+		Data dataDecoded = new Data(data, personality_value, OT_ID);
+		
+		model.nickname = Utils.decodeGen3String(nickname);
+		model.current_hp = Utils.byteArrayToUint(current_hp);
+		model.max_hp = Utils.byteArrayToUint(total_hp);
+		model.level = Utils.byteArrayToUint(level);
+		model.setStatusCondition(status_condition);
+		model.shiny = isShiny();
+		model.setDexEntry(dataDecoded.getDexEntry());
+		
+		return model;
 	}
 	
 	public boolean isShiny() {
@@ -102,6 +97,5 @@ public class Gen3MemoryModel /*extends PokemonMemoryModel*/ {
 		
 		return value < 8;
 	}
-
 
 }

@@ -16,24 +16,22 @@ import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedExceptio
  */
 public class VBAExtractor extends EmulatorExtractor {
 	
+	public static final int WRAM_SIZE = 0x40000;
+	public static final String WINDOW_TITLE = "VisualBoyAdvance";
+	
 	public VBAExtractor() throws ProcessNotFoundException, UnsupportedPlatformException {
-		super("VisualBoyAdvance", Access.READ);
+		super(WINDOW_TITLE, Access.READ);
 	}
 	
+	@Override
 	public long getWRAMStartAddress() throws ProcessNotOpenedException {
 		long wramPtrAdr = 0x6778E8L;
 		return Integer.toUnsignedLong(processReader.readInt(wramPtrAdr));
 	}
-	
+
 	@Override
-	public boolean readWRAM(byte[] buffer) throws ProcessNotOpenedException {
-		if (buffer.length < 0x40000) {
-			throw new RuntimeException("The supplied buffer is too small.");
-		}
-		return processReader.readBytes(getWRAMStartAddress(), buffer, 0x40000);
+	public int getWRAMSize() {
+		return WRAM_SIZE;
 	}
 
-	
-
-	
 }
