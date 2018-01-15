@@ -4,6 +4,7 @@ import pokemoninfodisplayer.Utils;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.util.Bytes;
+import pokemoninfodisplayer.util.Util;
 
 /**
  * Pokemon generation 4 (Platinum)
@@ -11,7 +12,7 @@ import pokemoninfodisplayer.util.Bytes;
  * @author Bjørnar W. Alvestad
  */
 public class Gen4MemoryModel extends PokemonMemoryModel {
-
+	
 	public final Bytes personality_value = new Bytes(4);
 	public final Bytes checksum = new Bytes(2);
 	public final Bytes current_hp = new Bytes(2);
@@ -22,10 +23,11 @@ public class Gen4MemoryModel extends PokemonMemoryModel {
 	public final Bytes status_cond = new Bytes(1);
 
 	/**
-	 * 
+	 *
 	 * @param plainPartyElementBytes Decrypted and decoded party element.
 	 */
 	public Gen4MemoryModel(byte[] plainPartyElementBytes) {
+		super(plainPartyElementBytes);
 		checksum.set(plainPartyElementBytes, 0x6);
 		current_hp.set(plainPartyElementBytes, 0x8E);
 		level.set(plainPartyElementBytes, 0x8C);
@@ -39,17 +41,27 @@ public class Gen4MemoryModel extends PokemonMemoryModel {
 	@Override
 	public PokemonModel toPokemonModel() {
 		PokemonModel model = new PokemonModel();
-		
+
 		model.current_hp = current_hp.getWord();
 		model.level = level.getByte();
 		model.max_hp = total_hp.getWord();
 		model.nickname = Utils.decodeGen4String(nickname.getBytes());
 		model.setDexEntry(species_id.getWord());
 		model.setStatusCondition(status_cond.getBytes());
-		
+
 		return model;
 	}
-	
-	
+
+	@Override
+	public boolean validateChecksum() {
+		int sum = 0;
+		int pos = 0x8;
+		while (pos < 0x87) {
+			sum += Util.readWord(rawBytes, pos);
+			pos += 2;
+		}
+		sum &= 0xFFFF;
+		return checksum.getWord() == sum;
+	}
 
 }

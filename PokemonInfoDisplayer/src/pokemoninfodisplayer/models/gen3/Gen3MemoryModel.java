@@ -3,6 +3,7 @@ package pokemoninfodisplayer.models.gen3;
 import pokemoninfodisplayer.Utils;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
+import pokemoninfodisplayer.util.Util;
 
 /**
  *
@@ -29,9 +30,12 @@ public class Gen3MemoryModel extends PokemonMemoryModel {
 	private final byte[] speed = new byte[2];
 	private final byte[] sp_attack = new byte[2];
 	private final byte[] sp_defense = new byte[2];
+	private final Data dataDecoded;
 	
 	public Gen3MemoryModel(byte[] plainPartyElementBytes) {
+		super(plainPartyElementBytes);
 		update(plainPartyElementBytes);
+		dataDecoded = new Data(data, personality_value, OT_ID);
 	}
 	
 	private void update(byte[] memory) {
@@ -59,7 +63,6 @@ public class Gen3MemoryModel extends PokemonMemoryModel {
 	@Override
 	public PokemonModel toPokemonModel() {
 		PokemonModel model = new PokemonModel();
-		Data dataDecoded = new Data(data, personality_value, OT_ID);
 		
 		model.nickname = Utils.decodeGen3String(nickname);
 		model.current_hp = Utils.byteArrayToUint(current_hp);
@@ -96,6 +99,11 @@ public class Gen3MemoryModel extends PokemonMemoryModel {
 		}
 		
 		return value < 8;
+	}
+
+	@Override
+	public boolean validateChecksum() {
+		return Util.readWord(checksum, 0) == dataDecoded.getSum();
 	}
 
 }

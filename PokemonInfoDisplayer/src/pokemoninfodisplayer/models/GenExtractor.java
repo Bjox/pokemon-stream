@@ -1,5 +1,6 @@
 package pokemoninfodisplayer.models;
 
+import pokemoninfodisplayer.PokemonInfoDisplayer;
 import pokemoninfodisplayer.lowlevel.emulator.EmulatorExtractor;
 import pokemoninfodisplayer.lowlevel.emulator.desmume.DeSmuMeExtractor;
 import pokemoninfodisplayer.lowlevel.emulator.visualboyadvance.VBAExtractor;
@@ -16,12 +17,14 @@ public abstract class GenExtractor {
 	private final EmulatorExtractor emuExtractor;
 	public final PokemonGame game;
 	private final byte[] wramBuffer;
+	private final PokemonMemoryModel[] memModelBuffer;
 
 	public GenExtractor(PokemonGame game) throws ProcessNotFoundException, UnsupportedPlatformException {
 		this.emuExtractor = createEmulatorExtractor(game);
 		this.game = game;
 		this.wramBuffer = emuExtractor.createWRAMBuffer();
 		this.emuExtractor.open();
+		this.memModelBuffer = new PokemonMemoryModel[6];
 	}
 	
 	protected byte[] readWRAM() throws ProcessNotOpenedException {
@@ -32,6 +35,21 @@ public abstract class GenExtractor {
 	public void close() {
 		this.emuExtractor.close();
 	}
+	
+	public final void update(PartyModel party) throws ProcessNotOpenedException {
+		readMemoryModels(memModelBuffer);
+		
+		for (int i = 0; i < memModelBuffer.length; i++) {
+			PokemonMemoryModel memModel = memModelBuffer[i];
+			if (memModel.validateChecksum()) {
+				party.setPartySlot(i, memModel.toPokemonModel());
+			} else if (PokemonInfoDisplayer.DEBUG) {
+				System.err.println("Invalid checksum for index " + i);
+			}
+		}
+	}
+	
+	protected abstract void readMemoryModels(PokemonMemoryModel[] party) throws ProcessNotOpenedException;
 	
 	private static EmulatorExtractor createEmulatorExtractor(PokemonGame game)
 			throws ProcessNotFoundException, UnsupportedPlatformException {
@@ -45,6 +63,5 @@ public abstract class GenExtractor {
 		}
 	}
 	
-	public abstract void update(PartyModel party) throws ProcessNotOpenedException;
 	
 }

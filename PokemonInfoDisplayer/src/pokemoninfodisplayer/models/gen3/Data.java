@@ -1,6 +1,7 @@
 package pokemoninfodisplayer.models.gen3;
 
 import pokemoninfodisplayer.Utils;
+import pokemoninfodisplayer.util.Util;
 
 /**
  *
@@ -51,6 +52,8 @@ class Data {
 	private final byte[] origins_info = new byte[2];
 	private final byte[] ivs_egg_ability = new byte[4];
 	private final byte[] ribbons_obedience = new byte[4];
+	
+	private final int sum;
 	
 	public Data(byte[] enc_data, byte[] personality_value, byte[] ot_id){
 		
@@ -113,6 +116,13 @@ class Data {
 		System.arraycopy(dec_data, 2+12*order[M], origins_info, 0, origins_info.length);
 		System.arraycopy(dec_data, 4+12*order[M], ivs_egg_ability, 0, ivs_egg_ability.length);
 		System.arraycopy(dec_data, 8+12*order[M], ribbons_obedience, 0, ribbons_obedience.length);
+		
+		int sum = 0;
+		for (int i = 0; i < dec_data.length; i += 2) {
+			sum += Util.readWord(dec_data, i);
+		}
+		sum &= 0xFFFF;
+		this.sum = sum;
 	}
 	
 	public int getDexEntry() {
@@ -123,5 +133,9 @@ class Data {
 			System.out.println("SKIP RENDER TILE");
 		}
 		return Utils.SPECIES_TO_DEX_LOOKUP[index];
+	}
+	
+	public int getSum() {
+		return sum;
 	}
 }
