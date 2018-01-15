@@ -36,8 +36,8 @@ public class FireRedLeafGreenCellRenderer extends PokemonCellRenderer{
 		
 		this.POS_TEXT_NAME = new Point(4, 12);
 		this.POS_POKEMON_IMG = new Point(13, 13);
-		this.POS_TEXT_LVL = new Point(77, 12);
-		this.POS_OVERLAY_STATUS = new Point(4, 79);
+		this.POS_TEXT_LVL = new Point(69, 12);
+		this.POS_OVERLAY_BAR = new Point(4, 79);
 		this.POS_HP_BAR_START = new Point(20, 81);
 		this.POS_HP_BAR_END = new Point(83, 83);
 	}

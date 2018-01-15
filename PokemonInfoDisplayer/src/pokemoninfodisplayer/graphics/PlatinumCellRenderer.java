@@ -36,14 +36,9 @@ public class PlatinumCellRenderer extends PokemonCellRenderer{
 		this.POS_TEXT_NAME = new Point(7, 15);
 		this.POS_POKEMON_IMG = new Point(6, 5);
 		this.POS_TEXT_LVL = new Point(59, 15);
-		this.POS_OVERLAY_STATUS = new Point(1, 75);
+		this.POS_OVERLAY_BAR = new Point(1, 75);
 		this.POS_HP_BAR_START = new Point(23, 79);
 		this.POS_HP_BAR_END = new Point(77, 80);
-	}
-	
-	@Override
-	protected void renderLevelText(PokemonModel pokemon, Graphics2D g2){
-		this.renderTextWithShadow("Lv"+String.valueOf(pokemon.level), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
 	}
 
 	@Override

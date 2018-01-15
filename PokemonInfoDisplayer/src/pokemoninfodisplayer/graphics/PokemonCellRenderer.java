@@ -27,6 +27,7 @@ public abstract class PokemonCellRenderer {
 		this.PATH_OVERLAY           = "./res/skins/" + skin.path_prefix + "/overlay/";
 		this.PATH_OVERLAY_STATUS    = "./res/skins/" + skin.path_prefix + "/overlay/status/";
 		this.PATH_OVERLAY_TILE      = PATH_OVERLAY + "pokemontile.png";
+		this.PATH_OVERLAY_HPBAR     = PATH_OVERLAY + "hpbar.png";
 		this.PATH_OVERLAY_BADPOISON = PATH_OVERLAY_STATUS + "badpoison.png";
 		this.PATH_OVERLAY_BURN      = PATH_OVERLAY_STATUS + "burn.png";
 		this.PATH_OVERLAY_FAINTED   = PATH_OVERLAY_STATUS + "fainted.png";
@@ -46,6 +47,7 @@ public abstract class PokemonCellRenderer {
 	private final String PATH_OVERLAY;
 	private final String PATH_OVERLAY_STATUS;
 	private final String PATH_OVERLAY_TILE;
+	private final String PATH_OVERLAY_HPBAR;
 	private final String PATH_OVERLAY_BADPOISON;
 	private final String PATH_OVERLAY_BURN;
 	private final String PATH_OVERLAY_FAINTED;
@@ -55,6 +57,7 @@ public abstract class PokemonCellRenderer {
 	private final String PATH_OVERLAY_SLEEP;
 	
 	protected BufferedImage IMG_OVERLAY_TILE;
+	protected BufferedImage IMG_OVERLAY_HPBAR;
 	protected BufferedImage IMG_OVERLAY_BADPOISON;
 	protected BufferedImage IMG_OVERLAY_BURN;
 	protected BufferedImage IMG_OVERLAY_FAINTED;
@@ -72,12 +75,12 @@ public abstract class PokemonCellRenderer {
 	protected Color COLOR_TEXT_NORMAL;
 	protected Color COLOR_TEXT_SHADOW;
 	
-	protected Point POS_TEXT_NAME = new Point(4, 12);
-	protected Point POS_POKEMON_IMG = new Point(13, 13);
-	protected Point POS_TEXT_LVL = new Point(77, 12);
-	protected Point POS_OVERLAY_STATUS = new Point(4, 79);
-	protected Point POS_HP_BAR_START = new Point(20, 81);
-	protected Point POS_HP_BAR_END = new Point(83, 83);
+	protected Point POS_TEXT_NAME;
+	protected Point POS_POKEMON_IMG;
+	protected Point POS_TEXT_LVL;
+	protected Point POS_OVERLAY_BAR;
+	protected Point POS_HP_BAR_START;
+	protected Point POS_HP_BAR_END;
 	
 	public String FONT_NAME;
 	public static final int FONT_SIZE = 11;
@@ -90,6 +93,7 @@ public abstract class PokemonCellRenderer {
 	
 	private void loadImages(){
 		this.IMG_OVERLAY_TILE      = readImgFromFile(PATH_OVERLAY_TILE);
+		this.IMG_OVERLAY_HPBAR	   = readImgFromFile(PATH_OVERLAY_HPBAR);
 		this.IMG_OVERLAY_BADPOISON = readImgFromFile(PATH_OVERLAY_BADPOISON);
 		this.IMG_OVERLAY_BURN      = readImgFromFile(PATH_OVERLAY_BURN);
 		this.IMG_OVERLAY_FAINTED   = readImgFromFile(PATH_OVERLAY_FAINTED);
@@ -151,6 +155,7 @@ public abstract class PokemonCellRenderer {
 	
 	
 	protected void renderHPBar(int currenthp, int maxhp, Graphics2D g2) {
+		g2.drawImage(IMG_OVERLAY_HPBAR, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
 		double ratio = currenthp / (double) maxhp;
 		HPBarColor hpbarcolor = getHPBarColor(ratio);
 		
@@ -201,12 +206,12 @@ public abstract class PokemonCellRenderer {
 		// Draw status overlay
 		BufferedImage statusCondImg = getStatusConditionImg(pokemon.getStatusCondition());
 		if (statusCondImg != null) {
-			g2.drawImage(statusCondImg, POS_OVERLAY_STATUS.x, POS_OVERLAY_STATUS.y, null);
+			g2.drawImage(statusCondImg, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
 		}
 
 		// If fainted, draw fainted overlay
 		if (pokemon.isFainted()) {
-			g2.drawImage(IMG_OVERLAY_FAINTED, POS_OVERLAY_STATUS.x, POS_OVERLAY_STATUS.y, null);
+			g2.drawImage(IMG_OVERLAY_FAINTED, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
 		}
 		// else draw HP bar
 		else {
