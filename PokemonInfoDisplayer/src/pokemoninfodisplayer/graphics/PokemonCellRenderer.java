@@ -224,7 +224,7 @@ public abstract class PokemonCellRenderer {
 	}
 	
 	protected void renderLevelText(PokemonModel pokemon, Graphics2D g2){
-		this.renderTextWithShadow(String.valueOf(pokemon.level), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
+		this.renderTextWithShadow("Lv" + String.valueOf(pokemon.level), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
 	}
 	
 	private static Font getFont(String filename, int style, int size) {

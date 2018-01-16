@@ -19,7 +19,9 @@ public class Gen4Extractor extends GenExtractor {
 	private static final int B = 1;
 	private static final int C = 2;
 	private static final int D = 3;
-
+	
+	private int battleFlagCounter = 0;
+	
 	private static final int[][] SHUFFLE_ORDER = {
 		{A, B, C, D}, {A, B, D, C}, {A, C, B, D}, {A, C, D, B},
 		{A, D, B, C}, {A, D, C, B}, {B, A, C, D}, {B, A, D, C},
@@ -36,12 +38,49 @@ public class Gen4Extractor extends GenExtractor {
 	@Override
 	protected void readMemoryModels(PokemonMemoryModel[] party) throws ProcessNotOpenedException {
 		final byte[] wram = readWRAM();
+		
+		int start = Util.readDword(wram, 0x101D2C) - 0x2000000;
+		int partyStart = start + 0xD094;
 
+//		System.out.printf("battle pid %04X\n", Util.readDword(wram, start + 0x54600));
+//		System.out.printf("battle hp %d\n", Util.readWord(wram, start + 0x59F94));
+//		System.out.printf("battle max hp %d\n", Util.readWord(wram, start + 0x59F98));
+//		System.out.printf("battle lvl %d\n", wram[start + 0x59FB4]);
+//		System.out.printf("in battle %b\n", wram[start + 0x972BE] == (byte)0xFF);
+		
+		boolean battleFlag = wram[start + 0x972BE] == (byte)0xFF;
+		
+		if (battleFlag) {
+			battleFlagCounter++;
+			if (battleFlagCounter > 2) {
+				for (PokemonMemoryModel m : party) {
+					if (m != null) {
+						Gen4MemoryModel battleMon = (Gen4MemoryModel) m;
+						int inbattle_pid = Util.readDword(wram, start + 0x54600);
+
+						if (battleMon.personality_value.getDword() == inbattle_pid) {
+							int current_hp_start = start + 0x59F94;
+							int max_hp_start = start + 0x59F98;
+							int lvl_start  = start + 0x59FB4;
+
+							battleMon.current_hp.set(wram, current_hp_start);
+							battleMon.total_hp.set(wram, max_hp_start);
+							battleMon.level.set(wram, lvl_start);
+
+							return;
+						}
+					}
+				}
+			}
+		} else {
+			battleFlagCounter = 0;
+		}
+		
 		final int pokemonBlockSize = 236;
 		for (int partyIndex = 0; partyIndex < 6; partyIndex++) {
 
 			byte[] encPartyElement = new byte[pokemonBlockSize];
-			System.arraycopy(wram, 0x27E204 + (partyIndex * pokemonBlockSize), encPartyElement, 0, encPartyElement.length);
+			System.arraycopy(wram, partyStart + (partyIndex * pokemonBlockSize), encPartyElement, 0, encPartyElement.length);
 
 			int personalityValue = Util.readDword(encPartyElement, 0);
 			int checksum = Util.readWord(encPartyElement, 0x6);
