@@ -49,7 +49,7 @@ public class PokemonInfoDisplayer {
 	public static void main(String[] args) throws Exception {
 		ArgumentParser argp = new ArgumentParser(args);
 		DEBUG = argp.isPresent("-debug");
-		
+
 		// Parse skin
 		String skinArg = argp.getString("-skin", "platinum");
 		switch (skinArg) {
@@ -93,42 +93,54 @@ public class PokemonInfoDisplayer {
 		System.out.println("Game: " + game.toString());
 		System.out.println("Skin: " + skinArg);
 
-		try {
-			run(game);
-		} catch (ProcessNotFoundException e) {
-			if (DEBUG) {
-				throw e;
+		while (true) {
+			try {
+				run(game);
+			} catch (ProcessNotFoundException e) {
+				if (DEBUG) {
+					throw e;
+				}
+				JOptionPane.showMessageDialog(null, "Please start the emulator first!", "Info", JOptionPane.INFORMATION_MESSAGE);
+				break;
+			} catch (IndexOutOfBoundsException e) {
+				if (DEBUG) {
+					throw e;
+				}
+				Runtime.getRuntime().gc();
+				Thread.sleep(200);
+			} catch (Exception e) {
+				if (DEBUG) {
+					throw e;
+				}
+				int option = JOptionPane.showOptionDialog(
+						null, e.toString(), "An exception occurred", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"Continue", "Exit"}, null);
+				if (option != 0) {
+					break;
+				}
 			}
-			JOptionPane.showMessageDialog(null, "Please start the emulator first!", "Info", JOptionPane.INFORMATION_MESSAGE);
-		} catch (Exception e) {
-			if (DEBUG) {
-				throw e;
-			}
-			JOptionPane.showMessageDialog(null, e.toString(), "An exception occurred", JOptionPane.ERROR_MESSAGE);
 		}
+
 	}
 
 	public static void run(PokemonGame game) throws Exception {
-		PokemonExtractor extractor = new PokemonExtractor(game);
-		
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			extractor.close();
-		}));
-		
-		PartyModel party = new PartyModel();
-		extractor.updateParty(party);
-
 		JFrame frame = new JFrame("Party Info");
-		frame.setResizable(false);
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		try {
+			PokemonExtractor extractor = new PokemonExtractor(game);
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				extractor.close();
+			}));
 
-		JPanel panel = new JPanel() {
-			@Override
-			public void paint(Graphics g) {
-				super.paint(g);
+			PartyModel party = new PartyModel();
+			extractor.updateParty(party);
 
-				Graphics2D g2 = (Graphics2D) g;
+			frame.setResizable(false);
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+			JPanel panel = new JPanel() {
+				@Override
+				public void paint(Graphics g) {
+					super.paint(g);
+					Graphics2D g2 = (Graphics2D) g;
 
 //				// Set anti-alias
 //				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -136,36 +148,44 @@ public class PokemonInfoDisplayer {
 //				// Set anti-alias for text
 //				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 //				RenderingHints.VALUE_TEXT_ANTIALIAS_ON); 
-				
-				this.setBackground(Color.MAGENTA);
-				g2.setColor(Color.WHITE);
-				
-				for (int i = 0; i < 6; i++) {
-					PokemonModel pok = party.getPartySlot(i);
-					
-					if (pok.getDexEntry() != 0) {
-						Point cellPos = LAYOUT[i];
-						AffineTransform trans = g2.getTransform();
-						
-						g2.scale(SCALE_FACTOR, SCALE_FACTOR);
-						g2.translate(cellPos.x * renderer.SIZE_OVERLAY_TILE.x, cellPos.y * renderer.SIZE_OVERLAY_TILE.y);
-						
-						renderer.renderPokemonCell(pok, g2);
-						g2.setTransform(trans);
+					this.setBackground(Color.MAGENTA);
+					g2.setColor(Color.WHITE);
+
+					for (int i = 0; i < 6; i++) {
+						PokemonModel pok = party.getPartySlot(i);
+
+						if (pok.getDexEntry() != 0) {
+							Point cellPos = LAYOUT[i];
+							AffineTransform trans = g2.getTransform();
+
+							g2.scale(SCALE_FACTOR, SCALE_FACTOR);
+							g2.translate(cellPos.x * renderer.SIZE_OVERLAY_TILE.x, cellPos.y * renderer.SIZE_OVERLAY_TILE.y);
+
+							renderer.renderPokemonCell(pok, g2);
+							g2.setTransform(trans);
+						}
 					}
 				}
+			};
+
+			panel.setPreferredSize(new Dimension((int) (CELL_WIDTH * SCALE_FACTOR * 2), (int) (CELL_HEIGHT * SCALE_FACTOR * 3)));
+			frame.add(panel);
+			frame.pack();
+			
+			frame.setLocationRelativeTo(null);
+			frame.setVisible(true);
+
+			while (true) {
+				Thread.sleep(1000);
+				extractor.updateParty(party);
+				panel.repaint();
 			}
-		};
-
-		panel.setPreferredSize(new Dimension((int) (CELL_WIDTH * SCALE_FACTOR * 2), (int) (CELL_HEIGHT * SCALE_FACTOR * 3)));
-		frame.add(panel);
-		frame.pack();
-
-		while (true) {
-			Thread.sleep(1000);
-			extractor.updateParty(party);
-			panel.repaint();
+			
+		} catch (Exception e) {
+			frame.dispose();
+			throw e;
 		}
+
 	}
 
 }

@@ -1,6 +1,5 @@
 package pokemoninfodisplayer.models.gen3;
 
-import pokemoninfodisplayer.Utils;
 import pokemoninfodisplayer.util.Util;
 
 /**
@@ -57,7 +56,7 @@ class Data {
 	
 	public Data(byte[] enc_data, byte[] personality_value, byte[] ot_id){
 		
-		byte[] dec_key = Utils.XOR(personality_value, ot_id);
+		byte[] dec_key = Util.XOR(personality_value, ot_id);
 		byte[] dec_data = new byte[enc_data.length];
 		
 		for (int i = 0; i < enc_data.length; i+=4) {
@@ -65,7 +64,7 @@ class Data {
 			for (int j = 0; j < 4; j++) {
 				enc_byte[j] = enc_data[i+j];
 			}
-			byte[] dec_byte = Utils.XOR(dec_key, enc_byte);
+			byte[] dec_byte = Util.XOR(dec_key, enc_byte);
 			System.arraycopy(dec_byte, 0, dec_data, i, 4);
 		}
 		int personality_value_calc = 0;
@@ -76,7 +75,7 @@ class Data {
 		
 		int look_up = (int) (Integer.toUnsignedLong(personality_value_calc)%24L);
 		
-		int[] order = Utils.DataOrderLookUp[look_up];
+		int[] order = Gen3Util.DataOrderLookUp[look_up];
 		
 		//Growth
 		System.arraycopy(dec_data, 0+12*order[G], species, 0, species.length);
@@ -127,12 +126,12 @@ class Data {
 	
 	public int getDexEntry() {
 		int index = Byte.toUnsignedInt(species[0]) | (Byte.toUnsignedInt(species[1]) << 8);
-		if (index < 0 || index >= Utils.SPECIES_TO_DEX_LOOKUP.length) {
+		if (index < 0 || index >= Gen3Util.SPECIES_TO_DEX_LOOKUP.length) {
 			//throw new SkipRenderTileException();
 			index = 0;
 			System.out.println("SKIP RENDER TILE");
 		}
-		return Utils.SPECIES_TO_DEX_LOOKUP[index];
+		return Gen3Util.SPECIES_TO_DEX_LOOKUP[index];
 	}
 	
 	public int getSum() {

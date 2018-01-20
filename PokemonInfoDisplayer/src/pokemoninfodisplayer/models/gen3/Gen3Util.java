@@ -1,17 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-package pokemoninfodisplayer;
-
+package pokemoninfodisplayer.models.gen3;
 
 /**
  *
- * @author Endre
+ * @author Bjørnar W. Alvestad
  */
-public abstract class Utils {
+public class Gen3Util {
 	
 	public static final int[][] DataOrderLookUp = new int[][] {
 		new int[] {0, 1, 2, 3}, //GAEM
@@ -40,27 +33,6 @@ public abstract class Utils {
 		new int[] {3, 2, 1, 0}, //MEAG
 	};
 	
-	
-	public static byte[] XOR(byte[] a, byte[] b) {
-		byte[] bytes = new byte[a.length];
-		
-		for (int i = 0; i < a.length; i++){
-			bytes[i] = (byte) (0xFF & (Byte.toUnsignedInt(a[i]) ^ Byte.toUnsignedInt(b[i])));
-		}
-		
-		return bytes;
-	}
-	
-	public static int byteArrayToUint(byte[] bytes) {
-		int val = 0;
-		
-		for (int i = 0; i < bytes.length; i++)  {
-			val |= Byte.toUnsignedInt(bytes[i]) << i;
-		}
-		
-		return val;
-	}
-	
 	public static final String[] CHARACTER_SET_GEN3 = {
 		"","À","Á","Â","Ç","È","É","Ê","Ë","Ì","こ","Î","Ï","Ò","Ó","Ô",
 		"Œ","Ù","Ú","Û","Ñ","ß","à","á","ね","ç","è","é","ê","ë","ì","ま",
@@ -88,51 +60,10 @@ public abstract class Utils {
 		return str.toString();
 	}
 	
-	public static final String[] CHARACTER_SET_GEN4 = new String[256];
-	static {
-		for (int i = 0; i < CHARACTER_SET_GEN4.length; i++) {
-			CHARACTER_SET_GEN4[i] = "";
-		}
-		
-		String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		int code = 43;
-		for (int i = 0; i < upperCase.length(); i++) {
-			CHARACTER_SET_GEN4[code++] = upperCase.substring(i, i+1);
-		}
-		
-		String lowerCase = upperCase.toLowerCase();
-		code = 69;
-		for (int i = 0; i < lowerCase.length(); i++) {
-			CHARACTER_SET_GEN4[code++] = lowerCase.substring(i, i+1);
-		}
-		
-		String numbers = "0123456789";
-		code = 33;
-		for (int i = 0; i < numbers.length(); i++) {
-			CHARACTER_SET_GEN4[code++] = numbers.substring(i, i+1);
-		}
-		
-		CHARACTER_SET_GEN4[173] = ",";
-		CHARACTER_SET_GEN4[174] = ".";
-		CHARACTER_SET_GEN4[196] = ":";
-		CHARACTER_SET_GEN4[197] = ";";
-		CHARACTER_SET_GEN4[171] = "!";
-		CHARACTER_SET_GEN4[172] = "?";
-		CHARACTER_SET_GEN4[185] = "(";
-		CHARACTER_SET_GEN4[186] = ")";
-		CHARACTER_SET_GEN4[189] = "+";
-		CHARACTER_SET_GEN4[190] = "-";
-	}
-	
-	public static String decodeGen4String(byte[] bytes) {
-		StringBuilder str = new StringBuilder();
-		for (int i = 0; i < bytes.length; i += 2) {
-			String chr = CHARACTER_SET_GEN4[Byte.toUnsignedInt(bytes[i])];
-			if (!chr.equals("")) {
-				str.append(chr);
-			}
-		}
-		return str.toString();
+	public static boolean isShiny(int ot_id, int pid) {
+		ot_id = (ot_id & 0xFFFF) ^ (ot_id >>> 16);
+		pid = (pid & 0xFFFF) ^ (pid >>> 16);
+		return (ot_id ^ pid) < 8;
 	}
 	
 	public static byte[] getPartyPokemon(int x, byte[] wram){
@@ -953,5 +884,5 @@ public abstract class Utils {
 		358, //411
 		999, //412
 	};
-
+	
 }

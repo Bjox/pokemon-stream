@@ -1,6 +1,5 @@
 package pokemoninfodisplayer.models.gen3;
 
-import pokemoninfodisplayer.Utils;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.util.Util;
@@ -64,42 +63,42 @@ public class Gen3MemoryModel extends PokemonMemoryModel {
 	public PokemonModel toPokemonModel() {
 		PokemonModel model = new PokemonModel();
 		
-		model.nickname = Utils.decodeGen3String(nickname);
-		model.current_hp = Utils.byteArrayToUint(current_hp);
-		model.max_hp = Utils.byteArrayToUint(total_hp);
-		model.level = Utils.byteArrayToUint(level);
+		model.nickname = Gen3Util.decodeGen3String(nickname);
+		model.current_hp = Util.byteArrayToUint(current_hp);
+		model.max_hp = Util.byteArrayToUint(total_hp);
+		model.level = Util.byteArrayToUint(level);
 		model.setStatusCondition(status_condition);
-		model.shiny = isShiny();
 		model.setDexEntry(dataDecoded.getDexEntry());
+		model.shiny = Gen3Util.isShiny(Util.readDword(OT_ID, 0), Util.readDword(personality_value, 0));
 		
 		return model;
 	}
 	
-	public boolean isShiny() {
-		byte[] trainer_id = new byte[2];
-		System.arraycopy(OT_ID, 0, trainer_id, 0, trainer_id.length);
-		byte[] secret_id = new byte[2];
-		System.arraycopy(OT_ID, 2, secret_id, 0, secret_id.length);
-		
-		byte[] ids_xor = Utils.XOR(trainer_id, secret_id);
-		
-		byte[] pv_first = new byte[2];
-		System.arraycopy(personality_value, 0, pv_first, 0, pv_first.length);
-		byte[] pv_last = new byte[2];
-		System.arraycopy(personality_value, 2, pv_last, 0, pv_last.length);
-		
-		byte[] pvs_xor = Utils.XOR(pv_first, pv_last);
-		
-		byte[] result = Utils.XOR(ids_xor, pvs_xor);
-		
-		int value = 0;
-		
-		for (int i = 0; i < result.length; i++) {
-			value |= Byte.toUnsignedInt(result[i]) << (i*8);
-		}
-		
-		return value < 8;
-	}
+//	public boolean isShiny() {
+//		byte[] trainer_id = new byte[2];
+//		System.arraycopy(OT_ID, 0, trainer_id, 0, trainer_id.length);
+//		byte[] secret_id = new byte[2];
+//		System.arraycopy(OT_ID, 2, secret_id, 0, secret_id.length);
+//		
+//		byte[] ids_xor = Util.XOR(trainer_id, secret_id);
+//		
+//		byte[] pv_first = new byte[2];
+//		System.arraycopy(personality_value, 0, pv_first, 0, pv_first.length);
+//		byte[] pv_last = new byte[2];
+//		System.arraycopy(personality_value, 2, pv_last, 0, pv_last.length);
+//		
+//		byte[] pvs_xor = Util.XOR(pv_first, pv_last);
+//		
+//		byte[] result = Util.XOR(ids_xor, pvs_xor);
+//		
+//		int value = 0;
+//		
+//		for (int i = 0; i < result.length; i++) {
+//			value |= Byte.toUnsignedInt(result[i]) << (i*8);
+//		}
+//		
+//		return value < 8;
+//	}
 
 	@Override
 	public boolean validateChecksum() {

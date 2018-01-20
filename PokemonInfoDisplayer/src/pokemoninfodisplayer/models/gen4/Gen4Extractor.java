@@ -4,7 +4,6 @@ import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
 import pokemoninfodisplayer.models.GenExtractor;
-import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonGame;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.util.Util;
@@ -48,33 +47,32 @@ public class Gen4Extractor extends GenExtractor {
 //		System.out.printf("battle lvl %d\n", wram[start + 0x59FB4]);
 //		System.out.printf("in battle %b\n", wram[start + 0x972BE] == (byte)0xFF);
 		
-		boolean battleFlag = wram[start + 0x972BE] == (byte)0xFF;
-		
-		if (battleFlag) {
-			battleFlagCounter++;
-			if (battleFlagCounter > 2) {
-				for (PokemonMemoryModel m : party) {
-					if (m != null) {
-						Gen4MemoryModel battleMon = (Gen4MemoryModel) m;
-						int inbattle_pid = Util.readDword(wram, start + 0x54600);
+		for (PokemonMemoryModel m : party) {
+			if (m != null) {
+				Gen4MemoryModel battleMon = (Gen4MemoryModel) m;
+				int inbattle_pid = Util.readDword(wram, start + 0x54600);
 
-						if (battleMon.personality_value.getDword() == inbattle_pid) {
-							int current_hp_start = start + 0x59F94;
-							int max_hp_start = start + 0x59F98;
-							int lvl_start  = start + 0x59FB4;
-
-							battleMon.current_hp.set(wram, current_hp_start);
-							battleMon.total_hp.set(wram, max_hp_start);
-							battleMon.level.set(wram, lvl_start);
-
-							return;
-						}
+				if (battleMon.personality_value.getDword() == inbattle_pid) {
+					battleFlagCounter++;
+					if (battleFlagCounter < 10) {
+						return;
 					}
+					
+					int current_hp_adr = start + 0x59F94;
+					int max_hp_adr = start + 0x59F98;
+					int lvl_adr = start + 0x59FB4;
+					int stat_cond_adr = start + 0x59FB6;
+					
+					battleMon.current_hp.set(wram, current_hp_adr);
+					battleMon.total_hp.set(wram, max_hp_adr);
+					battleMon.level.set(wram, lvl_adr);
+					battleMon.status_cond.set(wram, stat_cond_adr);
+
+					return;
 				}
 			}
-		} else {
-			battleFlagCounter = 0;
 		}
+		battleFlagCounter = 0;
 		
 		final int pokemonBlockSize = 236;
 		for (int partyIndex = 0; partyIndex < 6; partyIndex++) {

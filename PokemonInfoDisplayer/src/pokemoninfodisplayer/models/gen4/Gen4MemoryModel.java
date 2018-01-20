@@ -1,8 +1,9 @@
 package pokemoninfodisplayer.models.gen4;
 
-import pokemoninfodisplayer.Utils;
+import java.util.Arrays;
 import pokemoninfodisplayer.models.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
+import pokemoninfodisplayer.models.gen3.Gen3Util;
 import pokemoninfodisplayer.util.Bytes;
 import pokemoninfodisplayer.util.Util;
 
@@ -14,6 +15,7 @@ import pokemoninfodisplayer.util.Util;
 public class Gen4MemoryModel extends PokemonMemoryModel {
 	
 	public final Bytes personality_value = new Bytes(4);
+	public final Bytes ot_id = new Bytes(4);
 	public final Bytes checksum = new Bytes(2);
 	public final Bytes current_hp = new Bytes(2);
 	public final Bytes total_hp = new Bytes(2);
@@ -36,6 +38,7 @@ public class Gen4MemoryModel extends PokemonMemoryModel {
 		species_id.set(plainPartyElementBytes, 0x8);
 		status_cond.set(plainPartyElementBytes, 0x88);
 		total_hp.set(plainPartyElementBytes, 0x90);
+		ot_id.set(plainPartyElementBytes, 0x0C);
 	}
 
 	@Override
@@ -45,10 +48,11 @@ public class Gen4MemoryModel extends PokemonMemoryModel {
 		model.current_hp = current_hp.getWord();
 		model.level = level.getByte();
 		model.max_hp = total_hp.getWord();
-		model.nickname = Utils.decodeGen4String(nickname.getBytes());
+		model.nickname = Gen4Util.decodeGen4String(nickname.getBytes());
 		model.setDexEntry(species_id.getWord());
 		model.setStatusCondition(status_cond.getBytes());
-
+		model.shiny = Gen3Util.isShiny(ot_id.getDword(), personality_value.getDword());
+		
 		return model;
 	}
 

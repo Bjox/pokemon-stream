@@ -155,7 +155,6 @@ public abstract class PokemonCellRenderer {
 	
 	
 	protected void renderHPBar(int currenthp, int maxhp, Graphics2D g2) {
-		g2.drawImage(IMG_OVERLAY_HPBAR, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
 		double ratio = currenthp / (double) maxhp;
 		HPBarColor hpbarcolor = getHPBarColor(ratio);
 		
@@ -203,18 +202,21 @@ public abstract class PokemonCellRenderer {
 		// Draw lvl text
 		this.renderLevelText(pokemon, g2);
 
-		// Draw status overlay
-		BufferedImage statusCondImg = getStatusConditionImg(pokemon.getStatusCondition());
-		if (statusCondImg != null) {
-			g2.drawImage(statusCondImg, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
-		}
-
 		// If fainted, draw fainted overlay
 		if (pokemon.isFainted()) {
 			g2.drawImage(IMG_OVERLAY_FAINTED, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
 		}
 		// else draw HP bar
 		else {
+			// Draw status overlay
+			BufferedImage statusCondImg = getStatusConditionImg(pokemon.getStatusCondition());
+			if (statusCondImg == null) {
+				// Draw regular hp bar overlay
+				g2.drawImage(IMG_OVERLAY_HPBAR, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
+			} else {
+				// Draw status condition hp bar
+				g2.drawImage(statusCondImg, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
+			}
 			this.renderHPBar(pokemon.current_hp, pokemon.max_hp, g2);
 		}
 	}
