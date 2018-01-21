@@ -17,7 +17,7 @@ import pokemoninfodisplayer.models.PokemonModel;
  *
  * @author Endre
  */
-public class PlatinumCellRenderer extends PokemonCellRenderer{
+public class PlatinumCellRenderer extends PokemonCellRenderer {
 	
 	public static final PlatinumCellRenderer Instance = new PlatinumCellRenderer();
 

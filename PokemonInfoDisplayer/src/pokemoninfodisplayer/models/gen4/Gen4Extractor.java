@@ -38,15 +38,9 @@ public class Gen4Extractor extends GenExtractor {
 	protected void readMemoryModels(PokemonMemoryModel[] party) throws ProcessNotOpenedException {
 		final byte[] wram = readWRAM();
 		
-		int start = Util.readDword(wram, 0x101D2C) - 0x2000000;
-		int partyStart = start + 0xD094;
-
-//		System.out.printf("battle pid %04X\n", Util.readDword(wram, start + 0x54600));
-//		System.out.printf("battle hp %d\n", Util.readWord(wram, start + 0x59F94));
-//		System.out.printf("battle max hp %d\n", Util.readWord(wram, start + 0x59F98));
-//		System.out.printf("battle lvl %d\n", wram[start + 0x59FB4]);
-//		System.out.printf("in battle %b\n", wram[start + 0x972BE] == (byte)0xFF);
+		final int start = Util.readDword(wram, 0x101D2C) - 0x2000000;
 		
+		// In-battle stats
 		for (PokemonMemoryModel m : party) {
 			if (m != null) {
 				Gen4MemoryModel battleMon = (Gen4MemoryModel) m;
@@ -61,7 +55,7 @@ public class Gen4Extractor extends GenExtractor {
 					int current_hp_adr = start + 0x59F94;
 					int max_hp_adr = start + 0x59F98;
 					int lvl_adr = start + 0x59FB4;
-					int stat_cond_adr = start + 0x59FB6;
+					int stat_cond_adr = start + 0x54604;
 					
 					battleMon.current_hp.set(wram, current_hp_adr);
 					battleMon.total_hp.set(wram, max_hp_adr);
@@ -74,6 +68,7 @@ public class Gen4Extractor extends GenExtractor {
 		}
 		battleFlagCounter = 0;
 		
+		final int partyStart = start + 0xD094;
 		final int pokemonBlockSize = 236;
 		for (int partyIndex = 0; partyIndex < 6; partyIndex++) {
 

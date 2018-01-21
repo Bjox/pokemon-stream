@@ -1,26 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pokemoninfodisplayer;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.geom.AffineTransform;
 import java.util.Arrays;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import pokemoninfodisplayer.DisplayerOptions.Skin;
-import pokemoninfodisplayer.graphics.PokemonCellRenderer;
+import pokemoninfodisplayer.graphics.InfoFrame;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
+import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
 import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonGame;
-import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.util.ArgumentParser;
 
 /**
@@ -30,21 +17,6 @@ import pokemoninfodisplayer.util.ArgumentParser;
 public class PokemonInfoDisplayer {
 
 	public static boolean DEBUG = false;
-
-	public static PokemonCellRenderer renderer = DisplayerOptions.RENDERER();
-
-	public static final int CELL_WIDTH = renderer.SIZE_OVERLAY_TILE.x;
-	public static final int CELL_HEIGHT = renderer.SIZE_OVERLAY_TILE.y;
-	public static final double SCALE_FACTOR = PokemonCellRenderer.SCALE_FACTOR;
-
-	public static final Point[] LAYOUT = new Point[]{
-		new Point(0, 0),
-		new Point(1, 0),
-		new Point(0, 1),
-		new Point(1, 1),
-		new Point(0, 2),
-		new Point(1, 2)
-	};
 
 	public static void main(String[] args) throws Exception {
 		ArgumentParser argp = new ArgumentParser(args);
@@ -93,99 +65,55 @@ public class PokemonInfoDisplayer {
 		System.out.println("Game: " + game.toString());
 		System.out.println("Skin: " + skinArg);
 
-		while (true) {
-			try {
-				run(game);
-			} catch (ProcessNotFoundException e) {
-				if (DEBUG) {
-					throw e;
-				}
-				JOptionPane.showMessageDialog(null, "Please start the emulator first!", "Info", JOptionPane.INFORMATION_MESSAGE);
-				break;
-			} catch (IndexOutOfBoundsException e) {
-				if (DEBUG) {
-					throw e;
-				}
-				Runtime.getRuntime().gc();
-				Thread.sleep(200);
-			} catch (Exception e) {
-				if (DEBUG) {
-					throw e;
-				}
-				int option = JOptionPane.showOptionDialog(
-						null, e.toString(), "An exception occurred", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"Continue", "Exit"}, null);
-				if (option != 0) {
-					break;
-				}
-			}
-		}
+		InfoFrame frame = new InfoFrame();
 
-	}
-
-	public static void run(PokemonGame game) throws Exception {
-		JFrame frame = new JFrame("Party Info");
 		try {
-			PokemonExtractor extractor = new PokemonExtractor(game);
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				extractor.close();
-			}));
+			while (true) {
+				PokemonExtractor extractor = null;
+				try {
+					extractor = new PokemonExtractor(game);
+					PartyModel party = new PartyModel();
 
-			PartyModel party = new PartyModel();
-			extractor.updateParty(party);
-
-			frame.setResizable(false);
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-			JPanel panel = new JPanel() {
-				@Override
-				public void paint(Graphics g) {
-					super.paint(g);
-					Graphics2D g2 = (Graphics2D) g;
-
-//				// Set anti-alias
-//				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-//				RenderingHints.VALUE_ANTIALIAS_ON); 
-//				// Set anti-alias for text
-//				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-//				RenderingHints.VALUE_TEXT_ANTIALIAS_ON); 
-					this.setBackground(Color.MAGENTA);
-					g2.setColor(Color.WHITE);
-
-					for (int i = 0; i < 6; i++) {
-						PokemonModel pok = party.getPartySlot(i);
-
-						if (pok.getDexEntry() != 0) {
-							Point cellPos = LAYOUT[i];
-							AffineTransform trans = g2.getTransform();
-
-							g2.scale(SCALE_FACTOR, SCALE_FACTOR);
-							g2.translate(cellPos.x * renderer.SIZE_OVERLAY_TILE.x, cellPos.y * renderer.SIZE_OVERLAY_TILE.y);
-
-							renderer.renderPokemonCell(pok, g2);
-							g2.setTransform(trans);
-						}
+					while (true) {
+						extractor.updateParty(party);
+						frame.updateParty(party);
+						Thread.sleep(1000);
+					}
+				} catch (ProcessNotFoundException e) {
+					if (DEBUG) {
+						throw e;
+					}
+					JOptionPane.showMessageDialog(null, "Please start the emulator first!", "Info", JOptionPane.INFORMATION_MESSAGE);
+					break;
+				} catch (UnsupportedPlatformException e) {
+					if (DEBUG) {
+						throw e;
+					}
+					JOptionPane.showMessageDialog(null, "This platform is not supported.", "Error", JOptionPane.ERROR_MESSAGE);
+					break;
+				} catch (IndexOutOfBoundsException e) {
+					if (DEBUG) {
+						throw e;
+					}
+				} catch (Exception e) {
+					if (DEBUG) {
+						throw e;
+					}
+					int option = JOptionPane.showOptionDialog(
+							null, e.toString(), "An exception occurred", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"Continue", "Exit"}, null);
+					if (option != 0) {
+						break;
 					}
 				}
-			};
+				finally {
+					if (extractor != null) extractor.close();
+				}
 
-			panel.setPreferredSize(new Dimension((int) (CELL_WIDTH * SCALE_FACTOR * 2), (int) (CELL_HEIGHT * SCALE_FACTOR * 3)));
-			frame.add(panel);
-			frame.pack();
-			
-			frame.setLocationRelativeTo(null);
-			frame.setVisible(true);
-
-			while (true) {
 				Thread.sleep(1000);
-				extractor.updateParty(party);
-				panel.repaint();
 			}
-			
-		} catch (Exception e) {
+		} finally {
 			frame.dispose();
-			throw e;
 		}
 
 	}
-
 }

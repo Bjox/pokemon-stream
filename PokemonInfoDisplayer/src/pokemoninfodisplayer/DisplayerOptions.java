@@ -30,7 +30,7 @@ public class DisplayerOptions {
 	private static Skin SKIN = Skin.PLATINUM;
 	
 	public static PokemonCellRenderer RENDERER() {
-		switch(SKIN){
+		switch (SKIN) {
 			case FIRERED_LEAFGREEN: return FireRedLeafGreenCellRenderer.Instance;
 			case PLATINUM: return PlatinumCellRenderer.Instance;
 		}

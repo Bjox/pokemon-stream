@@ -41,8 +41,19 @@ public abstract class GenExtractor {
 		
 		for (int i = 0; i < memModelBuffer.length; i++) {
 			PokemonMemoryModel memModel = memModelBuffer[i];
+			if (!memModel.isPresent()) {
+				break;
+			}
+			
 			if (memModel.validateChecksum()) {
-				party.setPartySlot(i, memModel.toPokemonModel());
+				PokemonModel pok = memModel.toPokemonModel();
+				
+				if (pok.validate()) {
+					party.setPartySlot(i, pok);
+				} else {
+					System.err.println("Validation failed for index " + i);
+				}
+				
 			} else if (PokemonInfoDisplayer.DEBUG) {
 				System.err.println("Invalid checksum for index " + i);
 			}

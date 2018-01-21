@@ -18,8 +18,6 @@ import pokemoninfodisplayer.models.PokemonModel;
  * @author Bjørnar W. Alvestad
  */
 public abstract class PokemonCellRenderer {
-
-	//public static final PlatinumCellRenderer PlatinumRenderer = new PokemonCellRenderer(Skin.PLATINUM);
 	
 	protected PokemonCellRenderer(Skin skin){
 		

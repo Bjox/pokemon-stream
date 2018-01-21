@@ -51,6 +51,13 @@ public class PokemonModel {
 		nickname = "";
 	}
 	
+	public boolean validate() {
+		if (level < 0 || level > 100) return false;
+		if (current_hp < 0 || current_hp > max_hp) return false;
+		if (dex_entry < 1) return false;
+		return true;
+	}
+	
 	public BufferedImage getImage() {
 		if (img == null) {
 			try {
