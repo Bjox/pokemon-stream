@@ -1,10 +1,5 @@
 package pokemoninfodisplayer.models;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.function.Consumer;
-
 /**
  *
  * @author Bjørnar W. Alvestad
@@ -15,9 +10,9 @@ public class PartyModel {
 
 	public PartyModel() {
 		this.partySlot = new PokemonModel[6];
-		for (int i = 0; i < partySlot.length; i++) {
-			partySlot[i] = new PokemonModel();
-		}
+//		for (int i = 0; i < partySlot.length; i++) {
+//			partySlot[i] = new PokemonModel();
+//		}
 	}
 	
 	public void setPartySlot(int index, PokemonModel model) {

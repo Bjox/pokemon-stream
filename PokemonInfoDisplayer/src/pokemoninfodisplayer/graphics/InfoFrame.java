@@ -62,7 +62,7 @@ public final class InfoFrame extends JFrame {
 				for (int i = 0; i < 6; i++) {
 					PokemonModel pok = party.getPartySlot(i);
 
-					if (pok.getDexEntry() != 0) {
+					if (pok != null) {
 						Point cellPos = LAYOUT[i];
 						AffineTransform trans = g2.getTransform();
 
