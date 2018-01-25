@@ -6,6 +6,10 @@ package pokemoninfodisplayer.models;
  */
 public abstract class PokemonMemoryModel {
 	
+	public static final int BYTE = 1;
+	public static final int WORD = 2;
+	public static final int DWORD = 4;
+			
 	protected final byte[] rawBytes;
 	
 	public PokemonMemoryModel(byte[] rawBytes) {

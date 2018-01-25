@@ -1,5 +1,7 @@
 package pokemoninfodisplayer.models.gen4;
 
+import pokemoninfodisplayer.models.gen3.Gen3Util;
+
 /**
  *
  * @author Bjørnar W. Alvestad
@@ -54,6 +56,10 @@ public class Gen4Util {
 			}
 		}
 		return str.toString();
+	}
+	
+	public static boolean isShiny(int ot_id, int pid) {
+		return Gen3Util.isShiny(ot_id, pid);
 	}
 	
 }

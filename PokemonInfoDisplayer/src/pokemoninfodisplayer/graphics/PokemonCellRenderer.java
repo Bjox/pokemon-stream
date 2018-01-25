@@ -193,8 +193,16 @@ public abstract class PokemonCellRenderer {
 		BufferedImage pokemonImg = pokemon.getImage();
 		g2.drawImage(pokemonImg, POS_POKEMON_IMG.x, POS_POKEMON_IMG.y, null);
 
-		// Draw pokemon name
+		
 		g2.setFont(FONT);
+		
+		if (pokemon.isEgg()) {
+			// If egg, write Egg as pokemon name
+			renderTextWithShadow("Egg", POS_TEXT_NAME.x, POS_TEXT_NAME.y, g2);
+			return;
+		}
+		
+		// Draw pokemon name
 		renderName(pokemon, g2);
 
 		// Draw lvl text
@@ -217,6 +225,7 @@ public abstract class PokemonCellRenderer {
 			}
 			this.renderHPBar(pokemon.current_hp, pokemon.max_hp, g2);
 		}
+		
 	}
 	
 	protected void renderName(PokemonModel pokekmon, Graphics2D g2) {

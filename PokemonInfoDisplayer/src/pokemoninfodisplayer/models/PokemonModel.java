@@ -20,6 +20,8 @@ public class PokemonModel {
 	private StatusCondition statusCondition;
 	public String nickname;
 	public boolean shiny;
+	private boolean isEgg;
+	private int eggSteps;
 	
 	private BufferedImage img;
 	private BufferedImage gray_img;
@@ -61,9 +63,17 @@ public class PokemonModel {
 	public BufferedImage getImage() {
 		if (img == null) {
 			try {
-				File input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + (shiny ? "/shiny/" : "/regular/") + dex_entry + ".png");
+				File input;
+				
+				if (isEgg) {
+					input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + "/regular/egg.png");
+				} else {
+					input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + (shiny ? "/shiny/" : "/regular/") + dex_entry + ".png");
+				}
+				
 				img = ImageIO.read(input);
 				gray_img = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				
 				for (int x = 0; x < img.getWidth(); x++){
 					for (int y = 0; y < img.getHeight(); y++){
 						int p = img.getRGB(x,y);
@@ -118,6 +128,11 @@ public class PokemonModel {
 		this.statusCondition = null;
 	}
 	
+	public void setEgg(boolean isEgg, int eggSteps) {
+		this.isEgg = isEgg;
+		this.eggSteps = eggSteps;
+	}
+	
 	// Pokemon model getters
 	
 	public int getDexEntry(){
@@ -126,6 +141,14 @@ public class PokemonModel {
 	
 	public boolean isFainted() {
 		return this.current_hp <= 0;
+	}
+	
+	public boolean isEgg() {
+		return this.isEgg;
+	}
+	
+	public int getEggSteps() {
+		return this.eggSteps;
 	}
 	
 	/**

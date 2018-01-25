@@ -71,6 +71,12 @@ public class Gen3MemoryModel extends PokemonMemoryModel {
 		model.setDexEntry(dataDecoded.getDexEntry());
 		model.shiny = Gen3Util.isShiny(Util.readDword(OT_ID, 0), Util.readDword(personality_value, 0));
 		
+		boolean isEgg = (dataDecoded.getIVEggAbility() & 0x40000000) != 0;
+		if (isEgg) {
+			int eggSteps = 0; // TODO: extract egg steps for gen3
+			model.setEgg(true, eggSteps);
+		}
+		
 		return model;
 	}
 	

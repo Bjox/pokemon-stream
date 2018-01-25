@@ -137,4 +137,8 @@ class Data {
 	public int getSum() {
 		return sum;
 	}
+	
+	public int getIVEggAbility() {
+		return Util.readDword(ivs_egg_ability, 0);
+	}
 }
