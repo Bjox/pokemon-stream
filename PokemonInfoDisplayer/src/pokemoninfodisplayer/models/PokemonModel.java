@@ -108,14 +108,8 @@ public class PokemonModel {
 		this.img = null;
 	}
 	
-	public void setStatusCondition(byte[] dataBytes) {
-		if (dataBytes.length < 1) {
-			System.err.printf("Wrong number of bytes passed to setStatusCondition. Got %d\n", dataBytes.length);
-			this.statusCondition = null;
-			return;
-		}
-		
-		int statCondByte = Byte.toUnsignedInt(dataBytes[0]);
+	public void setStatusCondition(byte statusConditionByte) {
+		int statCondByte = Byte.toUnsignedInt(statusConditionByte);
 		StatusCondition[] conditions = StatusCondition.values();
 		
 		for (int i = conditions.length-1; i >= 0; i--) {

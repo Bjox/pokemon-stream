@@ -1,7 +1,6 @@
 package pokemoninfodisplayer;
 
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
-import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
 import pokemoninfodisplayer.models.GenExtractor;
 import pokemoninfodisplayer.models.PartyModel;
@@ -23,7 +22,7 @@ public class PokemonExtractor {
 		extractor = createGenExtractor(game);
 	}
 	
-	public void updateParty(PartyModel party) throws ProcessNotOpenedException {
+	public void updateParty(PartyModel party) throws Exception {
 		extractor.update(party);
 	}
 	

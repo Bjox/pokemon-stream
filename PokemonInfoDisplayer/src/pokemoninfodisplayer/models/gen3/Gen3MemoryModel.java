@@ -1,6 +1,6 @@
 package pokemoninfodisplayer.models.gen3;
 
-import pokemoninfodisplayer.models.PokemonMemoryModel;
+import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.util.Util;
 
@@ -31,13 +31,13 @@ public class Gen3MemoryModel extends PokemonMemoryModel {
 	private final byte[] sp_defense = new byte[2];
 	private final Data dataDecoded;
 	
-	public Gen3MemoryModel(byte[] plainPartyElementBytes) {
-		super(plainPartyElementBytes);
+	public Gen3MemoryModel(byte[] plainPartyElementBytes) throws Exception {
 		update(plainPartyElementBytes);
+		setMemory(plainPartyElementBytes);
 		dataDecoded = new Data(data, personality_value, OT_ID);
 	}
 	
-	private void update(byte[] memory) {
+	private void setMemory(byte[] memory) {
 		System.arraycopy(memory, 0, personality_value, 0, personality_value.length);
 		System.arraycopy(memory, 4, OT_ID, 0, OT_ID.length);
 		System.arraycopy(memory, 8, nickname, 0, nickname.length);
@@ -67,7 +67,7 @@ public class Gen3MemoryModel extends PokemonMemoryModel {
 		model.current_hp = Util.byteArrayToUint(current_hp);
 		model.max_hp = Util.byteArrayToUint(total_hp);
 		model.level = Util.byteArrayToUint(level);
-		model.setStatusCondition(status_condition);
+		model.setStatusCondition(status_condition[0]);
 		model.setDexEntry(dataDecoded.getDexEntry());
 		model.shiny = Gen3Util.isShiny(Util.readDword(OT_ID, 0), Util.readDword(personality_value, 0));
 		

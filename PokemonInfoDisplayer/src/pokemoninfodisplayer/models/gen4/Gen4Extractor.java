@@ -5,7 +5,7 @@ import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedExceptio
 import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
 import pokemoninfodisplayer.models.GenExtractor;
 import pokemoninfodisplayer.models.PokemonGame;
-import pokemoninfodisplayer.models.PokemonMemoryModel;
+import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.util.Util;
 
 /**
@@ -35,7 +35,7 @@ public class Gen4Extractor extends GenExtractor {
 	}
 
 	@Override
-	protected void readMemoryModels(PokemonMemoryModel[] party) throws ProcessNotOpenedException {
+	protected void readMemoryModels(PokemonMemoryModel[] party) throws Exception {
 		final byte[] wram = readWRAM();
 		
 		final int start = Util.readDword(wram, 0x101D2C) - 0x2000000;
@@ -43,10 +43,10 @@ public class Gen4Extractor extends GenExtractor {
 		// In-battle stats
 		for (PokemonMemoryModel m : party) {
 			if (m != null) {
-				Gen4MemoryModel battleMon = (Gen4MemoryModel) m;
+				Gen4PokemonMemoryModel battleMon = (Gen4PokemonMemoryModel) m;
 				int inbattle_pid = Util.readDword(wram, start + 0x54600);
 
-				if (battleMon.personality_value.getDword() == inbattle_pid) {
+				if (battleMon.personalityValue.getUInt() == inbattle_pid) {
 					battleFlagCounter++;
 					if (battleFlagCounter < 10) {
 						return;
@@ -57,10 +57,10 @@ public class Gen4Extractor extends GenExtractor {
 					int lvl_adr = start + 0x59FB4;
 					int stat_cond_adr = start + 0x54604;
 					
-					battleMon.current_hp.set(wram, current_hp_adr);
-					battleMon.total_hp.set(wram, max_hp_adr);
+					battleMon.currentHP.set(wram, current_hp_adr);
+					battleMon.maxHP.set(wram, max_hp_adr);
 					battleMon.level.set(wram, lvl_adr);
-					battleMon.status_cond.set(wram, stat_cond_adr);
+					battleMon.statusCond.set(wram, stat_cond_adr);
 
 					return;
 				}
@@ -112,7 +112,10 @@ public class Gen4Extractor extends GenExtractor {
 				}
 			}
 
-			party[partyIndex] = new Gen4MemoryModel(decPartyElement);
+			PokemonMemoryModel pkmnMemModel = new Gen4PokemonMemoryModel();
+			pkmnMemModel.update(decPartyElement);
+			party[partyIndex] = pkmnMemModel; //new Gen4MemoryModel(decPartyElement);
+			
 		}
 	}
 

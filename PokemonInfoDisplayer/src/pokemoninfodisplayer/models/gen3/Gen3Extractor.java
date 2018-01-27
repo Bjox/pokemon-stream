@@ -1,11 +1,10 @@
 package pokemoninfodisplayer.models.gen3;
 
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
-import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
 import pokemoninfodisplayer.models.GenExtractor;
 import pokemoninfodisplayer.models.PokemonGame;
-import pokemoninfodisplayer.models.PokemonMemoryModel;
+import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 
 /**
  *
@@ -18,7 +17,7 @@ public class Gen3Extractor extends GenExtractor {
 	}
 
 	@Override
-	protected void readMemoryModels(PokemonMemoryModel[] party) throws ProcessNotOpenedException {
+	protected void readMemoryModels(PokemonMemoryModel[] party) throws Exception {
 		final int partyElementSize = 100;
 		byte[] wram = readWRAM();
 		

@@ -9,13 +9,9 @@ import java.lang.annotation.Target;
  *
  * @author Bjørnar W. Alvestad
  */
-public class MemoryBlock {
-	
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	@interface BlockField {
-		int offset();
-		int length() default 1;
-	}
-	
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface MField {
+	int offset();
+	int size() default 0;
 }

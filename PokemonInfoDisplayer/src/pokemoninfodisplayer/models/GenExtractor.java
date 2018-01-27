@@ -1,5 +1,6 @@
 package pokemoninfodisplayer.models;
 
+import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.PokemonInfoDisplayer;
 import pokemoninfodisplayer.lowlevel.emulator.EmulatorExtractor;
 import pokemoninfodisplayer.lowlevel.emulator.desmume.DeSmuMeExtractor;
@@ -36,7 +37,7 @@ public abstract class GenExtractor {
 		this.emuExtractor.close();
 	}
 	
-	public final void update(PartyModel party) throws ProcessNotOpenedException {
+	public final void update(PartyModel party) throws Exception {
 		readMemoryModels(memModelBuffer);
 		
 		for (int i = 0; i < memModelBuffer.length; i++) {
@@ -61,7 +62,7 @@ public abstract class GenExtractor {
 		}
 	}
 	
-	protected abstract void readMemoryModels(PokemonMemoryModel[] party) throws ProcessNotOpenedException;
+	protected abstract void readMemoryModels(PokemonMemoryModel[] party) throws Exception;
 	
 	private static EmulatorExtractor createEmulatorExtractor(PokemonGame game)
 			throws ProcessNotFoundException, UnsupportedPlatformException {
