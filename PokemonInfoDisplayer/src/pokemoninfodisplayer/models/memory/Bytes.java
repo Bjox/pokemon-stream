@@ -30,8 +30,4 @@ public class Bytes extends MemoryField {
 		return "Bytes: [" + str.substring(2) + "]";
 	}
 	
-	public byte[] getBytes() {
-		return Arrays.copyOf(bytes.array(), bytes.capacity());
-	}
-	
 }

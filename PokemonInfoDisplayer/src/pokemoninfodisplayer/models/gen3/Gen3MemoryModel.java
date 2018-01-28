@@ -2,7 +2,11 @@ package pokemoninfodisplayer.models.gen3;
 
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
-import pokemoninfodisplayer.util.Util;
+import pokemoninfodisplayer.models.memory.Byt;
+import pokemoninfodisplayer.models.memory.Bytes;
+import pokemoninfodisplayer.models.memory.Dword;
+import pokemoninfodisplayer.models.memory.MField;
+import pokemoninfodisplayer.models.memory.Word;
 
 /**
  *
@@ -10,68 +14,46 @@ import pokemoninfodisplayer.util.Util;
  */
 public class Gen3MemoryModel extends PokemonMemoryModel {
 	
-	private final byte[] personality_value = new byte[4];	
-	private final byte[] OT_ID = new byte[4];
-	private final byte[] nickname = new byte[10];
-	private final byte[] language = new byte[2];
-	private final byte[] OT_name = new byte[7];
-	private final byte[] markings = new byte[1];
-	private final byte[] checksum = new byte[2];
-	private final byte[] unknown = new byte[2];
-	private final byte[] data = new byte[48];
-	private final byte[] status_condition = new byte[4];
-	private final byte[] level = new byte[1];
-	private final byte[] pokerus = new byte[1];
-	private final byte[] current_hp = new byte[2];
-	private final byte[] total_hp = new byte[2];
-	private final byte[] attack = new byte[2];
-	private final byte[] defense = new byte[2];
-	private final byte[] speed = new byte[2];
-	private final byte[] sp_attack = new byte[2];
-	private final byte[] sp_defense = new byte[2];
+	@MField(offset = 0) public Dword personalityValue;
+	@MField(offset = 4) public Dword OTID;
+	@MField(offset = 8, size = 10) public Bytes nickname;
+	@MField(offset = 18) public Word language;
+	@MField(offset = 20, size = 7) public Bytes OTName;
+	@MField(offset = 27) public Byt markings;
+	@MField(offset = 28) public Word checksum;
+	@MField(offset = 32, size = 48) public Bytes data;
+	@MField(offset = 80) public Dword statusCondition;
+	@MField(offset = 84) public Byt level;
+	@MField(offset = 85) public Byt pokerusRemaining;
+	@MField(offset = 86) public Word currentHP;
+	@MField(offset = 88) public Word maxHP;
+	@MField(offset = 90) public Word attack;
+	@MField(offset = 92) public Word defense;
+	@MField(offset = 94) public Word speed;
+	@MField(offset = 96) public Word specialAttack;
+	@MField(offset = 98) public Word specialDefense;
+	
 	private final Data dataDecoded;
+	
 	
 	public Gen3MemoryModel(byte[] plainPartyElementBytes) throws Exception {
 		update(plainPartyElementBytes);
-		setMemory(plainPartyElementBytes);
-		dataDecoded = new Data(data, personality_value, OT_ID);
-	}
-	
-	private void setMemory(byte[] memory) {
-		System.arraycopy(memory, 0, personality_value, 0, personality_value.length);
-		System.arraycopy(memory, 4, OT_ID, 0, OT_ID.length);
-		System.arraycopy(memory, 8, nickname, 0, nickname.length);
-		System.arraycopy(memory, 18, language, 0, language.length);
-		System.arraycopy(memory, 20, OT_name, 0, OT_name.length);
-		System.arraycopy(memory, 27, markings, 0, markings.length);
-		System.arraycopy(memory, 28, checksum, 0, checksum.length);
-		System.arraycopy(memory, 30, unknown, 0, unknown.length);
-		System.arraycopy(memory, 32, data, 0, data.length);
-		System.arraycopy(memory, 80, status_condition, 0, status_condition.length);
-		System.arraycopy(memory, 84, level, 0, level.length);
-		System.arraycopy(memory, 85, pokerus, 0, pokerus.length);
-		System.arraycopy(memory, 86, current_hp, 0, current_hp.length);
-		System.arraycopy(memory, 88, total_hp, 0, total_hp.length);
-		System.arraycopy(memory, 90, attack, 0, attack.length);
-		System.arraycopy(memory, 92, defense, 0, defense.length);
-		System.arraycopy(memory, 94, speed, 0, speed.length);
-		System.arraycopy(memory, 96, sp_attack, 0, sp_attack.length);
-		System.arraycopy(memory, 98, sp_defense, 0, sp_defense.length);
+		dataDecoded = new Data(data.getBytes(), personalityValue.getBytes(), OTID.getBytes());
 	}
 	
 	@Override
 	public PokemonModel toPokemonModel() {
 		PokemonModel model = new PokemonModel();
 		
-		model.nickname = Gen3Util.decodeGen3String(nickname);
-		model.current_hp = Util.byteArrayToUint(current_hp);
-		model.max_hp = Util.byteArrayToUint(total_hp);
-		model.level = Util.byteArrayToUint(level);
-		model.setStatusCondition(status_condition[0]);
+		model.nickname = Gen3Util.decodeGen3String(nickname.getBytes());
+		model.current_hp = currentHP.getUInt();
+		model.max_hp = maxHP.getUInt();
+		model.level = level.getUInt();
+		model.setStatusCondition(statusCondition.getBytes()[0]);
 		model.setDexEntry(dataDecoded.getDexEntry());
-		model.shiny = Gen3Util.isShiny(Util.readDword(OT_ID, 0), Util.readDword(personality_value, 0));
+		model.shiny = Gen3Util.isShiny(OTID.getUInt(), personalityValue.getUInt());
 		
-		boolean isEgg = (dataDecoded.getIVEggAbility() & 0x40000000) != 0;
+		boolean isEgg = (dataDecoded.miscellaneousBlock.IVEggAbility.getUInt() & 0x40000000) != 0;
 		if (isEgg) {
 			int eggSteps = 0; // TODO: extract egg steps for gen3
 			model.setEgg(true, eggSteps);
@@ -108,7 +90,7 @@ public class Gen3MemoryModel extends PokemonMemoryModel {
 
 	@Override
 	public boolean validateChecksum() {
-		return Util.readWord(checksum, 0) == dataDecoded.getSum();
+		return checksum.getUInt() == dataDecoded.sum;
 	}
 
 }
