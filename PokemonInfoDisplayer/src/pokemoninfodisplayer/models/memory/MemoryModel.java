@@ -17,7 +17,11 @@ public abstract class MemoryModel {
 	protected byte[] memoryBytes;
 
 	public MemoryModel() {
-		this.memoryBytes = new byte[0];
+		this(new byte[0]);
+	}
+	
+	public MemoryModel(byte[] data) {
+		this.memoryBytes = data;
 	}
 	
 	public final void update(byte[] memoryBytes) throws IllegalAccessException, InstantiationException {

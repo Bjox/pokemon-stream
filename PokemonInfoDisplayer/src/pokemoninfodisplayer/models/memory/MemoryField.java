@@ -3,6 +3,7 @@ package pokemoninfodisplayer.models.memory;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import pokemoninfodisplayer.lowlevel.memory.MemorySegment;
 
 /**
  *
@@ -22,6 +23,11 @@ public abstract class MemoryField {
 	public void set(byte[] data, int offset) {
 		bytes.rewind();
 		bytes.put(data, offset, bytes.capacity());
+	}
+	
+	public void set(MemorySegment segment, long addr) {
+		bytes.rewind();
+		segment.get(bytes, addr);
 	}
 	
 	public byte[] getBytes() {

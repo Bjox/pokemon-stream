@@ -18,7 +18,7 @@ public class Byt extends MemoryField {
 
 	@Override
 	public String getStringValue() {
-		return String.format("Byte: 0x%02X", bytes.get(0));
+		return String.format("Byte: 0x%02X, %d", bytes.get(0), bytes.get(0));
 	}
 	
 	public byte getByte() {

@@ -1,40 +1,40 @@
-package pokemoninfodisplayer.lowlevel.emulator.desmume;
+package pokemoninfodisplayer.lowlevel.emulator;
 
-import pokemoninfodisplayer.lowlevel.emulator.EmulatorExtractor;
-import pokemoninfodisplayer.lowlevel.process.Access;
+import javax.naming.OperationNotSupportedException;
+import pokemoninfodisplayer.lowlevel.emulator.NDSExtractor;
+import pokemoninfodisplayer.lowlevel.memory.SegmentType;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
 
 /**
- * An IEmulatorExtractor implementation for the
- * DeSmuME NDS emulator.
+ * A DeSmuME NDS extractor.
  * 
  * Currently only supports NDS games.
  * 
  * @author Bjørnar W. Alvestad
  */
-public class DeSmuMeExtractor extends EmulatorExtractor {
+public class DeSmuMeExtractor extends NDSExtractor {
 	
 	public static final String WINDOW_TITLE = "DeSmuME 0.9.11 x64";
 	
 	/** The offset in bytes from process start to the start of NDS WRAM. */
 	public static final long PROCESS_WRAM_OFFSET = 0x145411250L;
-	/** NDS WRAM size in bytes. */
-	public static final int WRAM_SIZE = 0x400000;
 	
 	public DeSmuMeExtractor() throws ProcessNotFoundException, UnsupportedPlatformException {
-		super(WINDOW_TITLE, Access.READ);
+		super(WINDOW_TITLE);
 	}
 
 	@Override
-	public int getWRAMSize() {
-		return WRAM_SIZE;
-	}
-
-	@Override
-	protected long getWRAMStartAddress() throws ProcessNotOpenedException {
-		return PROCESS_WRAM_OFFSET;
+	protected long getProcessAddressForSegment(SegmentType type)
+			throws ProcessNotOpenedException, OperationNotSupportedException {
+		switch (type) {
+			case WRAM:
+				return PROCESS_WRAM_OFFSET;
+				
+			default:
+				throw new OperationNotSupportedException();
+		}
 	}
 	
 }

@@ -1,5 +1,7 @@
 package pokemoninfodisplayer.models.gen4;
 
+import pokemoninfodisplayer.lowlevel.memory.MemorySegment;
+import pokemoninfodisplayer.lowlevel.memory.NDSMemoryMap;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
@@ -12,7 +14,7 @@ import pokemoninfodisplayer.util.Util;
  *
  * @author Bjørnar W. Alvestad
  */
-public class Gen4Extractor extends GenExtractor {
+public class Gen4Extractor extends GenExtractor<NDSMemoryMap> {
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -36,15 +38,14 @@ public class Gen4Extractor extends GenExtractor {
 
 	@Override
 	protected void readMemoryModels(PokemonMemoryModel[] party) throws Exception {
-		final byte[] wram = readWRAM();
-		
-		final int start = Util.readDword(wram, 0x101D2C) - 0x2000000;
+		final MemorySegment wram = memoryMap().getWram();
+		final long startAddr = wram.getDword(0x2101D2CL);
 		
 		// In-battle stats
 		for (PokemonMemoryModel m : party) {
 			if (m != null) {
 				Gen4PokemonMemoryModel battleMon = (Gen4PokemonMemoryModel) m;
-				int inbattle_pid = Util.readDword(wram, start + 0x54600);
+				int inbattle_pid = wram.getDword(startAddr + 0x54600L);
 
 				if (battleMon.personalityValue.getUInt() == inbattle_pid) {
 					battleFlagCounter++;
@@ -52,10 +53,10 @@ public class Gen4Extractor extends GenExtractor {
 						return;
 					}
 					
-					int current_hp_adr = start + 0x59F94;
-					int max_hp_adr = start + 0x59F98;
-					int lvl_adr = start + 0x59FB4;
-					int stat_cond_adr = start + 0x54604;
+					long current_hp_adr = startAddr + 0x59F94L;
+					long max_hp_adr = startAddr + 0x59F98L;
+					long lvl_adr = startAddr + 0x59FB4L;
+					long stat_cond_adr = startAddr + 0x54604L;
 					
 					battleMon.currentHP.set(wram, current_hp_adr);
 					battleMon.maxHP.set(wram, max_hp_adr);
@@ -68,12 +69,13 @@ public class Gen4Extractor extends GenExtractor {
 		}
 		battleFlagCounter = 0;
 		
-		final int partyStart = start + 0xD094;
+		// Party
+		final long partyStart = startAddr + 0xD094L;
 		final int pokemonBlockSize = 236;
+		
 		for (int partyIndex = 0; partyIndex < 6; partyIndex++) {
-
 			byte[] encPartyElement = new byte[pokemonBlockSize];
-			System.arraycopy(wram, partyStart + (partyIndex * pokemonBlockSize), encPartyElement, 0, encPartyElement.length);
+			wram.get(encPartyElement, partyStart + (partyIndex * pokemonBlockSize), pokemonBlockSize);
 
 			int personalityValue = Util.readDword(encPartyElement, 0);
 			int checksum = Util.readWord(encPartyElement, 0x6);

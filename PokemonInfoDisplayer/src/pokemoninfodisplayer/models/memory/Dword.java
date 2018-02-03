@@ -17,7 +17,7 @@ public class Dword extends MemoryField {
 
 	@Override
 	public String getStringValue() {
-		return "Dword: " + getUInt();
+		return String.format("Dword: 0x%08X, %d", getUInt(), getUInt());
 	}
 	
 }

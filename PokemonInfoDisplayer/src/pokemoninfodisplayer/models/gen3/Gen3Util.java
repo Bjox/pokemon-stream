@@ -34,7 +34,7 @@ public class Gen3Util {
 	};
 	
 	public static final String[] CHARACTER_SET_GEN3 = {
-		"","À","Á","Â","Ç","È","É","Ê","Ë","Ì","こ","Î","Ï","Ò","Ó","Ô",
+		" ","À","Á","Â","Ç","È","É","Ê","Ë","Ì","こ","Î","Ï","Ò","Ó","Ô",
 		"Œ","Ù","Ú","Û","Ñ","ß","à","á","ね","ç","è","é","ê","ë","ì","ま",
 		"î","ï","ò","ó","ô","œ","ù","ú","û","ñ","º","ª","","&","+","あ",
 		"ぃ","ぅ","ぇ","ぉ","Lv","=","ょ","が","ぎ","ぐ","げ","ご","ざ","じ","ず","ぜ",
@@ -55,6 +55,7 @@ public class Gen3Util {
 	public static String decodeGen3String(byte[] chars) {
 		StringBuilder str = new StringBuilder();
 		for (byte charCode : chars) {
+			if (charCode == (byte)0xFF) break;
 			str.append(CHARACTER_SET_GEN3[Byte.toUnsignedInt(charCode)]);
 		}
 		return str.toString();

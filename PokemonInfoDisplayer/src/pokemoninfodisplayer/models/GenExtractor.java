@@ -2,35 +2,33 @@ package pokemoninfodisplayer.models;
 
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.PokemonInfoDisplayer;
+import pokemoninfodisplayer.lowlevel.emulator.DeSmuMeExtractor;
 import pokemoninfodisplayer.lowlevel.emulator.EmulatorExtractor;
-import pokemoninfodisplayer.lowlevel.emulator.desmume.DeSmuMeExtractor;
-import pokemoninfodisplayer.lowlevel.emulator.visualboyadvance.VBAExtractor;
+import pokemoninfodisplayer.lowlevel.emulator.VBAExtractor;
+import pokemoninfodisplayer.lowlevel.memory.MemoryMap;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
-import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedException;
 import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
 
 /**
  *
  * @author Bjørnar W. Alvestad
+ * @param <T>
  */
-public abstract class GenExtractor {
+public abstract class GenExtractor<T extends MemoryMap> {
 	
-	private final EmulatorExtractor emuExtractor;
-	public final PokemonGame game;
-	private final byte[] wramBuffer;
+	private final EmulatorExtractor<T> emuExtractor;
 	private final PokemonMemoryModel[] memModelBuffer;
+	public final PokemonGame game;
 
 	public GenExtractor(PokemonGame game) throws ProcessNotFoundException, UnsupportedPlatformException {
 		this.emuExtractor = createEmulatorExtractor(game);
 		this.game = game;
-		this.wramBuffer = emuExtractor.createWRAMBuffer();
 		this.emuExtractor.open();
 		this.memModelBuffer = new PokemonMemoryModel[6];
 	}
 	
-	protected byte[] readWRAM() throws ProcessNotOpenedException {
-		emuExtractor.readWRAM(wramBuffer);
-		return wramBuffer;
+	protected T memoryMap() {
+		return emuExtractor.memoryMap;
 	}
 	
 	public void close() {
@@ -38,6 +36,7 @@ public abstract class GenExtractor {
 	}
 	
 	public final void update(PartyModel party) throws Exception {
+		emuExtractor.update();
 		readMemoryModels(memModelBuffer);
 		
 		for (int i = 0; i < memModelBuffer.length; i++) {
@@ -45,6 +44,9 @@ public abstract class GenExtractor {
 			PokemonModel pok = memModel.toPokemonModel();
 			
 			if (!memModel.isPresent() || pok.getDexEntry() < 1) {
+				if (i == 0 && PokemonInfoDisplayer.DEBUG) {
+					System.err.println("Party element " + i + " not present");
+				}
 				party.setPartySlot(i, null);
 				break;
 			}
