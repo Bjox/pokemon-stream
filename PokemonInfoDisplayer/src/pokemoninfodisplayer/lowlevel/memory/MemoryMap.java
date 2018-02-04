@@ -67,8 +67,20 @@ public abstract class MemoryMap implements Iterable<MemorySegment> {
 		return getSegment(addr).getUByte(addr);
 	}
 	
-	public int readInt(long addr) {
+	public int readDword(long addr) {
 		return getSegment(addr).getDword(addr);
+	}
+	
+	public int readWord(long addr) {
+		return getSegment(addr).getWord(addr);
+	}
+	
+	public int readUWord(long addr) {
+		return getSegment(addr).getUWord(addr);
+	}
+	
+	public void readBytes(byte[] buffer, long addr, int length) {
+		getSegment(addr).get(buffer, addr, length);
 	}
 	
 	public final MemorySegment getSegment(long addr) {

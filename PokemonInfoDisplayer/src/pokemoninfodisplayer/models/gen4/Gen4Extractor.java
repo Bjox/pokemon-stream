@@ -1,5 +1,6 @@
 package pokemoninfodisplayer.models.gen4;
 
+import pokemoninfodisplayer.PokemonInfoDisplayer;
 import pokemoninfodisplayer.lowlevel.memory.MemorySegment;
 import pokemoninfodisplayer.lowlevel.memory.NDSMemoryMap;
 import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
@@ -39,24 +40,67 @@ public class Gen4Extractor extends GenExtractor<NDSMemoryMap> {
 	@Override
 	protected void readMemoryModels(PokemonMemoryModel[] party) throws Exception {
 		final MemorySegment wram = memoryMap().getWram();
-		final long startAddr = wram.getDword(0x2101D2CL);
+		long ptrAddr;
+		
+		// Set correct start pointer address
+		switch (game) {
+			case PLATINUM:
+				ptrAddr = 0x2101D2CL; break;
+			case HEARTGOLD_SOULSILVER:
+				ptrAddr = 0x211186CL; break;
+			default:
+				throw new AssertionError(game);
+		}
+		
+		final long startAddr = wram.getDword(ptrAddr);
 		
 		// In-battle stats
 		for (PokemonMemoryModel m : party) {
 			if (m != null) {
 				Gen4PokemonMemoryModel battleMon = (Gen4PokemonMemoryModel) m;
-				int inbattle_pid = wram.getDword(startAddr + 0x54600L);
+				
+				long inbattle_pid_adr = startAddr;
+				
+				switch (game) {
+					case PLATINUM:
+						inbattle_pid_adr += 0x54600L; break;
+					case HEARTGOLD_SOULSILVER:
+						inbattle_pid_adr += 0x56E5CL; break;
+					default:
+						throw new AssertionError(game);
+				}
+				
+				int inbattle_pid = wram.getDword(inbattle_pid_adr);
 
 				if (battleMon.personalityValue.getUInt() == inbattle_pid) {
 					battleFlagCounter++;
-					if (battleFlagCounter < 10) {
+					if (!PokemonInfoDisplayer.DEBUG && battleFlagCounter < 10) {
 						return;
 					}
 					
-					long current_hp_adr = startAddr + 0x59F94L;
-					long max_hp_adr = startAddr + 0x59F98L;
-					long lvl_adr = startAddr + 0x59FB4L;
-					long stat_cond_adr = startAddr + 0x54604L;
+					long current_hp_adr = startAddr;
+					long max_hp_adr = startAddr;
+					long lvl_adr = startAddr;
+					long stat_cond_adr = startAddr;
+					
+					switch (game) {
+						case PLATINUM:
+							current_hp_adr += 0x59F94L;
+							max_hp_adr += 0x59F98L;
+							lvl_adr += 0x59FB4L;
+							stat_cond_adr += 0x54604L;
+							break;
+							
+						case HEARTGOLD_SOULSILVER:
+							current_hp_adr += 0x5D268L;
+							max_hp_adr += 0x5D26AL;
+							lvl_adr += 0x5D220L;
+							stat_cond_adr += 0x56E60L;
+							break;
+							
+						default:
+							throw new AssertionError(game);
+					}
 					
 					battleMon.currentHP.set(wram, current_hp_adr);
 					battleMon.maxHP.set(wram, max_hp_adr);
@@ -70,7 +114,16 @@ public class Gen4Extractor extends GenExtractor<NDSMemoryMap> {
 		battleFlagCounter = 0;
 		
 		// Party
-		final long partyStart = startAddr + 0xD094L;
+		long partyStart = startAddr;
+		switch (game) {
+			case PLATINUM:
+				partyStart += 0xD094L; break;
+			case HEARTGOLD_SOULSILVER:
+				partyStart += 0xD088L; break;
+			default:
+				throw new AssertionError(game);
+		}
+		
 		final int pokemonBlockSize = 236;
 		
 		for (int partyIndex = 0; partyIndex < 6; partyIndex++) {

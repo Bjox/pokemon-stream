@@ -7,7 +7,9 @@ package pokemoninfodisplayer.models;
 public enum PokemonGame {
 	RUBY_SAPPHIRE(3),
 	FIRERED_LEAFGREEN(3),
+	EMERALD(3),
 	PLATINUM(4),
+	HEARTGOLD_SOULSILVER(4)
 	;
 	
 	public final int generation;

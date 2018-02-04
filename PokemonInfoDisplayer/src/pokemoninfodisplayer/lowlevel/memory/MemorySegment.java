@@ -22,6 +22,7 @@ public class MemorySegment implements Comparable<MemorySegment> {
 	public MemorySegment(int size, long address, SegmentType type) {
 		this.data = new byte[size];
 		this.dataBuffer = ByteBuffer.wrap(this.data);
+		this.dataBuffer.rewind();
 		this.address = address;
 		this.type = type;
 	}
