@@ -1,6 +1,8 @@
 package pokemoninfodisplayer;
 
 import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import pokemoninfodisplayer.DisplayerOptions.Skin;
 import pokemoninfodisplayer.graphics.InfoFrame;
@@ -23,130 +25,118 @@ public class PokemonInfoDisplayer {
 		DEBUG = argp.isPresent("-debug");
 
 		// Parse skin
-		String skinArg = argp.getString("-skin", "platinum");
+		DisplayerOptions.setSkin(parseSkinArgument(argp, Skin.PLATINUM));
+
+		// Parse game
+		PokemonGame game = parseGameArgument(argp);
+		if (game == null) {
+			return;
+		}
+
+		System.out.println("Game: " + game);
+		System.out.println("Skin: " + DisplayerOptions.getCurrentSkin());
+
+		InfoFrame frame = new InfoFrame();
+		
+		while (true) {
+			PokemonExtractor extractor = null;
+
+			try {
+				extractor = new PokemonExtractor(game);
+				PartyModel party = new PartyModel();
+
+				while (true) {
+					extractor.updateParty(party);
+					frame.updateParty(party);
+					Thread.sleep(500);
+				}
+			} catch (ProcessNotFoundException e) {
+				if (DEBUG) {
+					throw e;
+				}
+				JOptionPane.showMessageDialog(null, "Please start the emulator first!", "Info", JOptionPane.INFORMATION_MESSAGE);
+				break;
+			} catch (UnsupportedPlatformException e) {
+				if (DEBUG) {
+					throw e;
+				}
+				JOptionPane.showMessageDialog(null, "This platform is not supported.", "Error", JOptionPane.ERROR_MESSAGE);
+				break;
+			} catch (IndexOutOfBoundsException e) {
+				if (DEBUG) {
+					throw e;
+				}
+			} catch (Exception e) {
+				if (DEBUG) {
+					throw e;
+				}
+				int option = JOptionPane.showOptionDialog(
+						null, e.toString(), "An exception occurred", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"Continue", "Exit"}, null);
+				if (option != 0) {
+					break;
+				}
+			}
+			finally {
+				if (extractor != null) {
+					extractor.close();
+				}
+			}
+
+			Thread.sleep(1000);
+		}
+
+		frame.dispose();
+	}
+	
+	private static Skin parseSkinArgument(ArgumentParser argp, Skin defaultSkin) {
+		if (!argp.isPresent("-skin")) {
+			return defaultSkin;
+		}
+		
+		String skinArg = argp.getString("-skin");
+		
 		switch (skinArg) {
 			case "firered":
 			case "leafgreen":
 			case "gen3":
-				DisplayerOptions.setSkin(Skin.FIRERED_LEAFGREEN);
-				break;
+				return Skin.FIRERED_LEAFGREEN;
 			case "platinum":
 			case "gen4":
-				DisplayerOptions.setSkin(Skin.PLATINUM);
-				break;
+				return Skin.PLATINUM;
 			case "black2_white2":
+			case "black2":
+			case "white2":
 			case "gen5":
-				DisplayerOptions.setSkin(Skin.BLACK);
-				break;
+				return Skin.BLACK;
 			default:
-				System.out.println("Invalid skin.");
-				return;
+				return defaultSkin;
 		}
-
-		// Parse game
+	}
+	
+	private static PokemonGame parseGameArgument(ArgumentParser argp) {
 		String gameArg = argp.getString("-game");
-		PokemonGame[] game = new PokemonGame[1];
+		
 		if (gameArg == null) {
 			Object obj = JOptionPane.showInputDialog(
 					null, "Select a game:", "Select game", JOptionPane.INFORMATION_MESSAGE, null, PokemonGame.values(), null);
+			
 			if (obj == null) {
 				System.out.println("Please specify a game using -game <name>");
-				return;
+				return null;
 			}
-			game[0] = (PokemonGame) obj;
+			
+			return (PokemonGame) obj;
 		}
-		for (PokemonGame pg : PokemonGame.values()) {
-			if (pg.toString().equalsIgnoreCase(gameArg)) {
-				game[0] = pg;
-				break;
-			}
+		
+		try {
+			return Stream.of(PokemonGame.values())
+					.filter(game -> game.toString().toLowerCase().equals(gameArg.toLowerCase()))
+					.findFirst()
+					.get();
 		}
-		if (game == null) {
+		catch (NoSuchElementException e) {
 			System.out.println("Invalid game. Legal values are: " + Arrays.toString(PokemonGame.values()));
-			return;
+			return null;
 		}
-
-		System.out.println("Game: " + game[0].toString());
-		System.out.println("Skin: " + skinArg);
-
-		InfoFrame frame = new InfoFrame();
-		
-		PartyModel[] party = new PartyModel[1];
-		
-		Thread extractorThread = new Thread() {
-			
-			@Override
-			public void run(){
-				while(true) {
-					try {
-						while (true) {
-							PokemonExtractor extractor = null;
-							try {
-								extractor = new PokemonExtractor(game[0]);
-								party[0] = new PartyModel();
-
-								while (true) {
-									extractor.updateParty(party[0]);
-									Thread.sleep(500);
-								}
-							} catch (ProcessNotFoundException e) {
-								if (DEBUG) {
-									throw e;
-								}
-								JOptionPane.showMessageDialog(null, "Please start the emulator first!", "Info", JOptionPane.INFORMATION_MESSAGE);
-								break;
-							} catch (UnsupportedPlatformException e) {
-								if (DEBUG) {
-									throw e;
-								}
-								JOptionPane.showMessageDialog(null, "This platform is not supported.", "Error", JOptionPane.ERROR_MESSAGE);
-								break;
-							} catch (IndexOutOfBoundsException e) {
-								if (DEBUG) {
-									throw e;
-								}
-							} catch (Exception e) {
-								if (DEBUG) {
-									throw e;
-								}
-								int option = JOptionPane.showOptionDialog(
-										null, e.toString(), "An exception occurred", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"Continue", "Exit"}, null);
-								if (option != 0) {
-									break;
-								}
-							}
-							finally {
-								if (extractor != null) extractor.close();
-							}
-
-							Thread.sleep(1000);
-						}
-					}
-					catch (Exception e) {
-						continue;
-					}
-				}
-			}
-		};
-		
-		Thread drawThread = new Thread() {
-			
-			@Override
-			public void run(){
-				try {
-					while (true) {
-						while (true) {
-							frame.updateParty(party[0]);
-						}
-					}
-				} finally {
-					frame.dispose();
-				}
-			}
-		};
-
-		extractorThread.start();
-		drawThread.start();
-
 	}
 }

@@ -52,7 +52,7 @@ public class Win32ProcessMemoryReader extends ProcessMemoryReader {
 	}
 
 	@Override
-	public void _openProcess() throws ProcessNotFoundException {
+	protected void _openProcess() throws ProcessNotFoundException {
 		this.processHandle = KERNEL32.OpenProcess(nativeAccess, false, pid);
 		if (this.processHandle == null) {
 			throw new ProcessNotFoundException(pid);
@@ -60,7 +60,7 @@ public class Win32ProcessMemoryReader extends ProcessMemoryReader {
 	}
 
 	@Override
-	public boolean _closeProcess() {
+	protected boolean _closeProcess() {
 		return KERNEL32.CloseHandle(processHandle) != 0;
 	}
 
@@ -73,7 +73,7 @@ public class Win32ProcessMemoryReader extends ProcessMemoryReader {
 	 * @return
 	 */
 	@Override
-	public boolean _readBytes(long address, byte[] buffer, int length) {
+	protected boolean _readBytes(long address, byte[] buffer, int length) {
 		return KERNEL32.ReadProcessMemory(processHandle, address, buffer, length, null) != 0;
 	}
 
@@ -84,7 +84,7 @@ public class Win32ProcessMemoryReader extends ProcessMemoryReader {
 	 * @return
 	 */
 	@Override
-	public int _readInt(long address) {
+	protected int _readInt(long address) {
 		byte[] buff = new byte[Integer.BYTES];
 		KERNEL32.ReadProcessMemory(processHandle, address, buff, buff.length, null);
 		return ByteBuffer.wrap(buff).order(ByteOrder.LITTLE_ENDIAN).getInt();
