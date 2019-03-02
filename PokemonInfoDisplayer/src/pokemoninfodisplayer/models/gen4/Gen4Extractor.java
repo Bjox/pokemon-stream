@@ -74,7 +74,7 @@ public class Gen4Extractor extends GenExtractor<NDSMemoryMap> {
 
 				if (battleMon.personalityValue.getUInt() == inbattle_pid) {
 					battleFlagCounter++;
-					if (!PokemonInfoDisplayer.DEBUG && battleFlagCounter < 10) {
+					if (!PokemonInfoDisplayer.DEBUG && battleFlagCounter < 20) {
 						return;
 					}
 					

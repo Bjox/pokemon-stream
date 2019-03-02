@@ -60,5 +60,16 @@ public abstract class MemoryModel {
 		}
 	}
 	
+	@Override
+	public boolean equals(Object o) {
+		MemoryModel model = (MemoryModel) o;
+		for (int i = 0; i < this.memoryBytes.length; i++) {
+			if (this.memoryBytes[i] != model.memoryBytes[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	
 }

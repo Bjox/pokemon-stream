@@ -7,6 +7,8 @@ import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonGame;
 import pokemoninfodisplayer.models.gen3.Gen3Extractor;
 import pokemoninfodisplayer.models.gen4.Gen4Extractor;
+import pokemoninfodisplayer.models.gen5.Gen5Extractor;
+import pokemoninfodisplayer.util.Util;
 
 /**
  *
@@ -36,9 +38,34 @@ public class PokemonExtractor {
 				return new Gen3Extractor(game);
 			case 4:
 				return new Gen4Extractor(game);
+			case 5: 
+				return new Gen5Extractor(game);
 			default:
 				throw new UnsupportedOperationException("No memory extractor is currently implemented for generation " + game.generation);
 		}
+	}
+	
+	public static void main(String[] args) throws InterruptedException {
+		int numOfRuns = 10;
+		int sumCounter = 0;
+		int sum = 0;
+		while(sumCounter++ < numOfRuns) {
+			int counter = 1;
+			while (Math.ceil(Math.random()*37000000) != 1){
+				counter++;
+			}
+			sum += counter;
+			
+			if (counter == 3201){
+				System.out.println(sumCounter + ": OBB");
+			}
+			else if (counter == 1) {
+				System.out.println(sumCounter + ": WTF KA I HELVETE");
+			}
+				
+		}
+		
+		System.out.println("AVG: " + sum/numOfRuns);
 	}
 	
 }

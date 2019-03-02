@@ -9,7 +9,8 @@ public enum PokemonGame {
 	FIRERED_LEAFGREEN(3),
 	EMERALD(3),
 	PLATINUM(4),
-	HEARTGOLD_SOULSILVER(4)
+	HEARTGOLD_SOULSILVER(4),
+	BLACK2_WHITE2(5)
 	;
 	
 	public final int generation;
