@@ -25,12 +25,15 @@ public abstract class ProcessMemoryReader implements IProcessMemoryReader {
 		this.nativeAccess = getNativeAccess(access);
 	}
 
+	protected abstract void _openProcess() throws ProcessNotFoundException;
+	protected abstract boolean _closeProcess();
+	protected abstract boolean _readBytes(long address, byte[] buffer, int length);
+	protected abstract int _readInt(long address);
 	
 	@Override
 	public final boolean isOpen() {
 		return open;
 	}
-
 	
 	@Override
 	public final void openProcess() throws ProcessNotFoundException {
@@ -40,8 +43,6 @@ public abstract class ProcessMemoryReader implements IProcessMemoryReader {
 		_openProcess();
 		open = true;
 	}
-	protected abstract void _openProcess() throws ProcessNotFoundException;
-
 	
 	@Override
 	public final boolean closeProcess() {
@@ -50,8 +51,6 @@ public abstract class ProcessMemoryReader implements IProcessMemoryReader {
 		}
 		return _closeProcess();
 	}
-	protected abstract boolean _closeProcess();
-
 	
 	private void throwExIfNotOpened() throws ProcessNotOpenedException {
 		if (!isOpen()) {
@@ -59,23 +58,17 @@ public abstract class ProcessMemoryReader implements IProcessMemoryReader {
 		}
 	}
 	
-	
 	@Override
 	public boolean readBytes(long address, byte[] buffer, int length) throws ProcessNotOpenedException {
 		throwExIfNotOpened();
 		return _readBytes(address, buffer, length);
 	}
-	protected abstract boolean _readBytes(long address, byte[] buffer, int length);
-
 	
 	@Override
 	public int readInt(long address) throws ProcessNotOpenedException {
 		throwExIfNotOpened();
 		return _readInt(address);
 	}
-	protected abstract int _readInt(long address);
-	
-	
 	
 	protected final int getNativeAccess(Access access) {
 		switch (access) {

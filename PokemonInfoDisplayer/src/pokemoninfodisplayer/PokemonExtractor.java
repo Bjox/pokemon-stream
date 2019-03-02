@@ -45,6 +45,7 @@ public class PokemonExtractor {
 		}
 	}
 	
+	/*
 	public static void main(String[] args) throws InterruptedException {
 		int numOfRuns = 10;
 		int sumCounter = 0;
@@ -67,5 +68,5 @@ public class PokemonExtractor {
 		
 		System.out.println("AVG: " + sum/numOfRuns);
 	}
-	
+	*/
 }

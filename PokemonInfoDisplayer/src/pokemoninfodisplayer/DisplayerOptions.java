@@ -52,4 +52,8 @@ public class DisplayerOptions {
 	public static void setSkin(Skin skin){
 		SKIN = skin;
 	}
+	
+	public static Skin getCurrentSkin() {
+		return SKIN;
+	}
 }
