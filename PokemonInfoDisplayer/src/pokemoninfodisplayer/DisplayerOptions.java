@@ -6,6 +6,7 @@
 
 package pokemoninfodisplayer;
 
+import pokemoninfodisplayer.graphics.BlackCellRenderer;
 import pokemoninfodisplayer.graphics.FireRedLeafGreenCellRenderer;
 import pokemoninfodisplayer.graphics.PlatinumCellRenderer;
 import pokemoninfodisplayer.graphics.PokemonCellRenderer;
@@ -18,7 +19,8 @@ public class DisplayerOptions {
 	
 	public enum Skin {
 		FIRERED_LEAFGREEN("FireRedLeafGreen"),
-		PLATINUM("Platinum");
+		PLATINUM("Platinum"),
+		BLACK("Black");
 		
 		public final String path_prefix;
  
@@ -33,6 +35,7 @@ public class DisplayerOptions {
 		switch (SKIN) {
 			case FIRERED_LEAFGREEN: return FireRedLeafGreenCellRenderer.Instance;
 			case PLATINUM: return PlatinumCellRenderer.Instance;
+			case BLACK: return BlackCellRenderer.Instance;
 		}
 		return null;
 	}
@@ -41,6 +44,7 @@ public class DisplayerOptions {
 		switch(SKIN){
 			case FIRERED_LEAFGREEN: return Skin.FIRERED_LEAFGREEN.path_prefix;
 			case PLATINUM: return Skin.PLATINUM.path_prefix;
+			case BLACK: return Skin.BLACK.path_prefix;
 		}
 		return null;
 	}

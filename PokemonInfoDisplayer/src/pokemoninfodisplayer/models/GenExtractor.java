@@ -18,6 +18,7 @@ public abstract class GenExtractor<T extends MemoryMap> {
 	
 	private final EmulatorExtractor<T> emuExtractor;
 	private final PokemonMemoryModel[] memModelBuffer;
+	private final PokemonMemoryModel[] memModelCheckBuffer;
 	public final PokemonGame game;
 
 	public GenExtractor(PokemonGame game) throws ProcessNotFoundException, UnsupportedPlatformException {
@@ -25,6 +26,7 @@ public abstract class GenExtractor<T extends MemoryMap> {
 		this.game = game;
 		this.emuExtractor.open();
 		this.memModelBuffer = new PokemonMemoryModel[6];
+		this.memModelCheckBuffer = new PokemonMemoryModel[6];
 	}
 	
 	protected T memoryMap() {
@@ -40,6 +42,7 @@ public abstract class GenExtractor<T extends MemoryMap> {
 		readMemoryModels(memModelBuffer);
 		
 		for (int i = 0; i < memModelBuffer.length; i++) {
+			
 			PokemonMemoryModel memModel = memModelBuffer[i];
 			PokemonModel pok = memModel.toPokemonModel();
 			
@@ -65,7 +68,16 @@ public abstract class GenExtractor<T extends MemoryMap> {
 				continue;
 			}
 			
-			party.setPartySlot(i, pok);
+			if (this.memModelCheckBuffer[i] == null) {
+				this.memModelCheckBuffer[i] = memModel;
+			}
+			else if (this.memModelCheckBuffer[i].equals(memModel)){
+				this.memModelCheckBuffer[i] = null;
+				party.setPartySlot(i, pok);
+			}
+			else {
+				this.memModelCheckBuffer[i] = null;
+			}
 		}
 	}
 	
@@ -77,6 +89,8 @@ public abstract class GenExtractor<T extends MemoryMap> {
 			case 3:
 				return new VBAExtractor();
 			case 4:
+				return new DeSmuMeExtractor();
+			case 5:
 				return new DeSmuMeExtractor();
 			default:
 				throw new UnsupportedOperationException("No emulator extractor is implemented for generation " + game.generation);
