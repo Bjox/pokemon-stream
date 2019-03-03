@@ -83,11 +83,19 @@ public class PokemonInfoDisplayer {
 	}
 	
 	private static Skin parseSkinArgument(ArgumentParser argp, Skin defaultSkin) {
-		if (!argp.isPresent("-skin")) {
-			return defaultSkin;
-		}
-		
 		String skinArg = argp.getString("-skin");
+		
+		if (!argp.isPresent("-skin")) {
+			Object obj = JOptionPane.showInputDialog(
+					null, "Select a skin:", "Select skin", JOptionPane.INFORMATION_MESSAGE, null, Skin.values(), null);
+			
+			if (obj == null) {
+				System.out.println("Please specify a skin using -skin <name>");
+				return null;
+			}
+			
+			return (Skin) obj;
+		}
 		
 		switch (skinArg) {
 			case "firered":
@@ -130,6 +138,33 @@ public class PokemonInfoDisplayer {
 		}
 		catch (NoSuchElementException e) {
 			System.out.println("Invalid game. Legal values are: " + Arrays.toString(PokemonGame.values()));
+			return null;
+		}
+	}
+	
+	private static Skin parseSkinArgument(ArgumentParser argp) {
+		String skinArg = argp.getString("-skin");
+		
+		if (skinArg == null) {
+			Object obj = JOptionPane.showInputDialog(
+					null, "Select a game:", "Select game", JOptionPane.INFORMATION_MESSAGE, null, Skin.values(), null);
+			
+			if (obj == null) {
+				System.out.println("Please specify a skin using -skin <name>");
+				return null;
+			}
+			
+			return (Skin) obj;
+		}
+		
+		try {
+			return Stream.of(Skin.values())
+					.filter(skin -> skin.toString().toLowerCase().equals(skinArg.toLowerCase()))
+					.findFirst()
+					.get();
+		}
+		catch (NoSuchElementException e) {
+			System.out.println("Invalid skin. Legal values are: " + Arrays.toString(Skin.values()));
 			return null;
 		}
 	}

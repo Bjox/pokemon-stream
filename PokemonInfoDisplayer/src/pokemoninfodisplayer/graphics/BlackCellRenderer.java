@@ -20,25 +20,38 @@ import pokemoninfodisplayer.models.PokemonModel;
 public class BlackCellRenderer extends PokemonCellRenderer {
 	
 	public static final BlackCellRenderer Instance = new BlackCellRenderer();
+	
+	
+	protected Point POS_TEXT_HP;
 
 	private BlackCellRenderer(){
 		super(DisplayerOptions.Skin.BLACK);
 		
-		this.COLOR_HP_GREEN_NORMAL = new Color(68, 162, 73);
-		this.COLOR_HP_GREEN_SHADOW = new Color(68, 162, 73);
-		this.COLOR_HP_YELLOW_NORMAL = new Color(222, 186, 100);
-		this.COLOR_HP_YELLOW_SHADOW = new Color(222, 186, 100);
-		this.COLOR_HP_RED_NORMAL = new Color(215, 70, 25);
-		this.COLOR_HP_RED_SHADOW = new Color(215, 70, 25);
-		this.COLOR_TEXT_NORMAL = new Color(0xF6F5EE);
-		this.COLOR_TEXT_SHADOW = new Color(0x292E21);
+		this.COLOR_HP_GREEN_SHADOW = new Color(0x63FE63);
+		this.COLOR_HP_GREEN_NORMAL = new Color(0x18C521);
+		this.COLOR_HP_YELLOW_SHADOW = new Color(0xFEDD00);
+		this.COLOR_HP_YELLOW_NORMAL = new Color(0xEEAC00);
+		this.COLOR_HP_RED_SHADOW = new Color(0xFF3142);
+		this.COLOR_HP_RED_NORMAL = new Color(0x942131);
+		this.COLOR_TEXT_NORMAL = new Color(0xFEFEFE);
+		this.COLOR_TEXT_SHADOW = new Color(0x838383);
 		
-		this.POS_TEXT_NAME = new Point(7, 15);
-		this.POS_POKEMON_IMG = new Point(6, 5);
-		this.POS_TEXT_LVL = new Point(59, 15);
-		this.POS_OVERLAY_BAR = new Point(1, 75);
-		this.POS_HP_BAR_START = new Point(23, 79);
-		this.POS_HP_BAR_END = new Point(77, 80);
+		this.POS_TEXT_NAME = new Point(11, 13); // Done
+		this.POS_POKEMON_IMG = new Point(-3, -3); // Done 
+		this.POS_TEXT_LVL = new Point(8, 84); // Done
+		this.POS_OVERLAY_BAR = new Point(4, 70); // Done
+		this.POS_HP_BAR_START = new Point(27, 73); // Done
+		this.POS_HP_BAR_END = new Point(81, 75); // Done
+		
+		this.POS_TEXT_HP = new Point(39, 84); // Done
+		
+		
+	}
+	
+	@Override
+	public void renderPokemonCell(PokemonModel pokemon, Graphics2D g2) {
+		super.renderPokemonCell(pokemon, g2);
+		this.renderHPAsText(pokemon, g2);
 	}
 
 	@Override
@@ -48,6 +61,13 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 		g2.scale(1.0 - overflowChars * 0.1, 1.0); // Not 100% accurate scaling, but works for nick length up to 10 chars.
 		super.renderName(pokemon, g2);
 		g2.setTransform(orig);
+	}
+	
+	protected void renderHPAsText(PokemonModel pokemon, Graphics2D g2) {
+		
+		String hpText = pokemon.current_hp + "/" + pokemon.max_hp;
+		
+		this.renderTextWithShadow(hpText, this.POS_TEXT_HP.x, this.POS_TEXT_HP.y, g2);
 	}
 	
 	
