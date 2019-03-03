@@ -3,7 +3,7 @@ package pokemoninfodisplayer.models.memory;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import pokemoninfodisplayer.lowlevel.memory.MemorySegment;
+import pokemoninfodisplayer.data.memory.MemorySegment;
 
 /**
  *

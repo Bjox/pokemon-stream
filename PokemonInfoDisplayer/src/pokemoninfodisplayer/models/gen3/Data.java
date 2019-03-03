@@ -67,7 +67,7 @@ class Data {
 	
 	public final int sum;
 	
-	public Data(byte[] enc_data, byte[] personality_value, byte[] ot_id) throws Exception {
+	public Data(byte[] enc_data, byte[] personality_value, byte[] ot_id) throws IllegalAccessException, InstantiationException {
 		
 		byte[] dec_key = Util.XOR(personality_value, ot_id);
 		byte[] dec_data = new byte[enc_data.length];

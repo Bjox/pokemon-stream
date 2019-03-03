@@ -6,8 +6,8 @@ import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import pokemoninfodisplayer.DisplayerOptions.Skin;
 import pokemoninfodisplayer.graphics.InfoFrame;
-import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
-import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
+import pokemoninfodisplayer.process.exceptions.ProcessNotFoundException;
+import pokemoninfodisplayer.process.exceptions.UnsupportedPlatformException;
 import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonGame;
 import pokemoninfodisplayer.util.ArgumentParser;
@@ -39,17 +39,16 @@ public class PokemonInfoDisplayer {
 		InfoFrame frame = new InfoFrame();
 		
 		while (true) {
-			PokemonExtractor extractor = null;
-
-			try {
-				extractor = new PokemonExtractor(game);
+			try (PokemonInterface pokemonInterface = PokemonExtractor.createPokemonExtractor(game)) {
+				
 				PartyModel party = new PartyModel();
-
+				
 				while (true) {
-					extractor.updateParty(party);
+					pokemonInterface.updateParty(party);
 					frame.updateParty(party);
 					Thread.sleep(500);
 				}
+				
 			} catch (ProcessNotFoundException e) {
 				if (DEBUG) {
 					throw e;
@@ -74,11 +73,6 @@ public class PokemonInfoDisplayer {
 						null, e.toString(), "An exception occurred", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, new String[]{"Continue", "Exit"}, null);
 				if (option != 0) {
 					break;
-				}
-			}
-			finally {
-				if (extractor != null) {
-					extractor.close();
 				}
 			}
 
