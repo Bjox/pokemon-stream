@@ -85,6 +85,14 @@ public class Gen4PokemonMemoryModel extends PokemonMemoryModel {
 	@MField(offset = 0x9A) public Word specialDefense;
 	@MField(offset = 0xD4, size = 24) public Bytes sealCoordinates;
 
+	public Gen4PokemonMemoryModel(byte[] decryptedData) {
+		try {
+			update(decryptedData);
+		}
+		catch (IllegalAccessException | InstantiationException e) {
+		}
+	}
+	
 	@Override
 	public PokemonModel toPokemonModel() {
 		PokemonModel model = new PokemonModel();

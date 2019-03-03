@@ -1,12 +1,10 @@
 package pokemoninfodisplayer.models.gen4;
 
+import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.PokemonInfoDisplayer;
-import pokemoninfodisplayer.lowlevel.memory.MemorySegment;
-import pokemoninfodisplayer.lowlevel.memory.NDSMemoryMap;
-import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotFoundException;
-import pokemoninfodisplayer.lowlevel.process.exceptions.ProcessNotOpenedException;
-import pokemoninfodisplayer.lowlevel.process.exceptions.UnsupportedPlatformException;
-import pokemoninfodisplayer.models.GenExtractor;
+import pokemoninfodisplayer.data.MemoryDataSource;
+import pokemoninfodisplayer.data.memory.MemorySegment;
+import pokemoninfodisplayer.data.nds.NDSMemoryMap;
 import pokemoninfodisplayer.models.PokemonGame;
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.util.Util;
@@ -15,7 +13,7 @@ import pokemoninfodisplayer.util.Util;
  *
  * @author Bjørnar W. Alvestad
  */
-public class Gen4Extractor extends GenExtractor<NDSMemoryMap> {
+public class Gen4Extractor extends PokemonExtractor<NDSMemoryMap> {
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -33,21 +31,23 @@ public class Gen4Extractor extends GenExtractor<NDSMemoryMap> {
 		{D, B, A, C}, {D, B, C, A}, {D, C, A, B}, {D, C, B, A}
 	};
 
-	public Gen4Extractor(PokemonGame game) throws ProcessNotFoundException, UnsupportedPlatformException {
-		super(game);
+	public Gen4Extractor(PokemonGame game, MemoryDataSource<NDSMemoryMap> dataSource) {
+		super(game, dataSource);
 	}
-
+	
 	@Override
-	protected void readMemoryModels(PokemonMemoryModel[] party) throws Exception {
-		final MemorySegment wram = memoryMap().getWram();
+	protected void updatePokemonMemoryModels(PokemonMemoryModel[] party, NDSMemoryMap memoryMap) {
+		final MemorySegment wram = memoryMap.getWram();
 		long ptrAddr;
 		
 		// Set correct start pointer address
 		switch (game) {
 			case PLATINUM:
 				ptrAddr = 0x2101D2CL; break;
+				
 			case HEARTGOLD_SOULSILVER:
 				ptrAddr = 0x211186CL; break;
+				
 			default:
 				throw new AssertionError(game);
 		}
@@ -167,15 +167,12 @@ public class Gen4Extractor extends GenExtractor<NDSMemoryMap> {
 				}
 			}
 
-			PokemonMemoryModel pkmnMemModel = new Gen4PokemonMemoryModel();
-			pkmnMemModel.update(decPartyElement);
+			PokemonMemoryModel pkmnMemModel = new Gen4PokemonMemoryModel(decPartyElement);
 			party[partyIndex] = pkmnMemModel; //new Gen4MemoryModel(decPartyElement);
-			
 		}
 	}
 
 	private static class PRNG {
-
 		private int last;
 
 		public PRNG(int seed) {
@@ -186,7 +183,6 @@ public class Gen4Extractor extends GenExtractor<NDSMemoryMap> {
 			last = 0x41C64E6D * last + 0x6073;
 			return (last >>> 16) & 0xFFFF;
 		}
-
 	}
 
 }
