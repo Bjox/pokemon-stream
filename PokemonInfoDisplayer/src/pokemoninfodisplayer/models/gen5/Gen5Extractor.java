@@ -123,7 +123,7 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 		//		throw new AssertionError(game);
 		//}
 		
-		final int pokemonBlockSize = 236;
+		final int pokemonBlockSize = 220;
 		
 		for (int partyIndex = 0; partyIndex < 6; partyIndex++) {
 			byte[] encPartyElement = new byte[pokemonBlockSize];
@@ -159,7 +159,7 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 			{
 				PRNG prng = new PRNG(personalityValue);
 				int pos = 0x88;
-				while (pos < 0xEB) {
+				while (pos < pokemonBlockSize) {
 					int decWord = Util.readWord(encPartyElement, pos) ^ prng.rand();
 					decPartyElement[pos++] = (byte) (decWord & 0xFF);
 					decPartyElement[pos++] = (byte) ((decWord >>> 8) & 0xFF);
