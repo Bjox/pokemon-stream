@@ -106,7 +106,7 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 		model.current_hp = currentHP.getUInt();
 		model.level = level.getUInt();
 		model.max_hp = maxHP.getUInt();
-		model.nickname = Gen5Util.decodeGen4String(nickname.getBytes());
+		model.nickname = Gen5Util.decodeGen5String(nickname.getBytes());
 		model.shiny = Gen5Util.isShiny(OTID.getUInt(), personalityValue.getUInt());
 		model.setDexEntry(speciesID.getUInt());
 		model.setStatusCondition(statusCond.getByte());
