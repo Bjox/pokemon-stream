@@ -41,23 +41,31 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 	@MField(offset = 0x21) public Byt smartContestStat;
 	@MField(offset = 0x22) public Byt toughContestStat;
 	@MField(offset = 0x23) public Byt sheen;
-	@MField(offset = 0x24) public Dword sinnohRibbonsSet1;
+	@MField(offset = 0x24) public Word sinnohRibbonsSet1;
+	@MField(offset = 0x26) public Word unovaRibbonsSet1;
 	
 	// Block B
-	@MField(offset = 0x28, size = 22) public Bytes moveset;
-	@MField(offset = 0x30) public Dword movePP;
+	@MField(offset = 0x28) public Word move1;
+	@MField(offset = 0x2A) public Word move2;
+	@MField(offset = 0x2C) public Word move3;
+	@MField(offset = 0x2E) public Word move4;
+	@MField(offset = 0x30) public Byt move1PP;
+	@MField(offset = 0x31) public Byt move2PP;
+	@MField(offset = 0x32) public Byt move3PP;
+	@MField(offset = 0x33) public Byt move4PP;
 	@MField(offset = 0x34) public Dword movePPUps;
 	@MField(offset = 0x38) public Dword individualValues;
-	@MField(offset = 0x3C) public Dword hoennRibbonSet;
-	@MField(offset = 0x40) public Byt fatefulFlag_gender_altForms;
-	@MField(offset = 0x41) public Byt shinyLeaves_leafCrown_leaves;
-	@MField(offset = 0x44) public Word platinumEggLocation;
-	@MField(offset = 0x46) public Word platinumMetAtLocation;
+	@MField(offset = 0x3C) public Word hoennRibbonSet1;
+	@MField(offset = 0x3E) public Word hoennRibbonSet2;
+	@MField(offset = 0x40) public Byt fatefulFlag_female_genderless_altForms;
+	@MField(offset = 0x41) public Byt nature;
+	@MField(offset = 0x42) public Byt dreamWorldAbility_NsPokemon; 
 	
 	// Block C
 	@MField(offset = 0x48, size = 22) public Bytes nickname;
 	@MField(offset = 0x5F) public Byt gameOfOrigin;
-	@MField(offset = 0x60) public Dword sinnohRibbonSet2;
+	@MField(offset = 0x60) public Word sinnohRibbonSet3;
+	@MField(offset = 0x62) public Word sinnohRibbonSet4;
 	
 	// Block D
 	@MField(offset = 0x68, size = 16) public Bytes OTName;
@@ -69,8 +77,6 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 	@MField(offset = 0x83) public Byt pokeBall;
 	@MField(offset = 0x84) public Byt metAtLvl_OTGender;
 	@MField(offset = 0x85) public Byt encounterType;
-	@MField(offset = 0x86) public Byt HGSSPokeBall;
-	@MField(offset = 0x87) public Byt performance;
 	
 	// Battle stats
 	@MField(offset = 0x88) public Byt statusCond;
@@ -83,7 +89,7 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 	@MField(offset = 0x96) public Word speed;
 	@MField(offset = 0x98) public Word specialAttack;
 	@MField(offset = 0x9A) public Word specialDefense;
-	@MField(offset = 0xD4, size = 24) public Bytes sealCoordinates;
+	@MField(offset = 0x9C, size = 38) public Bytes mailMessage;
 
 	public Gen5PokemonMemoryModel(byte[] decryptedData) {
 		try {
@@ -100,7 +106,7 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 		model.current_hp = currentHP.getUInt();
 		model.level = level.getUInt();
 		model.max_hp = maxHP.getUInt();
-		model.nickname = Gen5Util.decodeGen4String(nickname.getBytes());
+		model.nickname = Gen5Util.decodeGen5String(nickname.getBytes());
 		model.shiny = Gen5Util.isShiny(OTID.getUInt(), personalityValue.getUInt());
 		model.setDexEntry(speciesID.getUInt());
 		model.setStatusCondition(statusCond.getByte());
