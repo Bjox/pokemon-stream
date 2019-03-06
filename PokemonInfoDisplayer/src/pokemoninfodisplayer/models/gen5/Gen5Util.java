@@ -15,36 +15,36 @@ public class Gen5Util {
 		}
 		
 		String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		int code = 43;
+		int code = 65;
 		for (int i = 0; i < upperCase.length(); i++) {
 			CHARACTER_SET_GEN5[code++] = upperCase.substring(i, i+1);
 		}
 		
 		String lowerCase = upperCase.toLowerCase();
-		code = 69;
+		code = 97;
 		for (int i = 0; i < lowerCase.length(); i++) {
 			CHARACTER_SET_GEN5[code++] = lowerCase.substring(i, i+1);
 		}
 		
 		String numbers = "0123456789";
-		code = 33;
+		code = 48;
 		for (int i = 0; i < numbers.length(); i++) {
 			CHARACTER_SET_GEN5[code++] = numbers.substring(i, i+1);
 		}
 		
-		CHARACTER_SET_GEN5[173] = ",";
-		CHARACTER_SET_GEN5[174] = ".";
-		CHARACTER_SET_GEN5[196] = ":";
-		CHARACTER_SET_GEN5[197] = ";";
-		CHARACTER_SET_GEN5[171] = "!";
-		CHARACTER_SET_GEN5[172] = "?";
-		CHARACTER_SET_GEN5[185] = "(";
-		CHARACTER_SET_GEN5[186] = ")";
-		CHARACTER_SET_GEN5[189] = "+";
-		CHARACTER_SET_GEN5[190] = "-";
+		CHARACTER_SET_GEN5[44] = ",";
+		CHARACTER_SET_GEN5[46] = ".";
+		CHARACTER_SET_GEN5[58] = ":";
+		CHARACTER_SET_GEN5[59] = ";";
+		CHARACTER_SET_GEN5[33] = "!";
+		CHARACTER_SET_GEN5[63] = "?";
+		CHARACTER_SET_GEN5[40] = "(";
+		CHARACTER_SET_GEN5[41] = ")";
+		CHARACTER_SET_GEN5[43] = "+";
+		CHARACTER_SET_GEN5[45] = "-";
 	}
 	
-	public static String decodeGen4String(byte[] bytes) {
+	public static String decodeGen5String(byte[] bytes) {
 		StringBuilder str = new StringBuilder();
 		for (int i = 0; i < bytes.length; i += 2) {
 			if (bytes[i] == (byte)0xFF && bytes[i+1] == (byte)0xFF) {
