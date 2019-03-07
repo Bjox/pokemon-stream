@@ -111,6 +111,7 @@ public class PokemonInfoDisplayer {
 			case "gen5":
 				return Skin.BLACK;
 			default:
+				System.out.println("Invalid skin. Legal values are: " + Arrays.toString(Skin.values()));
 				return defaultSkin;
 		}
 	}

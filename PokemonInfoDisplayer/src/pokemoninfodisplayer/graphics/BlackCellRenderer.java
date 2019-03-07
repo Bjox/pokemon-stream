@@ -7,6 +7,7 @@
 package pokemoninfodisplayer.graphics;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
@@ -22,7 +23,7 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 	public static final BlackCellRenderer Instance = new BlackCellRenderer();
 	
 	
-	protected Point POS_TEXT_HP;
+	protected final Point POS_TEXT_HP;
 
 	private BlackCellRenderer(){
 		super(DisplayerOptions.Skin.BLACK);
@@ -44,8 +45,6 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 		this.POS_HP_BAR_END = new Point(81, 75); // Done
 		
 		this.POS_TEXT_HP = new Point(39, 84); // Done
-		
-		
 	}
 	
 	@Override

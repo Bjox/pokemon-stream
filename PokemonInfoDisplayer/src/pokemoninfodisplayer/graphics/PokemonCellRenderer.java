@@ -19,8 +19,7 @@ import pokemoninfodisplayer.models.PokemonModel;
  */
 public abstract class PokemonCellRenderer {
 	
-	protected PokemonCellRenderer(Skin skin){
-		
+	protected PokemonCellRenderer(Skin skin){	
 		this.PATH_SPRITE            = "./res/skins/" + skin.path_prefix + "/dex_imgs/";
 		this.PATH_OVERLAY           = "./res/skins/" + skin.path_prefix + "/overlay/";
 		this.PATH_OVERLAY_STATUS    = "./res/skins/" + skin.path_prefix + "/overlay/status/";
@@ -38,7 +37,7 @@ public abstract class PokemonCellRenderer {
 		
 		this.SIZE_OVERLAY_TILE = new Point(IMG_OVERLAY_TILE.getWidth(), IMG_OVERLAY_TILE.getHeight());
 		this.FONT_NAME = "./res/skins/" + skin.path_prefix + "/font.ttf";
-		this.FONT = getFont(FONT_NAME, Font.PLAIN, FONT_SIZE);
+		this.FONT = createFont(FONT_NAME, Font.PLAIN, FONT_SIZE_DEFAULT);
 	}
 	
 	private final String PATH_SPRITE;
@@ -80,9 +79,9 @@ public abstract class PokemonCellRenderer {
 	protected Point POS_HP_BAR_START;
 	protected Point POS_HP_BAR_END;
 	
-	public String FONT_NAME;
-	public static final int FONT_SIZE = 11;
-	public Font FONT;
+	protected final String FONT_NAME;
+	protected final Font FONT;
+	protected static final int FONT_SIZE_DEFAULT = 11;
 	
 	public static final double SCALE_FACTOR = 2;
 	public final Point SIZE_OVERLAY_TILE;
@@ -184,7 +183,6 @@ public abstract class PokemonCellRenderer {
 		g2.fillRect(POS_HP_BAR_START.x, POS_HP_BAR_START.y, width, 1);
 	}
 	
-	
 	public void renderPokemonCell(PokemonModel pokemon, Graphics2D g2) {
 		// Draw tile overlay
 		g2.drawImage(IMG_OVERLAY_TILE, 0, 0, SIZE_OVERLAY_TILE.x, SIZE_OVERLAY_TILE.y, null);
@@ -193,7 +191,6 @@ public abstract class PokemonCellRenderer {
 		BufferedImage pokemonImg = pokemon.getImage();
 		g2.drawImage(pokemonImg, POS_POKEMON_IMG.x, POS_POKEMON_IMG.y, null);
 
-		
 		g2.setFont(FONT);
 		
 		if (pokemon.isEgg()) {
@@ -236,7 +233,11 @@ public abstract class PokemonCellRenderer {
 		this.renderTextWithShadow("Lv" + String.valueOf(pokemon.level), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
 	}
 	
-	private static Font getFont(String filename, int style, int size) {
+	protected final Font createFont(int style, int size) {
+		return createFont(FONT_NAME, style, size);
+	}
+	
+	private static Font createFont(String filename, int style, int size) {
 		try {
 			Font font = Font.createFont(Font.TRUETYPE_FONT, new File(filename));
 			font = font.deriveFont(style, size);
