@@ -44,5 +44,11 @@ public class Gen3Extractor extends PokemonExtractor<GBAMemoryMap> {
 			party[partyIndex] = new Gen3PokemonMemoryModel(partyElementBytes);
 		}
 	}
+
+	@Override
+	protected boolean getInBattleFlag(GBAMemoryMap memoryMap) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
 	
 }

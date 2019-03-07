@@ -172,6 +172,11 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 		}
 	}
 
+	@Override
+	protected boolean getInBattleFlag(NDSMemoryMap memoryMap) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
 	private static class PRNG {
 		private int last;
 

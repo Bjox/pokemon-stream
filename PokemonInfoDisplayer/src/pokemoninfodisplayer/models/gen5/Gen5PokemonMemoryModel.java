@@ -1,6 +1,7 @@
 package pokemoninfodisplayer.models.gen5;
 
 import pokemoninfodisplayer.models.PokemonModel;
+import pokemoninfodisplayer.models.StatusCondition;
 import pokemoninfodisplayer.models.memory.Byt;
 import pokemoninfodisplayer.models.memory.Bytes;
 import pokemoninfodisplayer.models.memory.Dword;
@@ -101,23 +102,16 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 	
 	@Override
 	public PokemonModel toPokemonModel() {
-		PokemonModel model = new PokemonModel();
-		
-		model.current_hp = currentHP.getUInt();
-		model.level = level.getUInt();
-		model.max_hp = maxHP.getUInt();
-		model.nickname = Gen5Util.decodeGen5String(nickname.getBytes());
-		model.shiny = Gen5Util.isShiny(OTID.getUInt(), personalityValue.getUInt());
-		model.setDexEntry(speciesID.getUInt());
-		model.setStatusCondition(statusCond.getByte());
-		
-		boolean isEgg = (individualValues.getUInt() & 0x40000000) != 0;
-		if (isEgg) {
-			int eggSteps = friendship_eggSteps.getUInt();
-			model.setEgg(true, eggSteps);
-		}
-		
-		return model;
+		return new PokemonModel.Builder()
+				.setCurrentHp(currentHP.getUInt())
+				.setLevel(level.getUInt())
+				.setMaxHp(maxHP.getUInt())
+				.setNickname(Gen5Util.decodeGen5String(nickname.getBytes()))
+				.setShiny(Gen5Util.isShiny(OTID.getUInt(), personalityValue.getUInt()))
+				.setDexEntry(speciesID.getUInt())
+				.setStatusCondition(StatusCondition.parse(statusCond.getByte()))
+				.setEgg((individualValues.getUInt() & 0x40000000) != 0)
+				.build();
 	}
 
 	@Override

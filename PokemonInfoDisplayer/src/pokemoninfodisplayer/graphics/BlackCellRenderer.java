@@ -1,13 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package pokemoninfodisplayer.graphics;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
@@ -56,7 +49,7 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 	@Override
 	protected void renderName(PokemonModel pokemon, Graphics2D g2) {
 		AffineTransform orig = g2.getTransform();
-		int overflowChars = Math.max(pokemon.nickname.length() - 8, 0);
+		int overflowChars = Math.max(pokemon.getNickname().length() - 8, 0);
 		g2.scale(1.0 - overflowChars * 0.1, 1.0); // Not 100% accurate scaling, but works for nick length up to 10 chars.
 		super.renderName(pokemon, g2);
 		g2.setTransform(orig);
@@ -64,7 +57,7 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 	
 	protected void renderHPAsText(PokemonModel pokemon, Graphics2D g2) {
 		
-		String hpText = pokemon.current_hp + "/" + pokemon.max_hp;
+		String hpText = pokemon.getCurrentHp() + "/" + pokemon.getMaxHp();
 		
 		this.renderTextWithShadow(hpText, this.POS_TEXT_HP.x, this.POS_TEXT_HP.y, g2);
 	}

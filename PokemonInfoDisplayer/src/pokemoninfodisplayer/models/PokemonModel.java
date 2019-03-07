@@ -13,143 +13,239 @@ import pokemoninfodisplayer.DisplayerOptions;
  */
 public class PokemonModel {
 	
-	private int dex_entry;
-	public int max_hp;
-	public int current_hp;
-	public int level;
-	private StatusCondition statusCondition;
-	public String nickname;
-	public boolean shiny;
-	private boolean isEgg;
-	private int eggSteps;
-	
-	private BufferedImage img;
-	private BufferedImage gray_img;
-	
-	
-	public enum StatusCondition {
-		SLEEP     (0, 3, "SLP"),
-		POISON    (3, 1, "PSN"),
-		BURN      (4, 1, "BRN"),
-		FREEZE    (5, 1, "FRZ"),
-		PARALYSIS (6, 1, "PAR"),
-		BAD_POISON(7, 1, "PSN!");
+	public static class Builder {
 		
-		public final int bits;
-		public final int offset;
-		public final String shortName;
-		public final int mask;
-		
-		private StatusCondition(int offset, int bits, String shortName) {
-			this.offset = offset;
-			this.bits = bits;
-			this.shortName = shortName;
-			this.mask = (1 << bits) - 1 << offset;
+		private int dexEntry;
+		private int maxHp;
+		private int currentHp;
+		private int level;
+		private StatusCondition statusCondition = null;
+		private String nickname;
+		private boolean shiny = false;
+		private boolean egg = false;
+		private int eggSteps = 0;
+
+		public Builder() {
+		}
+
+		public Builder setDexEntry(int dexEntry) {
+			this.dexEntry = dexEntry;
+			return this;
+		}
+
+		public Builder setMaxHp(int maxHp) {
+			this.maxHp = maxHp;
+			return this;
+		}
+
+		public Builder setCurrentHp(int currentHp) {
+			this.currentHp = currentHp;
+			return this;
+		}
+
+		public Builder setLevel(int level) {
+			this.level = level;
+			return this;
+		}
+
+		public Builder setStatusCondition(StatusCondition statusCondition) {
+			this.statusCondition = statusCondition;
+			return this;
+		}
+
+		public Builder setNickname(String nickname) {
+			this.nickname = nickname;
+			return this;
+		}
+
+		public Builder setShiny(boolean shiny) {
+			this.shiny = shiny;
+			return this;
+		}
+
+		public Builder setEgg(boolean egg) {
+			this.egg = egg;
+			return this;
+		}
+
+		public Builder setEggSteps(int eggSteps) {
+			this.eggSteps = eggSteps;
+			return this;
+		}
+
+		public PokemonModel build() {
+			return new PokemonModel(dexEntry, maxHp, currentHp, level, statusCondition, nickname, shiny, egg, eggSteps);
 		}
 	}
-	
-	
-	public PokemonModel() {
-		nickname = "";
+
+	private final int dexEntry;
+	private final int maxHp;
+	private final int currentHp;
+	private final int level;
+	private final StatusCondition statusCondition;
+	private final String nickname;
+	private final boolean shiny;
+	private final boolean egg;
+	private final int eggSteps;
+
+	private final BufferedImage img;
+	//private final BufferedImage imgGray;
+	//private static final BufferedImage imgEgg; // This can be static because egg is egg no matter what pok it is.
+
+	private PokemonModel(
+			int dexEntry,
+			int maxHp,
+			int currentHp,
+			int level,
+			StatusCondition statusCondition,
+			String nickname,
+			boolean shiny,
+			boolean egg,
+			int eggSteps
+	) {
+		this.dexEntry = dexEntry;
+		this.maxHp = maxHp;
+		this.currentHp = currentHp;
+		this.level = level;
+		this.statusCondition = statusCondition;
+		this.nickname = nickname;
+		this.shiny = shiny;
+		this.egg = egg;
+		this.eggSteps = eggSteps;
+		
+		BufferedImage imgBuff = null;
+		try {
+			imgBuff = createImage(dexEntry, egg, currentHp == 0, shiny);
+		} catch (IOException e) {
+			System.err.println("Error while reading image: " + e.toString());
+			System.err.println("dex: " + dexEntry);
+			System.err.println("totalhp: "+ maxHp);
+			System.err.println("currenthp: " + currentHp);
+			System.err.println("nickname: " + nickname);
+		}
+		this.img = imgBuff;
 	}
-	
+
 	public boolean validate() {
-		if (level < 0 || level > 100) return false;
-		if (current_hp < 0 || current_hp > max_hp) return false;
-		if (dex_entry < 1) return false;
+		if (level < 0 || level > 100) {
+			return false;
+		}
+		if (currentHp < 0 || currentHp > maxHp) {
+			return false;
+		}
+		if (dexEntry < 1) {
+			return false;
+		}
 		return true;
 	}
+
 	
-	public BufferedImage getImage() {
-		if (img == null) {
-			try {
-				File input;
-				
-				if (isEgg) {
-					input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + "/regular/egg.png");
-				} else {
-					input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + (shiny ? "/shiny/" : "/regular/") + dex_entry + ".png");
-				}
-				
-				img = ImageIO.read(input);
-				gray_img = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
-				
-				for (int x = 0; x < img.getWidth(); x++){
-					for (int y = 0; y < img.getHeight(); y++){
-						int p = img.getRGB(x,y);
-						int a = (p>>>24)&0xff;
-						int r = (p>>>16)&0xff;
-						int g = (p>>>8)&0xff;
-						int b = p&0xff;
-						int avg = (r+g+b)/3;
-						
-						p = (a<<24) | (avg<<16) | (avg<<8) | avg;
-						gray_img.setRGB(x, y, p);
-					}
-				}
-			} catch (FileNotFoundException e){
-				System.out.println("File not found");
-			} catch (IOException e){
-				System.out.println("Wronk");
-				System.out.println("Dex: "+dex_entry);
-				System.out.println("totalhp: "+max_hp);
-				System.out.println("currenthp: "+current_hp);
-				System.out.println("nick: "+nickname);
-			}
+	
+	private static BufferedImage createImage(int dexEntry, boolean egg, boolean fainted, boolean shiny) throws IOException {
+		File input;
+
+		if (egg) {
+			input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + "/regular/egg.png");
 		}
-		return isFainted() ? gray_img : img;
-	}
-	
-	public void setDexEntry(int dex_entry) {
-		if (dex_entry == -1) {
-			return;
+		else {
+			input = new File("./res/dex_collections/" + DisplayerOptions.PATH_PREFIX() + (shiny ? "/shiny/" : "/regular/") + dexEntry + ".png");
 		}
-		this.dex_entry = dex_entry;
-		this.img = null;
-	}
-	
-	public void setStatusCondition(byte statusConditionByte) {
-		int statCondByte = Byte.toUnsignedInt(statusConditionByte);
-		StatusCondition[] conditions = StatusCondition.values();
+
+		BufferedImage img = ImageIO.read(input);
 		
-		for (int i = conditions.length-1; i >= 0; i--) {
-			if ((conditions[i].mask & statCondByte) != 0) {
-				this.statusCondition = conditions[i];
-				return;
+		if (egg || !fainted) {
+			return img;
+		}
+		
+		BufferedImage imgGray = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+		for (int x = 0; x < img.getWidth(); x++) {
+			for (int y = 0; y < img.getHeight(); y++) {
+				int p = img.getRGB(x, y);
+				int a = (p >>> 24) & 0xff;
+				int r = (p >>> 16) & 0xff;
+				int g = (p >>> 8) & 0xff;
+				int b = p & 0xff;
+				int avg = (r + g + b) / 3;
+
+				p = (a << 24) | (avg << 16) | (avg << 8) | avg;
+				imgGray.setRGB(x, y, p);
 			}
 		}
 		
-		this.statusCondition = null;
+		return imgGray;
 	}
-	
-	public void setEgg(boolean isEgg, int eggSteps) {
-		this.isEgg = isEgg;
-		this.eggSteps = eggSteps;
-	}
-	
+
+//	public void setDexEntry(int dex_entry) {
+//		if (dex_entry == -1) {
+//			return;
+//		}
+//		this.dexEntry = dex_entry;
+//		this.img = null;
+//	}
+//
+//	public void setStatusCondition(byte statusConditionByte) {
+//		int statCondByte = Byte.toUnsignedInt(statusConditionByte);
+//		StatusCondition[] conditions = StatusCondition.values();
+//
+//		for (int i = conditions.length - 1; i >= 0; i--) {
+//			if ((conditions[i].mask & statCondByte) != 0) {
+//				this.statusCondition = conditions[i];
+//				return;
+//			}
+//		}
+//
+//		this.statusCondition = null;
+//	}
+//
+//	public void setEgg(boolean isEgg, int eggSteps) {
+//		this.isEgg = isEgg;
+//		this.eggSteps = eggSteps;
+//	}
+
 	// Pokemon model getters
-	
-	public int getDexEntry(){
-		return this.dex_entry;
+	public int getDexEntry() {
+		return this.dexEntry;
 	}
-	
-	public boolean isFainted() {
-		return this.current_hp <= 0;
+
+	public int getMaxHp() {
+		return maxHp;
 	}
-	
+
+	public int getCurrentHp() {
+		return currentHp;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public boolean isShiny() {
+		return shiny;
+	}
+
 	public boolean isEgg() {
-		return this.isEgg;
+		return egg;
 	}
-	
+
+	public BufferedImage getImg() {
+		return img;//IsEgg() ? imgEgg : isFainted() ? imgGray : img;
+	}
+
+	public boolean isFainted() {
+		return this.currentHp <= 0;
+	}
+
 	public int getEggSteps() {
 		return this.eggSteps;
 	}
-	
-	/**
-	 * Get the status condition. Returns null for no status condition.
-	 * @return 
-	 */
+
 	public StatusCondition getStatusCondition() {
 		return this.statusCondition;
 	}
+
 }

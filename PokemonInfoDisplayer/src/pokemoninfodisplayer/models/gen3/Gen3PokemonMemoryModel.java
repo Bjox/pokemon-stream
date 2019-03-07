@@ -2,6 +2,7 @@ package pokemoninfodisplayer.models.gen3;
 
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.models.PokemonModel;
+import pokemoninfodisplayer.models.StatusCondition;
 import pokemoninfodisplayer.models.memory.Byt;
 import pokemoninfodisplayer.models.memory.Bytes;
 import pokemoninfodisplayer.models.memory.Dword;
@@ -48,23 +49,16 @@ public class Gen3PokemonMemoryModel extends PokemonMemoryModel {
 	
 	@Override
 	public PokemonModel toPokemonModel() {
-		PokemonModel model = new PokemonModel(); // TODO: make pokemon model builder
-		
-		model.nickname = Gen3Util.decodeGen3String(nickname.getBytes());
-		model.current_hp = currentHP.getUInt();
-		model.max_hp = maxHP.getUInt();
-		model.level = level.getUInt();
-		model.setStatusCondition(statusCondition.getBytes()[0]);
-		model.setDexEntry(dataDecoded.getDexEntry());
-		model.shiny = Gen3Util.isShiny(OTID.getUInt(), personalityValue.getUInt());
-		
-		boolean isEgg = (dataDecoded.miscellaneousBlock.IVEggAbility.getUInt() & 0x40000000) != 0;
-		if (isEgg) {
-			int eggSteps = 0; // TODO: extract egg steps for gen3
-			model.setEgg(true, eggSteps);
-		}
-		
-		return model;
+		return new PokemonModel.Builder()
+				.setNickname(Gen3Util.decodeGen3String(nickname.getBytes()))
+				.setCurrentHp(currentHP.getUInt())
+				.setMaxHp(maxHP.getUInt())
+				.setLevel(level.getUInt())
+				.setStatusCondition(StatusCondition.parse(statusCondition.getBytes()[0]))
+				.setDexEntry(dataDecoded.getDexEntry())
+				.setShiny(Gen3Util.isShiny(OTID.getUInt(), personalityValue.getUInt()))
+				.setEgg((dataDecoded.miscellaneousBlock.IVEggAbility.getUInt() & 0x40000000) != 0)
+				.build();
 	}
 
 	@Override

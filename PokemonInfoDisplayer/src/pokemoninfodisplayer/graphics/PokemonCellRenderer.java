@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import pokemoninfodisplayer.DisplayerOptions.Skin;
 import pokemoninfodisplayer.models.PokemonModel;
+import pokemoninfodisplayer.models.StatusCondition;
 
 /**
  *
@@ -102,7 +103,7 @@ public abstract class PokemonCellRenderer {
 	
 	
 	
-	protected BufferedImage getStatusConditionImg(PokemonModel.StatusCondition status) {
+	protected BufferedImage getStatusConditionImg(StatusCondition status) {
 		if (status == null) return null;
 		
 		switch (status) {
@@ -188,7 +189,7 @@ public abstract class PokemonCellRenderer {
 		g2.drawImage(IMG_OVERLAY_TILE, 0, 0, SIZE_OVERLAY_TILE.x, SIZE_OVERLAY_TILE.y, null);
 
 		// Draw pokemon image
-		BufferedImage pokemonImg = pokemon.getImage();
+		BufferedImage pokemonImg = pokemon.getImg();
 		g2.drawImage(pokemonImg, POS_POKEMON_IMG.x, POS_POKEMON_IMG.y, null);
 
 		g2.setFont(FONT);
@@ -220,17 +221,17 @@ public abstract class PokemonCellRenderer {
 				// Draw status condition hp bar
 				g2.drawImage(statusCondImg, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
 			}
-			this.renderHPBar(pokemon.current_hp, pokemon.max_hp, g2);
+			this.renderHPBar(pokemon.getCurrentHp(), pokemon.getMaxHp(), g2);
 		}
 		
 	}
 	
 	protected void renderName(PokemonModel pokekmon, Graphics2D g2) {
-		this.renderTextWithShadow(pokekmon.nickname, POS_TEXT_NAME.x, POS_TEXT_NAME.y, g2);
+		this.renderTextWithShadow(pokekmon.getNickname(), POS_TEXT_NAME.x, POS_TEXT_NAME.y, g2);
 	}
 	
 	protected void renderLevelText(PokemonModel pokemon, Graphics2D g2){
-		this.renderTextWithShadow("Lv" + String.valueOf(pokemon.level), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
+		this.renderTextWithShadow("Lv" + String.valueOf(pokemon.getLevel()), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
 	}
 	
 	protected final Font createFont(int style, int size) {
