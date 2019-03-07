@@ -55,6 +55,7 @@ public abstract class PokemonExtractor<T extends MemoryMap> implements PokemonIn
 	}
 	
 	protected abstract void updatePokemonMemoryModels(PokemonMemoryModel[] party, T memoryMap);
+	protected abstract boolean getInBattleFlag(T memoryMap);
 	
 	@Override
 	public void update() throws Exception {
@@ -114,6 +115,11 @@ public abstract class PokemonExtractor<T extends MemoryMap> implements PokemonIn
 	@Override
 	public TrainerModel getTrainer() {
 		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public boolean isInBattle() {
+		return getInBattleFlag(dataSource.getMemoryMap());
 	}
 
 	@Override

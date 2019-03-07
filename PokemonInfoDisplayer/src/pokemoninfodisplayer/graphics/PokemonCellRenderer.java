@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import pokemoninfodisplayer.DisplayerOptions.Skin;
 import pokemoninfodisplayer.models.PokemonModel;
+import pokemoninfodisplayer.models.StatusCondition;
 
 /**
  *
@@ -19,8 +20,7 @@ import pokemoninfodisplayer.models.PokemonModel;
  */
 public abstract class PokemonCellRenderer {
 	
-	protected PokemonCellRenderer(Skin skin){
-		
+	protected PokemonCellRenderer(Skin skin) {
 		this.PATH_SPRITE            = "./res/skins/" + skin.path_prefix + "/dex_imgs/";
 		this.PATH_OVERLAY           = "./res/skins/" + skin.path_prefix + "/overlay/";
 		this.PATH_OVERLAY_STATUS    = "./res/skins/" + skin.path_prefix + "/overlay/status/";
@@ -34,25 +34,33 @@ public abstract class PokemonCellRenderer {
 		this.PATH_OVERLAY_POISON    = PATH_OVERLAY_STATUS + "poison.png";
 		this.PATH_OVERLAY_SLEEP     = PATH_OVERLAY_STATUS + "sleep.png";
 		
-		this.loadImages();
+		this.IMG_OVERLAY_TILE       = readImgFromFile(PATH_OVERLAY_TILE);
+		this.IMG_OVERLAY_HPBAR	    = readImgFromFile(PATH_OVERLAY_HPBAR);
+		this.IMG_OVERLAY_BADPOISON  = readImgFromFile(PATH_OVERLAY_BADPOISON);
+		this.IMG_OVERLAY_BURN       = readImgFromFile(PATH_OVERLAY_BURN);
+		this.IMG_OVERLAY_FAINTED    = readImgFromFile(PATH_OVERLAY_FAINTED);
+		this.IMG_OVERLAY_FREEZE     = readImgFromFile(PATH_OVERLAY_FREEZE);
+		this.IMG_OVERLAY_PARALYZE   = readImgFromFile(PATH_OVERLAY_PARALYZE);
+		this.IMG_OVERLAY_POISON     = readImgFromFile(PATH_OVERLAY_POISON);
+		this.IMG_OVERLAY_SLEEP      = readImgFromFile(PATH_OVERLAY_SLEEP);
 		
 		this.SIZE_OVERLAY_TILE = new Point(IMG_OVERLAY_TILE.getWidth(), IMG_OVERLAY_TILE.getHeight());
 		this.FONT_NAME = "./res/skins/" + skin.path_prefix + "/font.ttf";
-		this.FONT = getFont(FONT_NAME, Font.PLAIN, FONT_SIZE);
+		this.FONT = createFont(FONT_NAME, Font.PLAIN, FONT_SIZE_DEFAULT);
 	}
 	
-	private final String PATH_SPRITE;
-	private final String PATH_OVERLAY;
-	private final String PATH_OVERLAY_STATUS;
-	private final String PATH_OVERLAY_TILE;
-	private final String PATH_OVERLAY_HPBAR;
-	private final String PATH_OVERLAY_BADPOISON;
-	private final String PATH_OVERLAY_BURN;
-	private final String PATH_OVERLAY_FAINTED;
-	private final String PATH_OVERLAY_FREEZE;
-	private final String PATH_OVERLAY_PARALYZE;
-	private final String PATH_OVERLAY_POISON;
-	private final String PATH_OVERLAY_SLEEP;
+	protected final String PATH_SPRITE;
+	protected final String PATH_OVERLAY;
+	protected final String PATH_OVERLAY_STATUS;
+	protected final String PATH_OVERLAY_TILE;
+	protected final String PATH_OVERLAY_HPBAR;
+	protected final String PATH_OVERLAY_BADPOISON;
+	protected final String PATH_OVERLAY_BURN;
+	protected final String PATH_OVERLAY_FAINTED;
+	protected final String PATH_OVERLAY_FREEZE;
+	protected final String PATH_OVERLAY_PARALYZE;
+	protected final String PATH_OVERLAY_POISON;
+	protected final String PATH_OVERLAY_SLEEP;
 	
 	protected BufferedImage IMG_OVERLAY_TILE;
 	protected BufferedImage IMG_OVERLAY_HPBAR;
@@ -80,30 +88,17 @@ public abstract class PokemonCellRenderer {
 	protected Point POS_HP_BAR_START;
 	protected Point POS_HP_BAR_END;
 	
-	public String FONT_NAME;
-	public static final int FONT_SIZE = 11;
-	public Font FONT;
+	protected final String FONT_NAME;
+	protected final Font FONT;
+	protected static final int FONT_SIZE_DEFAULT = 11;
 	
 	public static final double SCALE_FACTOR = 2;
 	public final Point SIZE_OVERLAY_TILE;
 	
 	private static boolean SUPPRESS_ERROR_MSG = false;
 	
-	private void loadImages(){
-		this.IMG_OVERLAY_TILE      = readImgFromFile(PATH_OVERLAY_TILE);
-		this.IMG_OVERLAY_HPBAR	   = readImgFromFile(PATH_OVERLAY_HPBAR);
-		this.IMG_OVERLAY_BADPOISON = readImgFromFile(PATH_OVERLAY_BADPOISON);
-		this.IMG_OVERLAY_BURN      = readImgFromFile(PATH_OVERLAY_BURN);
-		this.IMG_OVERLAY_FAINTED   = readImgFromFile(PATH_OVERLAY_FAINTED);
-		this.IMG_OVERLAY_FREEZE    = readImgFromFile(PATH_OVERLAY_FREEZE);
-		this.IMG_OVERLAY_PARALYZE  = readImgFromFile(PATH_OVERLAY_PARALYZE);
-		this.IMG_OVERLAY_POISON    = readImgFromFile(PATH_OVERLAY_POISON);
-		this.IMG_OVERLAY_SLEEP     = readImgFromFile(PATH_OVERLAY_SLEEP);
-	}
 	
-	
-	
-	protected BufferedImage getStatusConditionImg(PokemonModel.StatusCondition status) {
+	protected BufferedImage getStatusConditionImg(StatusCondition status) {
 		if (status == null) return null;
 		
 		switch (status) {
@@ -184,16 +179,14 @@ public abstract class PokemonCellRenderer {
 		g2.fillRect(POS_HP_BAR_START.x, POS_HP_BAR_START.y, width, 1);
 	}
 	
-	
 	public void renderPokemonCell(PokemonModel pokemon, Graphics2D g2) {
 		// Draw tile overlay
 		g2.drawImage(IMG_OVERLAY_TILE, 0, 0, SIZE_OVERLAY_TILE.x, SIZE_OVERLAY_TILE.y, null);
 
 		// Draw pokemon image
-		BufferedImage pokemonImg = pokemon.getImage();
+		BufferedImage pokemonImg = pokemon.getImg();
 		g2.drawImage(pokemonImg, POS_POKEMON_IMG.x, POS_POKEMON_IMG.y, null);
 
-		
 		g2.setFont(FONT);
 		
 		if (pokemon.isEgg()) {
@@ -223,20 +216,24 @@ public abstract class PokemonCellRenderer {
 				// Draw status condition hp bar
 				g2.drawImage(statusCondImg, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
 			}
-			this.renderHPBar(pokemon.current_hp, pokemon.max_hp, g2);
+			this.renderHPBar(pokemon.getCurrentHp(), pokemon.getMaxHp(), g2);
 		}
 		
 	}
 	
 	protected void renderName(PokemonModel pokekmon, Graphics2D g2) {
-		this.renderTextWithShadow(pokekmon.nickname, POS_TEXT_NAME.x, POS_TEXT_NAME.y, g2);
+		this.renderTextWithShadow(pokekmon.getNickname(), POS_TEXT_NAME.x, POS_TEXT_NAME.y, g2);
 	}
 	
 	protected void renderLevelText(PokemonModel pokemon, Graphics2D g2){
-		this.renderTextWithShadow("Lv" + String.valueOf(pokemon.level), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
+		this.renderTextWithShadow("Lv" + String.valueOf(pokemon.getLevel()), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
 	}
 	
-	private static Font getFont(String filename, int style, int size) {
+	protected final Font createFont(int style, int size) {
+		return createFont(FONT_NAME, style, size);
+	}
+	
+	private static Font createFont(String filename, int style, int size) {
 		try {
 			Font font = Font.createFont(Font.TRUETYPE_FONT, new File(filename));
 			font = font.deriveFont(style, size);
@@ -248,7 +245,7 @@ public abstract class PokemonCellRenderer {
 	}
 	
 	
-	private static BufferedImage readImgFromFile(String filename) {
+	protected static BufferedImage readImgFromFile(String filename) {
 		try {
 			File file = new File(filename);
 			if (!file.exists()) {

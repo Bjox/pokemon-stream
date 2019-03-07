@@ -1,16 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package pokemoninfodisplayer.graphics;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import pokemoninfodisplayer.DisplayerOptions;
+import pokemoninfodisplayer.models.Gender;
 import pokemoninfodisplayer.models.PokemonModel;
 
 /**
@@ -21,8 +17,14 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 	
 	public static final BlackCellRenderer Instance = new BlackCellRenderer();
 	
+	protected final String PATH_OVERLAY_FEMALE;
+	protected final String PATH_OVERLAY_MALE;
+	
+	protected BufferedImage IMG_OVERLAY_FEMALE;
+	protected BufferedImage IMG_OVERLAY_MALE;
 	
 	protected Point POS_TEXT_HP;
+	protected Point POS_OVERLAY_GENDER;
 
 	private BlackCellRenderer(){
 		super(DisplayerOptions.Skin.BLACK);
@@ -43,9 +45,14 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 		this.POS_HP_BAR_START = new Point(27, 73); // Done
 		this.POS_HP_BAR_END = new Point(81, 75); // Done
 		
-		this.POS_TEXT_HP = new Point(39, 84); // Done
+		this.PATH_OVERLAY_FEMALE = PATH_OVERLAY + "female.png";
+		this.PATH_OVERLAY_MALE = PATH_OVERLAY + "male.png";
 		
+		this.IMG_OVERLAY_FEMALE = readImgFromFile(PATH_OVERLAY_FEMALE);
+		this.IMG_OVERLAY_MALE = readImgFromFile(PATH_OVERLAY_MALE);
 		
+		this.POS_TEXT_HP = new Point(39, 84);
+		this.POS_OVERLAY_GENDER = new Point(76, POS_TEXT_NAME.y - IMG_OVERLAY_FEMALE.getHeight() + 1);
 	}
 	
 	@Override
@@ -55,18 +62,21 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 	}
 
 	@Override
-	protected void renderName(PokemonModel pokemon, Graphics2D g2) {
-		AffineTransform orig = g2.getTransform();
-		int overflowChars = Math.max(pokemon.nickname.length() - 8, 0);
-		g2.scale(1.0 - overflowChars * 0.1, 1.0); // Not 100% accurate scaling, but works for nick length up to 10 chars.
-		super.renderName(pokemon, g2);
-		g2.setTransform(orig);
+	protected void renderName(PokemonModel pokekmon, Graphics2D g2) {
+		super.renderName(pokekmon, g2);
+		
+		Gender gender = pokekmon.getGender();
+		
+		if (gender == Gender.GENDERLESS) {
+			return;
+		}
+		
+		BufferedImage img = pokekmon.getGender() == Gender.FEMALE ? IMG_OVERLAY_FEMALE : IMG_OVERLAY_MALE;
+		g2.drawImage(img, POS_OVERLAY_GENDER.x, POS_OVERLAY_GENDER.y, null);
 	}
 	
 	protected void renderHPAsText(PokemonModel pokemon, Graphics2D g2) {
-		
-		String hpText = pokemon.current_hp + "/" + pokemon.max_hp;
-		
+		String hpText = pokemon.getCurrentHp() + "/" + pokemon.getMaxHp();
 		this.renderTextWithShadow(hpText, this.POS_TEXT_HP.x, this.POS_TEXT_HP.y, g2);
 	}
 	

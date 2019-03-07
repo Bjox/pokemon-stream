@@ -11,8 +11,10 @@ import pokemoninfodisplayer.models.TrainerModel;
 public interface PokemonInterface extends Closeable {
 
 	void update() throws Exception;
+	@Deprecated
 	void updateParty(PartyModel party);
 	PartyModel getParty();
 	TrainerModel getTrainer();
+	boolean isInBattle();
 	
 }

@@ -1,5 +1,6 @@
 package pokemoninfodisplayer.models.gen5;
 
+import pokemoninfodisplayer.models.Gender;
 import pokemoninfodisplayer.models.gen3.Gen3Util;
 
 /**
@@ -60,6 +61,13 @@ public class Gen5Util {
 	
 	public static boolean isShiny(int ot_id, int pid) {
 		return Gen3Util.isShiny(ot_id, pid);
+	}
+	
+	public static Gender getGender(byte genderByte) {
+		if ((genderByte & 4) != 0) {
+			return Gender.GENDERLESS;
+		}
+		return (genderByte & 2) == 0 ? Gender.MALE : Gender.FEMALE;
 	}
 	
 }

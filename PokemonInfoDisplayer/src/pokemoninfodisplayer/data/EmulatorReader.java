@@ -58,11 +58,7 @@ public abstract class EmulatorReader<T extends MemoryMap> extends MemoryDataSour
 	 */
 	protected int readInt(long address) throws ProcessNotOpenedException {
 		processReader.readBytes(address, intReadBuffer.array(), intReadBuffer.capacity());
-		return intReadBuffer.getInt(0); // TODO: confirm that the byte ordering is correct
-		
-//		byte[] buff = new byte[Integer.BYTES];
-//		processReader.readBytes(address, buff, buff.length);
-//		return ByteBuffer.wrap(buff).order(ByteOrder.LITTLE_ENDIAN).getInt();
+		return intReadBuffer.getInt(0); // TODO: confirm that the byte ordering is correct. Edit: is probably correct because gen3 works
 	}
 
 	@Override
