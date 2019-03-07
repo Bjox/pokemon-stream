@@ -1,11 +1,16 @@
 package pokemoninfodisplayer.models.gen5;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.stream.Stream;
 import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.memory.MemorySegment;
 import pokemoninfodisplayer.data.nds.NDSMemoryMap;
 import pokemoninfodisplayer.models.PokemonGame;
+import pokemoninfodisplayer.models.memory.Dword;
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
+import pokemoninfodisplayer.models.memory.Word;
 import pokemoninfodisplayer.util.Util;
 
 /**
@@ -37,92 +42,12 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 	@Override
 	protected void updatePokemonMemoryModels(PokemonMemoryModel[] party, NDSMemoryMap memoryMap) {
 		final MemorySegment wram = memoryMap.getWram();
-		long ptrAddr;
-		
-		// Set correct start pointer address
-		switch (game) {
-			//case PLATINUM:
-			//	ptrAddr = 0x2101D2CL; break;
-			//case BLACK2_WHITE2:
-			//	ptrAddr = 0x211186CL; break;
-			case BLACK2_WHITE2:
-				ptrAddr = 0x02259DD8; break;
-			default:
-				throw new AssertionError(game);
-		}
 		
 		final long startAddr = 0x0221E3EC;
 		
-		// In-battle stats
-		/*for (PokemonMemoryModel m : party) {
-			if (m != null) {
-				Gen5PokemonMemoryModel battleMon = (Gen5PokemonMemoryModel) m;
-				
-				long inbattle_pid_adr = startAddr;
-				
-				switch (game) {
-					//case PLATINUM:
-					//	inbattle_pid_adr += 0x54600L; break;
-					case BLACK2_WHITE2:
-						inbattle_pid_adr += 0x56E5CL; break;
-					default:
-						throw new AssertionError(game);
-				}
-				
-				int inbattle_pid = wram.getDword(inbattle_pid_adr);
-
-				if (battleMon.personalityValue.getUInt() == inbattle_pid) {
-					battleFlagCounter++;
-					if (!PokemonInfoDisplayer.DEBUG && battleFlagCounter < 20) {
-						return;
-					}
-					
-					long current_hp_adr = startAddr;
-					long max_hp_adr = startAddr;
-					long lvl_adr = startAddr;
-					long stat_cond_adr = startAddr;
-					
-					switch (game) {
-						//case PLATINUM:
-						//	current_hp_adr += 0x59F94L;
-						//	max_hp_adr += 0x59F98L;
-						//	lvl_adr += 0x59FB4L;
-						//	stat_cond_adr += 0x54604L;
-						//	break;
-							
-						case BLACK2_WHITE2:
-							current_hp_adr += 0x5D268L;
-							max_hp_adr += 0x5D26AL;
-							lvl_adr += 0x5D220L;
-							stat_cond_adr += 0x56E60L;
-							break;
-							
-						default:
-							throw new AssertionError(game);
-					}
-					
-					battleMon.currentHP.set(wram, current_hp_adr);
-					battleMon.maxHP.set(wram, max_hp_adr);
-					battleMon.level.set(wram, lvl_adr);
-					battleMon.statusCond.set(wram, stat_cond_adr);
-
-					return;
-				}
-			}
-		}*/
-		battleFlagCounter = 0;
+		boolean inBattleFlag = wram.getUWord(0x2143A5E) == 0xFFFF;
 		
-		// Party
 		long partyStart = startAddr;
-		//switch (game) {
-			//case PLATINUM:
-			//	partyStart += 0xD094L; break;
-		//	case BLACK2_WHITE2:
-		//		partyStart += 0xD088L; break;
-		//	default:
-		//		throw new AssertionError(game);
-		//}
-		
 		final int pokemonBlockSize = 220;
 		
 		for (int partyIndex = 0; partyIndex < 6; partyIndex++) {
@@ -168,7 +93,31 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 
 			PokemonMemoryModel pkmnMemModel = new Gen5PokemonMemoryModel(decPartyElement);
 			party[partyIndex] = pkmnMemModel;
+		}	
+		
+		if (inBattleFlag) {
+			long inBattlePidAddr = 0x22968F0;
+			int prepInBattlePid = wram.getDword(inBattlePidAddr);
+			if (prepInBattlePid == 0x0) {
+				long inBattlePidAddrBackup = 0x2257D74;
+				prepInBattlePid = wram.getDword(inBattlePidAddrBackup);
+			}
 			
+			int inBattlePid = prepInBattlePid;
+			
+			Gen5PokemonMemoryModel battlePokemon = (Gen5PokemonMemoryModel) Stream.of(party).filter(pokemon -> ((Gen5PokemonMemoryModel) pokemon).personalityValue.getUInt() == inBattlePid).findFirst().get();
+			
+			long inBattleMaxHpAddr = 0x22A84A0;
+			long inBattleCurrentHpAddr = 0x22A849C;
+			long inBattleLevelAddr = 0x22A84C0;
+			
+			int inBattleMaxHp = wram.getWord(inBattleMaxHpAddr);
+			int inBattleCurrentHp = wram.getWord(inBattleCurrentHpAddr);
+			int inBattleLevel = wram.getWord(inBattleLevelAddr);
+			
+			battlePokemon.maxHP.set(ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short) inBattleMaxHp).array(), 0x0);
+			battlePokemon.currentHP.set(ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short) inBattleCurrentHp).array(), 0x0);
+			battlePokemon.level.set(ByteBuffer.allocate(1).put((byte) inBattleLevel).array(), 0x0);
 		}
 	}
 
