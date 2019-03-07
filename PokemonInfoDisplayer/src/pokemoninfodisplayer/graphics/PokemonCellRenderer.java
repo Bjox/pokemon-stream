@@ -20,7 +20,7 @@ import pokemoninfodisplayer.models.StatusCondition;
  */
 public abstract class PokemonCellRenderer {
 	
-	protected PokemonCellRenderer(Skin skin){	
+	protected PokemonCellRenderer(Skin skin) {
 		this.PATH_SPRITE            = "./res/skins/" + skin.path_prefix + "/dex_imgs/";
 		this.PATH_OVERLAY           = "./res/skins/" + skin.path_prefix + "/overlay/";
 		this.PATH_OVERLAY_STATUS    = "./res/skins/" + skin.path_prefix + "/overlay/status/";
@@ -34,25 +34,33 @@ public abstract class PokemonCellRenderer {
 		this.PATH_OVERLAY_POISON    = PATH_OVERLAY_STATUS + "poison.png";
 		this.PATH_OVERLAY_SLEEP     = PATH_OVERLAY_STATUS + "sleep.png";
 		
-		this.loadImages();
+		this.IMG_OVERLAY_TILE       = readImgFromFile(PATH_OVERLAY_TILE);
+		this.IMG_OVERLAY_HPBAR	    = readImgFromFile(PATH_OVERLAY_HPBAR);
+		this.IMG_OVERLAY_BADPOISON  = readImgFromFile(PATH_OVERLAY_BADPOISON);
+		this.IMG_OVERLAY_BURN       = readImgFromFile(PATH_OVERLAY_BURN);
+		this.IMG_OVERLAY_FAINTED    = readImgFromFile(PATH_OVERLAY_FAINTED);
+		this.IMG_OVERLAY_FREEZE     = readImgFromFile(PATH_OVERLAY_FREEZE);
+		this.IMG_OVERLAY_PARALYZE   = readImgFromFile(PATH_OVERLAY_PARALYZE);
+		this.IMG_OVERLAY_POISON     = readImgFromFile(PATH_OVERLAY_POISON);
+		this.IMG_OVERLAY_SLEEP      = readImgFromFile(PATH_OVERLAY_SLEEP);
 		
 		this.SIZE_OVERLAY_TILE = new Point(IMG_OVERLAY_TILE.getWidth(), IMG_OVERLAY_TILE.getHeight());
 		this.FONT_NAME = "./res/skins/" + skin.path_prefix + "/font.ttf";
 		this.FONT = createFont(FONT_NAME, Font.PLAIN, FONT_SIZE_DEFAULT);
 	}
 	
-	private final String PATH_SPRITE;
-	private final String PATH_OVERLAY;
-	private final String PATH_OVERLAY_STATUS;
-	private final String PATH_OVERLAY_TILE;
-	private final String PATH_OVERLAY_HPBAR;
-	private final String PATH_OVERLAY_BADPOISON;
-	private final String PATH_OVERLAY_BURN;
-	private final String PATH_OVERLAY_FAINTED;
-	private final String PATH_OVERLAY_FREEZE;
-	private final String PATH_OVERLAY_PARALYZE;
-	private final String PATH_OVERLAY_POISON;
-	private final String PATH_OVERLAY_SLEEP;
+	protected final String PATH_SPRITE;
+	protected final String PATH_OVERLAY;
+	protected final String PATH_OVERLAY_STATUS;
+	protected final String PATH_OVERLAY_TILE;
+	protected final String PATH_OVERLAY_HPBAR;
+	protected final String PATH_OVERLAY_BADPOISON;
+	protected final String PATH_OVERLAY_BURN;
+	protected final String PATH_OVERLAY_FAINTED;
+	protected final String PATH_OVERLAY_FREEZE;
+	protected final String PATH_OVERLAY_PARALYZE;
+	protected final String PATH_OVERLAY_POISON;
+	protected final String PATH_OVERLAY_SLEEP;
 	
 	protected BufferedImage IMG_OVERLAY_TILE;
 	protected BufferedImage IMG_OVERLAY_HPBAR;
@@ -88,19 +96,6 @@ public abstract class PokemonCellRenderer {
 	public final Point SIZE_OVERLAY_TILE;
 	
 	private static boolean SUPPRESS_ERROR_MSG = false;
-	
-	private void loadImages(){
-		this.IMG_OVERLAY_TILE      = readImgFromFile(PATH_OVERLAY_TILE);
-		this.IMG_OVERLAY_HPBAR	   = readImgFromFile(PATH_OVERLAY_HPBAR);
-		this.IMG_OVERLAY_BADPOISON = readImgFromFile(PATH_OVERLAY_BADPOISON);
-		this.IMG_OVERLAY_BURN      = readImgFromFile(PATH_OVERLAY_BURN);
-		this.IMG_OVERLAY_FAINTED   = readImgFromFile(PATH_OVERLAY_FAINTED);
-		this.IMG_OVERLAY_FREEZE    = readImgFromFile(PATH_OVERLAY_FREEZE);
-		this.IMG_OVERLAY_PARALYZE  = readImgFromFile(PATH_OVERLAY_PARALYZE);
-		this.IMG_OVERLAY_POISON    = readImgFromFile(PATH_OVERLAY_POISON);
-		this.IMG_OVERLAY_SLEEP     = readImgFromFile(PATH_OVERLAY_SLEEP);
-	}
-	
 	
 	
 	protected BufferedImage getStatusConditionImg(StatusCondition status) {
@@ -250,7 +245,7 @@ public abstract class PokemonCellRenderer {
 	}
 	
 	
-	private static BufferedImage readImgFromFile(String filename) {
+	protected static BufferedImage readImgFromFile(String filename) {
 		try {
 			File file = new File(filename);
 			if (!file.exists()) {

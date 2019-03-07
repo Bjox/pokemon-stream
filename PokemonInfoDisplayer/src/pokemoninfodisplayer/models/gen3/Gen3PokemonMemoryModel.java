@@ -50,6 +50,7 @@ public class Gen3PokemonMemoryModel extends PokemonMemoryModel {
 	@Override
 	public PokemonModel toPokemonModel() {
 		return new PokemonModel.Builder()
+				.setPersonalityValue(personalityValue.getUInt())
 				.setNickname(Gen3Util.decodeGen3String(nickname.getBytes()))
 				.setCurrentHp(currentHP.getUInt())
 				.setMaxHp(maxHP.getUInt())

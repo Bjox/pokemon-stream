@@ -2,7 +2,6 @@ package pokemoninfodisplayer.models;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import pokemoninfodisplayer.DisplayerOptions;
@@ -15,6 +14,7 @@ public class PokemonModel {
 	
 	public static class Builder {
 		
+		private int personalityValue;
 		private int dexEntry;
 		private int maxHp;
 		private int currentHp;
@@ -24,10 +24,16 @@ public class PokemonModel {
 		private boolean shiny = false;
 		private boolean egg = false;
 		private int eggSteps = 0;
+		private Gender gender = Gender.GENDERLESS;
 
 		public Builder() {
 		}
 
+		public Builder setPersonalityValue(int personalityValue) {
+			this.personalityValue = personalityValue;
+			return this;
+		}
+		
 		public Builder setDexEntry(int dexEntry) {
 			this.dexEntry = dexEntry;
 			return this;
@@ -72,12 +78,18 @@ public class PokemonModel {
 			this.eggSteps = eggSteps;
 			return this;
 		}
+		
+		public Builder setGender(Gender gender) {
+			this.gender = gender;
+			return this;
+		}
 
 		public PokemonModel build() {
-			return new PokemonModel(dexEntry, maxHp, currentHp, level, statusCondition, nickname, shiny, egg, eggSteps);
+			return new PokemonModel(personalityValue, dexEntry, maxHp, currentHp, level, statusCondition, nickname, shiny, egg, eggSteps, gender);
 		}
 	}
 
+	private final int personalityValue;
 	private final int dexEntry;
 	private final int maxHp;
 	private final int currentHp;
@@ -87,12 +99,14 @@ public class PokemonModel {
 	private final boolean shiny;
 	private final boolean egg;
 	private final int eggSteps;
-
 	private final BufferedImage img;
+	private final Gender gender;
+	
 	//private final BufferedImage imgGray;
 	//private static final BufferedImage imgEgg; // This can be static because egg is egg no matter what pok it is.
 
 	private PokemonModel(
+			int personalityValue,
 			int dexEntry,
 			int maxHp,
 			int currentHp,
@@ -101,8 +115,10 @@ public class PokemonModel {
 			String nickname,
 			boolean shiny,
 			boolean egg,
-			int eggSteps
+			int eggSteps,
+			Gender gender
 	) {
+		this.personalityValue = personalityValue;
 		this.dexEntry = dexEntry;
 		this.maxHp = maxHp;
 		this.currentHp = currentHp;
@@ -112,6 +128,7 @@ public class PokemonModel {
 		this.shiny = shiny;
 		this.egg = egg;
 		this.eggSteps = eggSteps;
+		this.gender = gender;
 		
 		BufferedImage imgBuff = null;
 		try {
@@ -138,8 +155,6 @@ public class PokemonModel {
 		}
 		return true;
 	}
-
-	
 	
 	private static BufferedImage createImage(int dexEntry, boolean egg, boolean fainted, boolean shiny) throws IOException {
 		File input;
@@ -176,34 +191,12 @@ public class PokemonModel {
 		return imgGray;
 	}
 
-//	public void setDexEntry(int dex_entry) {
-//		if (dex_entry == -1) {
-//			return;
-//		}
-//		this.dexEntry = dex_entry;
-//		this.img = null;
-//	}
-//
-//	public void setStatusCondition(byte statusConditionByte) {
-//		int statCondByte = Byte.toUnsignedInt(statusConditionByte);
-//		StatusCondition[] conditions = StatusCondition.values();
-//
-//		for (int i = conditions.length - 1; i >= 0; i--) {
-//			if ((conditions[i].mask & statCondByte) != 0) {
-//				this.statusCondition = conditions[i];
-//				return;
-//			}
-//		}
-//
-//		this.statusCondition = null;
-//	}
-//
-//	public void setEgg(boolean isEgg, int eggSteps) {
-//		this.isEgg = isEgg;
-//		this.eggSteps = eggSteps;
-//	}
-
 	// Pokemon model getters
+	
+	public int getPersonalityValue() {
+		return personalityValue;
+	}
+	
 	public int getDexEntry() {
 		return this.dexEntry;
 	}
@@ -246,6 +239,10 @@ public class PokemonModel {
 
 	public StatusCondition getStatusCondition() {
 		return this.statusCondition;
+	}
+	
+	public Gender getGender() {
+		return gender;
 	}
 
 }

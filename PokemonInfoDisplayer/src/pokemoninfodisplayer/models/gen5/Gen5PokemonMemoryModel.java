@@ -103,6 +103,7 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 	@Override
 	public PokemonModel toPokemonModel() {
 		return new PokemonModel.Builder()
+				.setPersonalityValue(personalityValue.getUInt())
 				.setCurrentHp(currentHP.getUInt())
 				.setLevel(level.getUInt())
 				.setMaxHp(maxHP.getUInt())
@@ -111,6 +112,7 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 				.setDexEntry(speciesID.getUInt())
 				.setStatusCondition(StatusCondition.parse(statusCond.getByte()))
 				.setEgg((individualValues.getUInt() & 0x40000000) != 0)
+				.setGender(Gen5Util.getGender(fatefulFlag_female_genderless_altForms.getByte()))
 				.build();
 	}
 

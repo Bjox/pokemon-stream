@@ -97,6 +97,7 @@ public class Gen4PokemonMemoryModel extends PokemonMemoryModel {
 	@Override
 	public PokemonModel toPokemonModel() {
 		return new PokemonModel.Builder()
+				.setPersonalityValue(personalityValue.getUInt())
 				.setCurrentHp(currentHP.getUInt())
 				.setLevel(level.getUInt())
 				.setMaxHp(maxHP.getUInt())
