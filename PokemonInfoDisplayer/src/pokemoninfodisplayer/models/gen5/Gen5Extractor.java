@@ -1,11 +1,16 @@
 package pokemoninfodisplayer.models.gen5;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.stream.Stream;
 import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.memory.MemorySegment;
 import pokemoninfodisplayer.data.nds.NDSMemoryMap;
 import pokemoninfodisplayer.models.PokemonGame;
+import pokemoninfodisplayer.models.memory.Dword;
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
+import pokemoninfodisplayer.models.memory.Word;
 import pokemoninfodisplayer.util.Util;
 
 /**
@@ -19,7 +24,10 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 	private static final int C = 2;
 	private static final int D = 3;
 	
-	private int battleFlagCounter = 0;
+	private final int CHANGE_UPDATE_BUFFER = 17; // Tested to match timings of entering battle and switching pokemon
+	
+	private int activePokemonChangedCounter = 0;
+	private int activePokemonPid = 0;
 	
 	private static final int[][] SHUFFLE_ORDER = {
 		{A, B, C, D}, {A, B, D, C}, {A, C, B, D}, {A, C, D, B},
@@ -37,138 +45,91 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 	@Override
 	protected void updatePokemonMemoryModels(PokemonMemoryModel[] party, NDSMemoryMap memoryMap) {
 		final MemorySegment wram = memoryMap.getWram();
-		long ptrAddr;
 		
-		// Set correct start pointer address
-		switch (game) {
-			//case PLATINUM:
-			//	ptrAddr = 0x2101D2CL; break;
-			//case BLACK2_WHITE2:
-			//	ptrAddr = 0x211186CL; break;
-			case BLACK2_WHITE2:
-				ptrAddr = 0x02259DD8; break;
-			default:
-				throw new AssertionError(game);
+		boolean inBattleFlag = wram.getUWord(0x2143A5E) == 0xFFFF;
+		
+		long inBattlePidAddr = 0x22968F0;
+		int prepInBattlePid = wram.getDword(inBattlePidAddr); // This value is 0x0 until you enter party menu in battle, then it becomes PID of pokemon in battle
+		if (prepInBattlePid == 0x0) {
+			long inBattlePidAddrBackup = 0x2257D74;
+			prepInBattlePid = wram.getDword(inBattlePidAddrBackup); 
+			// This value is the PID of the pokemon in spot 1 in the party in battle, needs to be used until you've entered the party menu once. 
+			// Only updates when ENTERING the menu, and doesn't on switch, therefore cannot be used at all times
+		}
+
+		int inBattlePid = prepInBattlePid;
+		
+		if (inBattlePid != activePokemonPid) {
+			if (activePokemonChangedCounter++ < CHANGE_UPDATE_BUFFER) {
+				return;
+			}
+			activePokemonPid = inBattlePid;
+			activePokemonChangedCounter = 0;
 		}
 		
-		final long startAddr = 0x0221E3EC;
-		
-		// In-battle stats
-		/*for (PokemonMemoryModel m : party) {
-			if (m != null) {
-				Gen5PokemonMemoryModel battleMon = (Gen5PokemonMemoryModel) m;
-				
-				long inbattle_pid_adr = startAddr;
-				
-				switch (game) {
-					//case PLATINUM:
-					//	inbattle_pid_adr += 0x54600L; break;
-					case BLACK2_WHITE2:
-						inbattle_pid_adr += 0x56E5CL; break;
-					default:
-						throw new AssertionError(game);
-				}
-				
-				int inbattle_pid = wram.getDword(inbattle_pid_adr);
-
-				if (battleMon.personalityValue.getUInt() == inbattle_pid) {
-					battleFlagCounter++;
-					if (!PokemonInfoDisplayer.DEBUG && battleFlagCounter < 20) {
-						return;
-					}
-					
-					long current_hp_adr = startAddr;
-					long max_hp_adr = startAddr;
-					long lvl_adr = startAddr;
-					long stat_cond_adr = startAddr;
-					
-					switch (game) {
-						//case PLATINUM:
-						//	current_hp_adr += 0x59F94L;
-						//	max_hp_adr += 0x59F98L;
-						//	lvl_adr += 0x59FB4L;
-						//	stat_cond_adr += 0x54604L;
-						//	break;
-							
-						case BLACK2_WHITE2:
-							current_hp_adr += 0x5D268L;
-							max_hp_adr += 0x5D26AL;
-							lvl_adr += 0x5D220L;
-							stat_cond_adr += 0x56E60L;
-							break;
-							
-						default:
-							throw new AssertionError(game);
-					}
-					
-					battleMon.currentHP.set(wram, current_hp_adr);
-					battleMon.maxHP.set(wram, max_hp_adr);
-					battleMon.level.set(wram, lvl_adr);
-					battleMon.statusCond.set(wram, stat_cond_adr);
-
-					return;
-				}
-			}
-		}*/
-		battleFlagCounter = 0;
-		
-		// Party
-		long partyStart = startAddr;
-		//switch (game) {
-			//case PLATINUM:
-			//	partyStart += 0xD094L; break;
-		//	case BLACK2_WHITE2:
-		//		partyStart += 0xD088L; break;
-		//	default:
-		//		throw new AssertionError(game);
-		//}
-		
-		final int pokemonBlockSize = 220;
-		
-		for (int partyIndex = 0; partyIndex < 6; partyIndex++) {
-			byte[] encPartyElement = new byte[pokemonBlockSize];
-			wram.get(encPartyElement, partyStart + (partyIndex * pokemonBlockSize), pokemonBlockSize);
-
-			int personalityValue = Util.readDword(encPartyElement, 0);
-			int checksum = Util.readWord(encPartyElement, 0x6);
-
-			// Decrypt
-			{
-				PRNG prng = new PRNG(checksum);
-				int pos = 0x8;
-				while (pos < 0x87) {
-					int decryptedWord = Util.readWord(encPartyElement, pos) ^ prng.rand();
-					encPartyElement[pos++] = (byte) (decryptedWord & 0xFF);
-					encPartyElement[pos++] = (byte) ((decryptedWord >>> 8) & 0xFF);
-				}
-			}
-
-			// Unshuffle
-			int shiftValue = ((personalityValue & 0x3E000) >>> 0xD) % 24;
-
-			int[] blockOrder = SHUFFLE_ORDER[shiftValue];
-			byte[] decPartyElement = new byte[pokemonBlockSize];
-
-			System.arraycopy(encPartyElement, 0, decPartyElement, 0, 8);
-			System.arraycopy(encPartyElement, 8, decPartyElement, 32 * blockOrder[A] + 8, 32);
-			System.arraycopy(encPartyElement, 8 + 32, decPartyElement, 32 * blockOrder[B] + 8, 32);
-			System.arraycopy(encPartyElement, 8 + 32 * 2, decPartyElement, 32 * blockOrder[C] + 8, 32);
-			System.arraycopy(encPartyElement, 8 + 32 * 3, decPartyElement, 32 * blockOrder[D] + 8, 32);
-
-			// Decrypt battle stats
-			{
-				PRNG prng = new PRNG(personalityValue);
-				int pos = 0x88;
-				while (pos < pokemonBlockSize) {
-					int decWord = Util.readWord(encPartyElement, pos) ^ prng.rand();
-					decPartyElement[pos++] = (byte) (decWord & 0xFF);
-					decPartyElement[pos++] = (byte) ((decWord >>> 8) & 0xFF);
-				}
-			}
-
-			PokemonMemoryModel pkmnMemModel = new Gen5PokemonMemoryModel(decPartyElement);
-			party[partyIndex] = pkmnMemModel;
+		if (inBattleFlag) {
+			Gen5PokemonMemoryModel battlePokemon = (Gen5PokemonMemoryModel) Stream.of(party).filter(pokemon -> ((Gen5PokemonMemoryModel) pokemon).personalityValue.getUInt() == inBattlePid).findFirst().get();
 			
+			long inBattleMaxHpAddr = 0x22A84A0;
+			long inBattleCurrentHpAddr = 0x22A849C;
+			long inBattleLevelAddr = 0x22A84C0;
+			
+			battlePokemon.maxHP.set(wram, inBattleMaxHpAddr);
+			battlePokemon.currentHP.set(wram, inBattleCurrentHpAddr);
+			battlePokemon.level.set(wram, inBattleLevelAddr);
+		}
+		else {
+			//Reset active pokemon
+			activePokemonPid = 0;
+			
+			final long startAddr = 0x0221E3EC;
+			long partyStart = startAddr;
+			final int pokemonBlockSize = 220;
+			
+			for (int partyIndex = 0; partyIndex < 6; partyIndex++) {
+				byte[] encPartyElement = new byte[pokemonBlockSize];
+				wram.get(encPartyElement, partyStart + (partyIndex * pokemonBlockSize), pokemonBlockSize);
+
+				int personalityValue = Util.readDword(encPartyElement, 0);
+				int checksum = Util.readWord(encPartyElement, 0x6);
+
+				// Decrypt
+				{
+					PRNG prng = new PRNG(checksum);
+					int pos = 0x8;
+					while (pos < 0x87) {
+						int decryptedWord = Util.readWord(encPartyElement, pos) ^ prng.rand();
+						encPartyElement[pos++] = (byte) (decryptedWord & 0xFF);
+						encPartyElement[pos++] = (byte) ((decryptedWord >>> 8) & 0xFF);
+					}
+				}
+
+				// Unshuffle
+				int shiftValue = ((personalityValue & 0x3E000) >>> 0xD) % 24;
+
+				int[] blockOrder = SHUFFLE_ORDER[shiftValue];
+				byte[] decPartyElement = new byte[pokemonBlockSize];
+
+				System.arraycopy(encPartyElement, 0, decPartyElement, 0, 8);
+				System.arraycopy(encPartyElement, 8, decPartyElement, 32 * blockOrder[A] + 8, 32);
+				System.arraycopy(encPartyElement, 8 + 32, decPartyElement, 32 * blockOrder[B] + 8, 32);
+				System.arraycopy(encPartyElement, 8 + 32 * 2, decPartyElement, 32 * blockOrder[C] + 8, 32);
+				System.arraycopy(encPartyElement, 8 + 32 * 3, decPartyElement, 32 * blockOrder[D] + 8, 32);
+
+				// Decrypt battle stats
+				{
+					PRNG prng = new PRNG(personalityValue);
+					int pos = 0x88;
+					while (pos < pokemonBlockSize) {
+						int decWord = Util.readWord(encPartyElement, pos) ^ prng.rand();
+						decPartyElement[pos++] = (byte) (decWord & 0xFF);
+						decPartyElement[pos++] = (byte) ((decWord >>> 8) & 0xFF);
+					}
+				}
+
+				PokemonMemoryModel pkmnMemModel = new Gen5PokemonMemoryModel(decPartyElement);
+				party[partyIndex] = pkmnMemModel;
+			}
 		}
 	}
 
