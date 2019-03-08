@@ -46,10 +46,10 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 	protected void updatePokemonMemoryModels(PokemonMemoryModel[] party, NDSMemoryMap memoryMap) {
 		final MemorySegment wram = memoryMap.getWram();
 		
-		boolean inBattleFlag = wram.getUWord(0x2143A5E) == 0xFFFF; // This value is 0x0 until you enter party menu in battle, then it becomes PID of pokemon in battle
+		boolean inBattleFlag = wram.getUWord(0x2143A5E) == 0xFFFF;
 		
 		long inBattlePidAddr = 0x22968F0;
-		int prepInBattlePid = wram.getDword(inBattlePidAddr);
+		int prepInBattlePid = wram.getDword(inBattlePidAddr); // This value is 0x0 until you enter party menu in battle, then it becomes PID of pokemon in battle
 		if (prepInBattlePid == 0x0) {
 			long inBattlePidAddrBackup = 0x2257D74;
 			prepInBattlePid = wram.getDword(inBattlePidAddrBackup); 
