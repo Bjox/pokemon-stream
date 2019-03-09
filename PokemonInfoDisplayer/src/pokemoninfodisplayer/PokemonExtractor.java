@@ -1,12 +1,15 @@
 package pokemoninfodisplayer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.gba.VBAReader;
 import pokemoninfodisplayer.data.memory.MemoryMap;
 import pokemoninfodisplayer.data.nds.DesmumeReader;
 import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonGame;
+import pokemoninfodisplayer.models.PokemonKillHandler;
 import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.models.TrainerModel;
 import pokemoninfodisplayer.models.gen3.Gen3Extractor;
@@ -28,10 +31,12 @@ public abstract class PokemonExtractor<T extends MemoryMap> implements PokemonIn
 	private final PokemonMemoryModel[] pokMemoryModelBuffer = new PokemonMemoryModel[6];
 	private final PokemonMemoryModel[] pokMemoryModelCheckBuffer = new PokemonMemoryModel[6];
 	private boolean autoUpdate = true;
+	private final List<PokemonKillHandler> killHandlers;
 
 	public PokemonExtractor(PokemonGame game, MemoryDataSource<T> dataSource) {
 		this.dataSource = dataSource;
 		this.game = game;
+		this.killHandlers = new ArrayList<>();
 	}
 
 	/**
@@ -96,14 +101,13 @@ public abstract class PokemonExtractor<T extends MemoryMap> implements PokemonIn
 			
 			if (this.pokMemoryModelCheckBuffer[i] == null) {
 				this.pokMemoryModelCheckBuffer[i] = memModel;
-			}
-			else if (this.pokMemoryModelCheckBuffer[i].equals(memModel)){
-				this.pokMemoryModelCheckBuffer[i] = null;
+				continue;
+			}	
+			if (this.pokMemoryModelCheckBuffer[i].equals(memModel)){
 				party.setPartySlot(i, pok);
+				System.out.println("exp " + pok.getNickname() + " " + pok.getExperiencePoints());
 			}
-			else {
-				this.pokMemoryModelCheckBuffer[i] = null;
-			}
+			this.pokMemoryModelCheckBuffer[i] = null;
 		}
 	}
 	
@@ -125,6 +129,15 @@ public abstract class PokemonExtractor<T extends MemoryMap> implements PokemonIn
 	@Override
 	public void close() throws IOException {
 		dataSource.close();
+	}
+
+	@Override
+	public void addPokemonKillHandler(PokemonKillHandler handler) {
+		this.killHandlers.add(handler);
+	}
+	
+	private void notifyPokemonKillHandlers(PokemonModel pokemon) {
+		this.killHandlers.forEach(h -> h.handleKill(pokemon));
 	}
 	
 	public static PokemonExtractor createPokemonExtractor(PokemonGame game) throws ProcessNotFoundException, UnsupportedPlatformException {

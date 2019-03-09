@@ -25,6 +25,7 @@ public class PokemonModel {
 		private boolean egg = false;
 		private int eggSteps = 0;
 		private Gender gender = Gender.GENDERLESS;
+		private int experiencePoints;
 
 		public Builder() {
 		}
@@ -83,9 +84,14 @@ public class PokemonModel {
 			this.gender = gender;
 			return this;
 		}
+		
+		public Builder setExperiencePoints(int experiencePoints) {
+			this.experiencePoints = experiencePoints;
+			return this;
+		}
 
 		public PokemonModel build() {
-			return new PokemonModel(personalityValue, dexEntry, maxHp, currentHp, level, statusCondition, nickname, shiny, egg, eggSteps, gender);
+			return new PokemonModel(personalityValue, dexEntry, maxHp, currentHp, level, statusCondition, nickname, shiny, egg, eggSteps, gender, experiencePoints);
 		}
 	}
 
@@ -101,6 +107,7 @@ public class PokemonModel {
 	private final int eggSteps;
 	private final BufferedImage img;
 	private final Gender gender;
+	private final int experiencePoints;
 	
 	//private final BufferedImage imgGray;
 	//private static final BufferedImage imgEgg; // This can be static because egg is egg no matter what pok it is.
@@ -116,7 +123,8 @@ public class PokemonModel {
 			boolean shiny,
 			boolean egg,
 			int eggSteps,
-			Gender gender
+			Gender gender,
+			int experiencePoints
 	) {
 		this.personalityValue = personalityValue;
 		this.dexEntry = dexEntry;
@@ -129,6 +137,7 @@ public class PokemonModel {
 		this.egg = egg;
 		this.eggSteps = eggSteps;
 		this.gender = gender;
+		this.experiencePoints = experiencePoints;
 		
 		BufferedImage imgBuff = null;
 		try {
@@ -245,4 +254,7 @@ public class PokemonModel {
 		return gender;
 	}
 
+	public int getExperiencePoints() {
+		return experiencePoints;
+	}
 }
