@@ -13,7 +13,7 @@ import pokemoninfodisplayer.util.Util;
  *
  * @author Bjørnar W. Alvestad
  */
-public class Gen4Extractor extends PokemonExtractor<NDSMemoryMap> {
+public class Gen4Extractor extends PokemonExtractor<NDSMemoryMap, Gen4PokemonMemoryModel> {
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -32,11 +32,11 @@ public class Gen4Extractor extends PokemonExtractor<NDSMemoryMap> {
 	};
 
 	public Gen4Extractor(PokemonGame game, MemoryDataSource<NDSMemoryMap> dataSource) {
-		super(game, dataSource);
+		super(game, dataSource, Gen4PokemonMemoryModel.class);
 	}
 	
 	@Override
-	protected void updatePokemonMemoryModels(PokemonMemoryModel[] party, NDSMemoryMap memoryMap) {
+	protected void updatePokemonMemoryModels(Gen4PokemonMemoryModel[] party, NDSMemoryMap memoryMap) {
 		final MemorySegment wram = memoryMap.getWram();
 		long ptrAddr;
 		
@@ -167,7 +167,7 @@ public class Gen4Extractor extends PokemonExtractor<NDSMemoryMap> {
 				}
 			}
 
-			PokemonMemoryModel pkmnMemModel = new Gen4PokemonMemoryModel(decPartyElement);
+			Gen4PokemonMemoryModel pkmnMemModel = new Gen4PokemonMemoryModel(decPartyElement);
 			party[partyIndex] = pkmnMemModel; //new Gen4MemoryModel(decPartyElement);
 		}
 	}

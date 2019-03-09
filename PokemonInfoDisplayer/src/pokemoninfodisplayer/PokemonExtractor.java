@@ -1,6 +1,7 @@
 package pokemoninfodisplayer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import pokemoninfodisplayer.data.MemoryDataSource;
@@ -22,21 +23,25 @@ import pokemoninfodisplayer.process.exceptions.UnsupportedPlatformException;
 /**
  *
  * @author Bjørnar W. Alvestad
- * @param <T>
+ * @param <TmemMap> The memory map type
+ * @param <TpokMemModel> The pokemon memory model type
  */
-public abstract class PokemonExtractor<T extends MemoryMap> implements PokemonInterface {
+public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel extends PokemonMemoryModel> implements PokemonInterface {
 	
-	private final MemoryDataSource<T> dataSource;
+	private final MemoryDataSource<TmemMap> dataSource;
 	protected final PokemonGame game;
-	private final PokemonMemoryModel[] pokMemoryModelBuffer = new PokemonMemoryModel[6];
-	private final PokemonMemoryModel[] pokMemoryModelCheckBuffer = new PokemonMemoryModel[6];
+	private final TpokMemModel[] pokMemoryModelBuffer;
+	private final TpokMemModel[] pokMemoryModelCheckBuffer;
 	private boolean autoUpdate = true;
 	private final List<PokemonKillHandler> killHandlers;
 
-	public PokemonExtractor(PokemonGame game, MemoryDataSource<T> dataSource) {
+	public PokemonExtractor(PokemonGame game, MemoryDataSource<TmemMap> dataSource, Class<TpokMemModel> memoryModelType) {
 		this.dataSource = dataSource;
 		this.game = game;
 		this.killHandlers = new ArrayList<>();
+		
+		this.pokMemoryModelBuffer = (TpokMemModel[]) Array.newInstance(memoryModelType, 6);
+		this.pokMemoryModelCheckBuffer = (TpokMemModel[]) Array.newInstance(memoryModelType, 6);
 	}
 
 	/**
@@ -59,8 +64,8 @@ public abstract class PokemonExtractor<T extends MemoryMap> implements PokemonIn
 		}
 	}
 	
-	protected abstract void updatePokemonMemoryModels(PokemonMemoryModel[] party, T memoryMap);
-	protected abstract boolean getInBattleFlag(T memoryMap);
+	protected abstract void updatePokemonMemoryModels(TpokMemModel[] party, TmemMap memoryMap);
+	protected abstract boolean getInBattleFlag(TmemMap memoryMap);
 	
 	@Override
 	public void update() throws Exception {
@@ -74,7 +79,7 @@ public abstract class PokemonExtractor<T extends MemoryMap> implements PokemonIn
 		
 		for (int i = 0; i < pokMemoryModelBuffer.length; i++) {
 			
-			PokemonMemoryModel memModel = pokMemoryModelBuffer[i];
+			TpokMemModel memModel = pokMemoryModelBuffer[i];
 			PokemonModel pok = memModel.toPokemonModel();
 			
 			if (!memModel.isPresent() || pok.getDexEntry() < 1) {

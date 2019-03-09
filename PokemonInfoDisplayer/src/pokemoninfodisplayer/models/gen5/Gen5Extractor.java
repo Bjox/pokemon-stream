@@ -17,7 +17,7 @@ import pokemoninfodisplayer.util.Util;
  *
  * @author Bjørnar W. Alvestad
  */
-public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
+public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMemoryModel> {
 
 	private static final int A = 0;
 	private static final int B = 1;
@@ -39,11 +39,11 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 	};
 
 	public Gen5Extractor(PokemonGame game, MemoryDataSource<NDSMemoryMap> dataSource) {
-		super(game, dataSource);
+		super(game, dataSource, Gen5PokemonMemoryModel.class);
 	}
 
 	@Override
-	protected void updatePokemonMemoryModels(PokemonMemoryModel[] party, NDSMemoryMap memoryMap) {
+	protected void updatePokemonMemoryModels(Gen5PokemonMemoryModel[] party, NDSMemoryMap memoryMap) {
 		final MemorySegment wram = memoryMap.getWram();
 		boolean inBattleFlag = getInBattleFlag(memoryMap);
 		
@@ -55,7 +55,7 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 		}
 	}
 	
-	private void inBattlePartyUpdate(MemorySegment wram, PokemonMemoryModel[] party) {
+	private void inBattlePartyUpdate(MemorySegment wram, Gen5PokemonMemoryModel[] party) {
 		int prepInBattlePid = wram.getDword(0x22968F0); // This value is 0x0 until you enter party menu in battle, then it becomes PID of pokemon in battle
 		
 		if (prepInBattlePid == 0x0) {
@@ -76,7 +76,6 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 		
 		// Get the pokemon in-battle
 		Gen5PokemonMemoryModel battlePokemon = Stream.of(party)
-				.map(Gen5PokemonMemoryModel.class::cast)
 				.filter(pokemon -> pokemon.personalityValue.getUInt() == inBattlePid)
 				.findFirst()
 				.get();
@@ -90,7 +89,7 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 		battlePokemon.level.set(wram, inBattleLevelAddr);
 	}
 	
-	private void outOfBattlePartyUpdate(MemorySegment wram, PokemonMemoryModel[] party) {
+	private void outOfBattlePartyUpdate(MemorySegment wram, Gen5PokemonMemoryModel[] party) {
 		//Reset active pokemon
 		activePokemonPid = 0;
 
@@ -139,7 +138,7 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap> {
 				}
 			}
 
-			PokemonMemoryModel pkmnMemModel = new Gen5PokemonMemoryModel(decPartyElement);
+			Gen5PokemonMemoryModel pkmnMemModel = new Gen5PokemonMemoryModel(decPartyElement);
 			party[partyIndex] = pkmnMemModel;
 		}
 	}
