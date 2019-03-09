@@ -110,7 +110,7 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 			}	
 			if (this.pokMemoryModelCheckBuffer[i].equals(memModel)){
 				party.setPartySlot(i, pok);
-				System.out.println("exp " + pok.getNickname() + " " + pok.getExperiencePoints());
+				//System.out.println(pok.toShortString());
 			}
 			this.pokMemoryModelCheckBuffer[i] = null;
 		}

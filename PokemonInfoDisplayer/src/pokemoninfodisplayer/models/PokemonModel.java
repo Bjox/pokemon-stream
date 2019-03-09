@@ -200,6 +200,37 @@ public class PokemonModel {
 		return imgGray;
 	}
 
+	@Override
+	public String toString() {
+		return "PokemonModel{" +
+				"personalityValue=" + String.format("0x%X", personalityValue) +
+				", dexEntry=" + dexEntry +
+				", maxHp=" + maxHp +
+				", currentHp=" + currentHp +
+				", level=" + level +
+				", statusCondition=" + statusCondition +
+				", nickname=" + nickname +
+				", shiny=" + shiny +
+				", egg=" + egg +
+				", eggSteps=" + eggSteps +
+				", gender=" + gender +
+				", experiencePoints=" + experiencePoints +
+		'}';
+	}
+	
+	public String toShortString() {
+		return
+				"personalityValue=" + String.format("0x%X", personalityValue) +
+				", maxHp=" + maxHp +
+				", currentHp=" + currentHp +
+				", level=" + level +
+				", statusCondition=" + statusCondition +
+				", nickname=" + nickname +
+				", experiencePoints=" + experiencePoints;
+	}
+
+	
+	
 	// Pokemon model getters
 	
 	public int getPersonalityValue() {

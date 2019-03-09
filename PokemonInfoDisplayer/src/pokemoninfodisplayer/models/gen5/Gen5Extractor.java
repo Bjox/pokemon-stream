@@ -1,16 +1,11 @@
 package pokemoninfodisplayer.models.gen5;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.stream.Stream;
 import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.memory.MemorySegment;
 import pokemoninfodisplayer.data.nds.NDSMemoryMap;
 import pokemoninfodisplayer.models.PokemonGame;
-import pokemoninfodisplayer.models.memory.Dword;
-import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
-import pokemoninfodisplayer.models.memory.Word;
 import pokemoninfodisplayer.util.Util;
 
 /**
@@ -56,6 +51,17 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 	}
 	
 	private void inBattlePartyUpdate(MemorySegment wram, Gen5PokemonMemoryModel[] party) {
+		// Bogstuff
+		for (int i = 0; i < 6; i++) {
+			int offset = i * 0x224;
+			int maxHp = wram.getWord(0x225B1F2 + offset);
+			int currentHp = wram.getWord(0x225B1F4 + offset);
+			int lvl = wram.getUByte(0x225B1FC + offset);
+			System.out.printf("hp=%d/%d lvl=%d\n", currentHp, maxHp, lvl);
+		}
+		
+		
+		
 		int prepInBattlePid = wram.getDword(0x22968F0); // This value is 0x0 until you enter party menu in battle, then it becomes PID of pokemon in battle
 		
 		if (prepInBattlePid == 0x0) {
