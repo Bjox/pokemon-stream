@@ -1,6 +1,5 @@
 package pokemoninfodisplayer.models.gen5;
 
-import java.util.stream.Stream;
 import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.memory.MemorySegment;
@@ -19,10 +18,7 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 	private static final int C = 2;
 	private static final int D = 3;
 	
-	private final int CHANGE_UPDATE_BUFFER = 17; // Tested to match timings of entering battle and switching pokemon
-	
-	private int activePokemonChangedCounter = 0;
-	private int activePokemonPid = 0;
+	private boolean first = true;
 	
 	private static final int[][] SHUFFLE_ORDER = {
 		{A, B, C, D}, {A, B, D, C}, {A, C, B, D}, {A, C, D, B},
@@ -42,63 +38,30 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 		final MemorySegment wram = memoryMap.getWram();
 		boolean inBattleFlag = getInBattleFlag(memoryMap);
 		
-		if (inBattleFlag) {
+		if (inBattleFlag && !first) {
 			inBattlePartyUpdate(wram, party);
 		}
 		else {
+			first = false;
 			outOfBattlePartyUpdate(wram, party);
 		}
 	}
 	
 	private void inBattlePartyUpdate(MemorySegment wram, Gen5PokemonMemoryModel[] party) {
-		// Bogstuff
 		for (int i = 0; i < 6; i++) {
 			int offset = i * 0x224;
-			int maxHp = wram.getWord(0x225B1F2 + offset);
-			int currentHp = wram.getWord(0x225B1F4 + offset);
-			int lvl = wram.getUByte(0x225B1FC + offset);
-			System.out.printf("hp=%d/%d lvl=%d\n", currentHp, maxHp, lvl);
+			
+			long inBattleMaxHpAddr = 0x225B1F2 + offset;
+			long inBattleCurrentHpAddr = 0x225B1F4 + offset;
+			long inBattleLevelAddr = 0x225B1FC + offset;
+
+			party[i].maxHP.set(wram, inBattleMaxHpAddr);
+			party[i].currentHP.set(wram, inBattleCurrentHpAddr);
+			party[i].level.set(wram, inBattleLevelAddr);
 		}
-		
-		
-		
-		int prepInBattlePid = wram.getDword(0x22968F0); // This value is 0x0 until you enter party menu in battle, then it becomes PID of pokemon in battle
-		
-		if (prepInBattlePid == 0x0) {
-			prepInBattlePid = wram.getDword(0x2257D74); 
-			// This value is the PID of the pokemon in spot 1 in the party in battle, needs to be used until you've entered the party menu once. 
-			// Only updates when ENTERING the menu, and doesn't on switch, therefore cannot be used at all times
-		}
-
-		int inBattlePid = prepInBattlePid;
-
-		if (inBattlePid != activePokemonPid) {
-			if (activePokemonChangedCounter++ < CHANGE_UPDATE_BUFFER) {
-				return;
-			}
-			activePokemonPid = inBattlePid;
-			activePokemonChangedCounter = 0;
-		}
-		
-		// Get the pokemon in-battle
-		Gen5PokemonMemoryModel battlePokemon = Stream.of(party)
-				.filter(pokemon -> pokemon.personalityValue.getUInt() == inBattlePid)
-				.findFirst()
-				.get();
-
-		long inBattleMaxHpAddr = 0x22A84A0;
-		long inBattleCurrentHpAddr = 0x22A849C;
-		long inBattleLevelAddr = 0x22A84C0;
-
-		battlePokemon.maxHP.set(wram, inBattleMaxHpAddr);
-		battlePokemon.currentHP.set(wram, inBattleCurrentHpAddr);
-		battlePokemon.level.set(wram, inBattleLevelAddr);
 	}
 	
 	private void outOfBattlePartyUpdate(MemorySegment wram, Gen5PokemonMemoryModel[] party) {
-		//Reset active pokemon
-		activePokemonPid = 0;
-
 		final long startAddr = 0x0221E3EC;
 		long partyStart = startAddr;
 		final int pokemonBlockSize = 220;
