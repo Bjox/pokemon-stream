@@ -59,6 +59,7 @@ public class Gen3PokemonMemoryModel extends PokemonMemoryModel {
 				.setDexEntry(dataDecoded.getDexEntry())
 				.setShiny(Gen3Util.isShiny(OTID.getUInt(), personalityValue.getUInt()))
 				.setEgg((dataDecoded.miscellaneousBlock.IVEggAbility.getUInt() & 0x40000000) != 0)
+				.setExperiencePoints(dataDecoded.growthBlock.experience.getUInt())
 				.build();
 	}
 

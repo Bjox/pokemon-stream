@@ -2,6 +2,7 @@ package pokemoninfodisplayer;
 
 import java.io.Closeable;
 import pokemoninfodisplayer.models.PartyModel;
+import pokemoninfodisplayer.models.PokemonKillHandler;
 import pokemoninfodisplayer.models.TrainerModel;
 
 /**
@@ -16,5 +17,6 @@ public interface PokemonInterface extends Closeable {
 	PartyModel getParty();
 	TrainerModel getTrainer();
 	boolean isInBattle();
+	void addPokemonKillHandler(PokemonKillHandler handler);
 	
 }

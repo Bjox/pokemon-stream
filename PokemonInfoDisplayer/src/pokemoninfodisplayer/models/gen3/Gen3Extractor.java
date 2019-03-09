@@ -4,23 +4,22 @@ import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.gba.GBAMemoryMap;
 import pokemoninfodisplayer.models.PokemonGame;
-import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 
 /**
  *
  * @author Bjørnar W. Alvestad
  */
-public class Gen3Extractor extends PokemonExtractor<GBAMemoryMap> {
+public class Gen3Extractor extends PokemonExtractor<GBAMemoryMap, Gen3PokemonMemoryModel> {
 
 	public Gen3Extractor(PokemonGame game, MemoryDataSource<GBAMemoryMap> dataSource) {
-		super(game, dataSource);
+		super(game, dataSource, Gen3PokemonMemoryModel.class);
 		if (game.generation != 3) {
 			throw new IllegalArgumentException("Invalid game. " + game.toString() + " is not generation 3");
 		}
 	}
 
 	@Override
-	protected void updatePokemonMemoryModels(PokemonMemoryModel[] party, GBAMemoryMap memoryMap) {
+	protected void updatePokemonMemoryModels(Gen3PokemonMemoryModel[] party, GBAMemoryMap memoryMap) {
 		final int partyElementSize = 100;
 		final long partyStart;
 		

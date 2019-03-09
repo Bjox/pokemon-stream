@@ -113,6 +113,7 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 				.setStatusCondition(StatusCondition.parse(statusCond.getByte()))
 				.setEgg((individualValues.getUInt() & 0x40000000) != 0)
 				.setGender(Gen5Util.getGender(fatefulFlag_female_genderless_altForms.getByte()))
+				.setExperiencePoints(experiencePoints.getUInt())
 				.build();
 	}
 

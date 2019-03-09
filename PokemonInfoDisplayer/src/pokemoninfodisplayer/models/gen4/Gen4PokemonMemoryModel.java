@@ -106,6 +106,7 @@ public class Gen4PokemonMemoryModel extends PokemonMemoryModel {
 				.setDexEntry(speciesID.getUInt())
 				.setStatusCondition(StatusCondition.parse(statusCond.getByte()))
 				.setEgg((individualValues.getUInt() & 0x40000000) != 0)
+				.setExperiencePoints(experiencePoints.getUInt())
 				.build();
 	}
 
