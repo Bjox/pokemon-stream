@@ -1,10 +1,16 @@
 package pokemoninfodisplayer.models.gen5;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.stream.Stream;
 import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.memory.MemorySegment;
 import pokemoninfodisplayer.data.nds.NDSMemoryMap;
 import pokemoninfodisplayer.models.PokemonGame;
+import pokemoninfodisplayer.models.memory.Dword;
+import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
+import pokemoninfodisplayer.models.memory.Word;
 import pokemoninfodisplayer.util.Util;
 
 /**
@@ -115,6 +121,19 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 	@Override
 	protected boolean getInBattleFlag(NDSMemoryMap memoryMap) {
 		return memoryMap.getWram().getUWord(0x2143A5E) == 0xFFFF;
+	}
+
+	@Override
+	protected int extractActivePid(NDSMemoryMap memoryMap) {
+		final MemorySegment wram = memoryMap.getWram();
+		long inBattlePidAddr = 0x22968F0;
+		int inBattlePid = wram.getDword(inBattlePidAddr);
+		if (inBattlePid == 0x0) {
+			long inBattlePidAddrBackup = 0x2257D74;
+			inBattlePid = wram.getDword(inBattlePidAddrBackup); 
+		}
+		
+		return inBattlePid;
 	}
 
 	private static class PRNG {

@@ -16,6 +16,7 @@ import pokemoninfodisplayer.models.TrainerModel;
 import pokemoninfodisplayer.models.gen3.Gen3Extractor;
 import pokemoninfodisplayer.models.gen4.Gen4Extractor;
 import pokemoninfodisplayer.models.gen5.Gen5Extractor;
+import pokemoninfodisplayer.models.memory.Dword;
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.process.exceptions.ProcessNotFoundException;
 import pokemoninfodisplayer.process.exceptions.UnsupportedPlatformException;
@@ -66,6 +67,7 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	
 	protected abstract void updatePokemonMemoryModels(TpokMemModel[] party, TmemMap memoryMap);
 	protected abstract boolean getInBattleFlag(TmemMap memoryMap);
+	protected abstract int extractActivePid(TmemMap memoryMap);
 	
 	@Override
 	public void update() throws Exception {
@@ -129,6 +131,11 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	@Override
 	public boolean isInBattle() {
 		return getInBattleFlag(dataSource.getMemoryMap());
+	}
+	
+	@Override
+	public int getActivePid() {
+		return extractActivePid(dataSource.getMemoryMap());
 	}
 
 	@Override
