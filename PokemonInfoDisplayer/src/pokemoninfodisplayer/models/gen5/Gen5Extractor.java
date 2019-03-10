@@ -123,6 +123,19 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 		return memoryMap.getWram().getUWord(0x2143A5E) == 0xFFFF;
 	}
 
+	@Override
+	protected int extractActivePid(NDSMemoryMap memoryMap) {
+		final MemorySegment wram = memoryMap.getWram();
+		long inBattlePidAddr = 0x22968F0;
+		int inBattlePid = wram.getDword(inBattlePidAddr);
+		if (inBattlePid == 0x0) {
+			long inBattlePidAddrBackup = 0x2257D74;
+			inBattlePid = wram.getDword(inBattlePidAddrBackup); 
+		}
+		
+		return inBattlePid;
+	}
+
 	private static class PRNG {
 		private int last;
 
