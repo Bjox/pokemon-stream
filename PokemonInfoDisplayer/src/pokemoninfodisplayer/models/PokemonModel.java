@@ -114,7 +114,7 @@ public class PokemonModel {
 	private final BufferedImage img;
 	private final Gender gender;
 	private final int experiencePoints;
-	private final boolean active;
+	private boolean active;
 	
 	//private final BufferedImage imgGray;
 	//private static final BufferedImage imgEgg; // This can be static because egg is egg no matter what pok it is.
@@ -238,7 +238,9 @@ public class PokemonModel {
 				", experiencePoints=" + experiencePoints;
 	}
 
-	
+	public void setActive(boolean active) {
+		this.active = active;
+	}
 	
 	// Pokemon model getters
 	
