@@ -1,8 +1,7 @@
-package pokemoninfodisplayer.graphics;
+package pokemoninfodisplayer.service;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,7 +26,7 @@ import pokemoninfodisplayer.models.PokemonModel;
  *
  * @author Bjørnar W. Alvestad
  */
-public final class PokemonStorageService implements Closeable, PokemonKillHandler {
+public final class PokemonStorageService extends Service implements PokemonKillHandler {
 	
 	private static final String STORAGE_FILE = "./pokemon_storage";
 	private static final boolean ENCRYPT_STORAGE = true;
@@ -110,6 +109,9 @@ public final class PokemonStorageService implements Closeable, PokemonKillHandle
 		
 		out = new BufferedOutputStream(out);
 		properties.store(out, STORAGE_COMMENTS);
+		
+		out.flush();
+		out.close();
 	}
 	
 	/**
