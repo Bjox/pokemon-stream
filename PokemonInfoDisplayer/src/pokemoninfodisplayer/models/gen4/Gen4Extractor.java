@@ -6,6 +6,7 @@ import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.memory.MemorySegment;
 import pokemoninfodisplayer.data.nds.NDSMemoryMap;
 import pokemoninfodisplayer.models.PokemonGame;
+import pokemoninfodisplayer.models.memory.Dword;
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.util.Util;
 
@@ -174,6 +175,11 @@ public class Gen4Extractor extends PokemonExtractor<NDSMemoryMap, Gen4PokemonMem
 
 	@Override
 	protected boolean getInBattleFlag(NDSMemoryMap memoryMap) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	protected int extractActivePid(NDSMemoryMap memoryMap) {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 	

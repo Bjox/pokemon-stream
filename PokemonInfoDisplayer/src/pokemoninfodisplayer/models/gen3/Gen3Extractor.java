@@ -4,6 +4,7 @@ import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.gba.GBAMemoryMap;
 import pokemoninfodisplayer.models.PokemonGame;
+import pokemoninfodisplayer.models.memory.Dword;
 
 /**
  *
@@ -46,6 +47,11 @@ public class Gen3Extractor extends PokemonExtractor<GBAMemoryMap, Gen3PokemonMem
 
 	@Override
 	protected boolean getInBattleFlag(GBAMemoryMap memoryMap) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	protected int extractActivePid(GBAMemoryMap memoryMap) {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
