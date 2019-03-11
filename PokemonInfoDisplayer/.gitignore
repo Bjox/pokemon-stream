@@ -4,4 +4,5 @@
 /dist/
 nbactions.xml
 nb-configuration.xml
-pokemon_storage
+pokemon_storage.txt
+pokemon_storage_hmac
