@@ -18,6 +18,8 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JOptionPane;
 import pokemoninfodisplayer.PokemonInfoDisplayer;
+import pokemoninfodisplayer.models.BattleFlag;
+import pokemoninfodisplayer.models.PokemonKillEvent;
 import pokemoninfodisplayer.models.PokemonKillHandler;
 import pokemoninfodisplayer.models.PokemonModel;
 
@@ -32,6 +34,7 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	private static final String STORAGE_FILE = "./pokemon_storage.txt";
 	private static final String HMAC_DIGEST_FILE = "./pokemon_storage_hmac";
 	private static final String ENCRYPTION_KEY = "fyfaenendruscode"; // This is secure
+	private static final boolean COUNT_WILD_BATTLE_AS_KILL = false;
 	
 	static {
 		var storageFile = new File(STORAGE_FILE);
@@ -209,11 +212,16 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	}
 	
 	@Override
-	public void handleKill(PokemonModel pokemon) {
-		String propKey = getKillCountKey(pokemon);
+	public void handleKill(PokemonKillEvent killEvent) {
+		if (killEvent.battleType == BattleFlag.WILD_BATTLE && !COUNT_WILD_BATTLE_AS_KILL) {
+			System.out.println("Detected kill for " + killEvent.pokemon.getNickname() + ", ignoring wild battles");
+			return;
+		}
+		
+		String propKey = getKillCountKey(killEvent.pokemon);
 		int killCount = getInt(propKey, 0) + 1;
 		setInt(propKey, killCount);
-		System.out.println(pokemon.getNickname() + " kill count=" + killCount);
+		System.out.println("Detected kill for " + killEvent.pokemon.getNickname() + ", killcount=" + killCount);
 	}
 
 	private String getKillCountKey(PokemonModel pokemon) {

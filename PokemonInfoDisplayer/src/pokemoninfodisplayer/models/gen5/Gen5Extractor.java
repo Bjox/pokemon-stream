@@ -1,16 +1,11 @@
 package pokemoninfodisplayer.models.gen5;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.stream.Stream;
 import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.memory.MemorySegment;
 import pokemoninfodisplayer.data.nds.NDSMemoryMap;
+import pokemoninfodisplayer.models.BattleFlag;
 import pokemoninfodisplayer.models.PokemonGame;
-import pokemoninfodisplayer.models.memory.Dword;
-import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
-import pokemoninfodisplayer.models.memory.Word;
 import pokemoninfodisplayer.util.Util;
 
 /**
@@ -42,9 +37,8 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 	@Override
 	protected void updatePokemonMemoryModels(Gen5PokemonMemoryModel[] party, NDSMemoryMap memoryMap) {
 		final MemorySegment wram = memoryMap.getWram();
-		boolean inBattleFlag = getInBattleFlag(memoryMap);
 		
-		if (inBattleFlag && !first) {
+		if (getBattleFlag().isInBattle() && !first) {
 			inBattlePartyUpdate(wram, party);
 		}
 		else {
@@ -121,10 +115,22 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 	}
 
 	@Override
-	protected boolean getInBattleFlag(NDSMemoryMap memoryMap) {
-		return memoryMap.getWram().getUWord(0x2143A5E) == 0xFFFF;
+	protected BattleFlag getInBattleFlag(NDSMemoryMap memoryMap) {
+		MemorySegment wram = memoryMap.getWram();
+		boolean isInBattle = wram.getUWord(0x2143A5E) == 0xFFFF;
+		
+		if (!isInBattle) {
+			return BattleFlag.OUT_OF_BATTLE;
+		}
+		
+		int rewardMoney = wram.getDword(0x22576D0);
+		
+		// The value will sometimes "flash" 0x10101010 which we will interpret as a wild battle because it's unlikely
+		// that a trainer battle will give you $269,488,144 in reward...
+		return rewardMoney == 0 || rewardMoney == 0x10101010 ? BattleFlag.WILD_BATTLE : BattleFlag.TRAINER_BATTLE;
 	}
 
+	@Deprecated
 	@Override
 	protected int extractActivePid(NDSMemoryMap memoryMap) {
 		final MemorySegment wram = memoryMap.getWram();
@@ -134,8 +140,12 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 			long inBattlePidAddrBackup = 0x2257D74;
 			inBattlePid = wram.getDword(inBattlePidAddrBackup); 
 		}
-		
 		return inBattlePid;
+	}
+
+	@Override
+	protected int getActiveInBattleIndex(NDSMemoryMap memoryMap) {
+		return memoryMap.getWram().getUByte(0x21DB98E);
 	}
 
 	private static class PRNG {

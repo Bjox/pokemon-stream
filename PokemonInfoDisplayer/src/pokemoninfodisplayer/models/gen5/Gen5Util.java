@@ -1,5 +1,6 @@
 package pokemoninfodisplayer.models.gen5;
 
+import java.util.Arrays;
 import pokemoninfodisplayer.models.Gender;
 import pokemoninfodisplayer.models.gen3.Gen3Util;
 
