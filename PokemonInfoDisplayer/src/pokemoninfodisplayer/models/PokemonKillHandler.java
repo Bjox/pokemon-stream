@@ -7,6 +7,6 @@ package pokemoninfodisplayer.models;
 @FunctionalInterface
 public interface PokemonKillHandler {
 	
-	void handleKill(PokemonModel pokemon);
+	void handleKill(PokemonKillEvent killEvent);
 	
 }

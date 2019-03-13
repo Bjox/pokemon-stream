@@ -1,11 +1,10 @@
 package pokemoninfodisplayer;
 
 import java.io.Closeable;
-import pokemoninfodisplayer.data.memory.MemoryMap;
+import pokemoninfodisplayer.models.BattleFlag;
 import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonKillHandler;
 import pokemoninfodisplayer.models.TrainerModel;
-import pokemoninfodisplayer.models.memory.Dword;
 
 /**
  *
@@ -14,12 +13,19 @@ import pokemoninfodisplayer.models.memory.Dword;
 public interface PokemonInterface extends Closeable {
 
 	void update() throws Exception;
+	
 	@Deprecated
 	void updateParty(PartyModel party);
+	
 	PartyModel getParty();
+	
 	TrainerModel getTrainer();
+	
+	@Deprecated
 	int getActivePid();
-	boolean isInBattle();
+	
+	BattleFlag getBattleFlag();
+	
 	void addPokemonKillHandler(PokemonKillHandler handler);
 	
 }
