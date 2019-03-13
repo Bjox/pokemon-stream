@@ -3,7 +3,9 @@ package pokemoninfodisplayer;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.gba.VBAReader;
 import pokemoninfodisplayer.data.memory.MemoryMap;
@@ -33,13 +35,16 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	protected final PokemonGame game;
 	private final TpokMemModel[] pokMemoryModelBuffer;
 	private final TpokMemModel[] pokMemoryModelCheckBuffer;
-	private boolean autoUpdate = true;
+	private boolean autoUpdate = false;
 	private final List<PokemonKillHandler> killHandlers;
-
+	private final int[] partyXpPoints;
+	
+	@SuppressWarnings("unchecked")
 	public PokemonExtractor(PokemonGame game, MemoryDataSource<TmemMap> dataSource, Class<TpokMemModel> memoryModelType) {
 		this.dataSource = dataSource;
 		this.game = game;
 		this.killHandlers = new ArrayList<>();
+		this.partyXpPoints = new int[6];
 		
 		this.pokMemoryModelBuffer = (TpokMemModel[]) Array.newInstance(memoryModelType, 6);
 		this.pokMemoryModelCheckBuffer = (TpokMemModel[]) Array.newInstance(memoryModelType, 6);
@@ -78,11 +83,13 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	public void updateParty(PartyModel party) {
 		checkAndPerformAutoUpdate();
 		updatePokemonMemoryModels(pokMemoryModelBuffer, dataSource.getMemoryMap());
+		int activePid = getActivePid();
 		
 		for (int i = 0; i < pokMemoryModelBuffer.length; i++) {
 			
 			TpokMemModel memModel = pokMemoryModelBuffer[i];
 			PokemonModel pok = memModel.toPokemonModel();
+			pok.setActive(pok.getPersonalityValue() == activePid);
 			
 			if (!memModel.isPresent() || pok.getDexEntry() < 1) {
 				if (i == 0 && PokemonInfoDisplayer.DEBUG) {
@@ -109,12 +116,28 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 			if (this.pokMemoryModelCheckBuffer[i] == null) {
 				this.pokMemoryModelCheckBuffer[i] = memModel;
 				continue;
-			}	
-			if (this.pokMemoryModelCheckBuffer[i].equals(memModel)){
+			}
+			if (this.pokMemoryModelCheckBuffer[i].equals(memModel)) {
+				doKillDetection(pok, party.getPartySlot(i));
 				party.setPartySlot(i, pok);
-				System.out.println("exp " + pok.getNickname() + " " + pok.getExperiencePoints());
+				//System.out.println(pok.toShortString());
 			}
 			this.pokMemoryModelCheckBuffer[i] = null;
+			
+		}
+	}
+	
+	private void doKillDetection(PokemonModel pok, PokemonModel previousPok) {
+		if (pok == null || previousPok == null) {
+			return;
+		}
+		
+		boolean xpIncrease = pok.getExperiencePoints() > previousPok.getExperiencePoints();
+		boolean equalLvl = pok.getLevel() == previousPok.getLevel();
+		boolean isActive = pok.isActive();
+		
+		if (isInBattle() && xpIncrease && equalLvl && isActive) {
+			notifyPokemonKillHandlers(pok);
 		}
 	}
 	

@@ -114,7 +114,7 @@ public class PokemonModel {
 	private final BufferedImage img;
 	private final Gender gender;
 	private final int experiencePoints;
-	private final boolean active;
+	private boolean active;
 	
 	//private final BufferedImage imgGray;
 	//private static final BufferedImage imgEgg; // This can be static because egg is egg no matter what pok it is.
@@ -209,6 +209,39 @@ public class PokemonModel {
 		return imgGray;
 	}
 
+	@Override
+	public String toString() {
+		return "PokemonModel{" +
+				"personalityValue=" + String.format("0x%X", personalityValue) +
+				", dexEntry=" + dexEntry +
+				", maxHp=" + maxHp +
+				", currentHp=" + currentHp +
+				", level=" + level +
+				", statusCondition=" + statusCondition +
+				", nickname=" + nickname +
+				", shiny=" + shiny +
+				", egg=" + egg +
+				", eggSteps=" + eggSteps +
+				", gender=" + gender +
+				", experiencePoints=" + experiencePoints +
+		'}';
+	}
+	
+	public String toShortString() {
+		return
+				"personalityValue=" + String.format("0x%X", personalityValue) +
+				", maxHp=" + maxHp +
+				", currentHp=" + currentHp +
+				", level=" + level +
+				", statusCondition=" + statusCondition +
+				", nickname=" + nickname +
+				", experiencePoints=" + experiencePoints;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	
 	// Pokemon model getters
 	
 	public int getPersonalityValue() {
