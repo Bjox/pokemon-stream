@@ -21,28 +21,29 @@ import pokemoninfodisplayer.models.StatusCondition;
 public abstract class PokemonCellRenderer {
 	
 	protected PokemonCellRenderer(Skin skin) {
-		this.PATH_SPRITE            = "./res/skins/" + skin.path_prefix + "/dex_imgs/";
-		this.PATH_OVERLAY           = "./res/skins/" + skin.path_prefix + "/overlay/";
-		this.PATH_OVERLAY_STATUS    = "./res/skins/" + skin.path_prefix + "/overlay/status/";
-		this.PATH_OVERLAY_TILE      = PATH_OVERLAY + "pokemontile.png";
-		this.PATH_OVERLAY_HPBAR     = PATH_OVERLAY + "hpbar.png";
-		this.PATH_OVERLAY_BADPOISON = PATH_OVERLAY_STATUS + "badpoison.png";
-		this.PATH_OVERLAY_BURN      = PATH_OVERLAY_STATUS + "burn.png";
-		this.PATH_OVERLAY_FAINTED   = PATH_OVERLAY_STATUS + "fainted.png";
-		this.PATH_OVERLAY_FREEZE    = PATH_OVERLAY_STATUS + "freeze.png";
-		this.PATH_OVERLAY_PARALYZE  = PATH_OVERLAY_STATUS + "paralyze.png";
-		this.PATH_OVERLAY_POISON    = PATH_OVERLAY_STATUS + "poison.png";
-		this.PATH_OVERLAY_SLEEP     = PATH_OVERLAY_STATUS + "sleep.png";
+		this.PATH_SPRITE				= "./res/skins/" + skin.path_prefix + "/dex_imgs/";
+		this.PATH_OVERLAY				= "./res/skins/" + skin.path_prefix + "/overlay/";
+		this.PATH_OVERLAY_STATUS		= "./res/skins/" + skin.path_prefix + "/overlay/status/";
+		this.PATH_OVERLAY_TILE			= PATH_OVERLAY + "pokemontile.png";
+		this.PATH_OVERLAY_TILE_ACTIVE   = PATH_OVERLAY + "pokemontileactive.png";
+		this.PATH_OVERLAY_HPBAR			= PATH_OVERLAY + "hpbar.png";
+		this.PATH_OVERLAY_BADPOISON		= PATH_OVERLAY_STATUS + "badpoison.png";
+		this.PATH_OVERLAY_BURN			= PATH_OVERLAY_STATUS + "burn.png";
+		this.PATH_OVERLAY_FAINTED		= PATH_OVERLAY_STATUS + "fainted.png";
+		this.PATH_OVERLAY_FREEZE		= PATH_OVERLAY_STATUS + "freeze.png";
+		this.PATH_OVERLAY_PARALYZE		= PATH_OVERLAY_STATUS + "paralyze.png";
+		this.PATH_OVERLAY_POISON		= PATH_OVERLAY_STATUS + "poison.png";
+		this.PATH_OVERLAY_SLEEP			= PATH_OVERLAY_STATUS + "sleep.png";
 		
-		this.IMG_OVERLAY_TILE       = readImgFromFile(PATH_OVERLAY_TILE);
-		this.IMG_OVERLAY_HPBAR	    = readImgFromFile(PATH_OVERLAY_HPBAR);
-		this.IMG_OVERLAY_BADPOISON  = readImgFromFile(PATH_OVERLAY_BADPOISON);
-		this.IMG_OVERLAY_BURN       = readImgFromFile(PATH_OVERLAY_BURN);
-		this.IMG_OVERLAY_FAINTED    = readImgFromFile(PATH_OVERLAY_FAINTED);
-		this.IMG_OVERLAY_FREEZE     = readImgFromFile(PATH_OVERLAY_FREEZE);
-		this.IMG_OVERLAY_PARALYZE   = readImgFromFile(PATH_OVERLAY_PARALYZE);
-		this.IMG_OVERLAY_POISON     = readImgFromFile(PATH_OVERLAY_POISON);
-		this.IMG_OVERLAY_SLEEP      = readImgFromFile(PATH_OVERLAY_SLEEP);
+		this.IMG_OVERLAY_TILE			= readImgFromFile(PATH_OVERLAY_TILE);
+		this.IMG_OVERLAY_HPBAR			= readImgFromFile(PATH_OVERLAY_HPBAR);
+		this.IMG_OVERLAY_BADPOISON		= readImgFromFile(PATH_OVERLAY_BADPOISON);
+		this.IMG_OVERLAY_BURN			= readImgFromFile(PATH_OVERLAY_BURN);
+		this.IMG_OVERLAY_FAINTED		= readImgFromFile(PATH_OVERLAY_FAINTED);
+		this.IMG_OVERLAY_FREEZE			= readImgFromFile(PATH_OVERLAY_FREEZE);
+		this.IMG_OVERLAY_PARALYZE		= readImgFromFile(PATH_OVERLAY_PARALYZE);
+		this.IMG_OVERLAY_POISON			= readImgFromFile(PATH_OVERLAY_POISON);
+		this.IMG_OVERLAY_SLEEP			= readImgFromFile(PATH_OVERLAY_SLEEP);
 		
 		this.SIZE_OVERLAY_TILE = new Point(IMG_OVERLAY_TILE.getWidth(), IMG_OVERLAY_TILE.getHeight());
 		this.FONT_NAME = "./res/skins/" + skin.path_prefix + "/font.ttf";
@@ -53,6 +54,7 @@ public abstract class PokemonCellRenderer {
 	protected final String PATH_OVERLAY;
 	protected final String PATH_OVERLAY_STATUS;
 	protected final String PATH_OVERLAY_TILE;
+	protected final String PATH_OVERLAY_TILE_ACTIVE;
 	protected final String PATH_OVERLAY_HPBAR;
 	protected final String PATH_OVERLAY_BADPOISON;
 	protected final String PATH_OVERLAY_BURN;
@@ -63,6 +65,7 @@ public abstract class PokemonCellRenderer {
 	protected final String PATH_OVERLAY_SLEEP;
 	
 	protected BufferedImage IMG_OVERLAY_TILE;
+	protected BufferedImage IMG_OVERLAY_TILE_ACTIVE;
 	protected BufferedImage IMG_OVERLAY_HPBAR;
 	protected BufferedImage IMG_OVERLAY_BADPOISON;
 	protected BufferedImage IMG_OVERLAY_BURN;
@@ -181,7 +184,7 @@ public abstract class PokemonCellRenderer {
 	
 	public void renderPokemonCell(PokemonModel pokemon, Graphics2D g2) {
 		// Draw tile overlay
-		g2.drawImage(IMG_OVERLAY_TILE, 0, 0, SIZE_OVERLAY_TILE.x, SIZE_OVERLAY_TILE.y, null);
+		g2.drawImage(pokemon.isActive() ? IMG_OVERLAY_TILE_ACTIVE : IMG_OVERLAY_TILE, 0, 0, SIZE_OVERLAY_TILE.x, SIZE_OVERLAY_TILE.y, null);
 
 		// Draw pokemon image
 		BufferedImage pokemonImg = pokemon.getImg();
