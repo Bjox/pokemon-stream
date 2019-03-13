@@ -36,6 +36,7 @@ public abstract class PokemonCellRenderer {
 		this.PATH_OVERLAY_SLEEP			= PATH_OVERLAY_STATUS + "sleep.png";
 		
 		this.IMG_OVERLAY_TILE			= readImgFromFile(PATH_OVERLAY_TILE);
+		this.IMG_OVERLAY_TILE_ACTIVE	= readImgFromFile(PATH_OVERLAY_TILE_ACTIVE);
 		this.IMG_OVERLAY_HPBAR			= readImgFromFile(PATH_OVERLAY_HPBAR);
 		this.IMG_OVERLAY_BADPOISON		= readImgFromFile(PATH_OVERLAY_BADPOISON);
 		this.IMG_OVERLAY_BURN			= readImgFromFile(PATH_OVERLAY_BURN);
@@ -219,7 +220,11 @@ public abstract class PokemonCellRenderer {
 				// Draw status condition hp bar
 				g2.drawImage(statusCondImg, POS_OVERLAY_BAR.x, POS_OVERLAY_BAR.y, null);
 			}
-			this.renderHPBar(pokemon.getCurrentHp(), pokemon.getMaxHp(), g2);
+			double currentHp = pokemon.getCurrentHp();
+			if (InfoFrame.CURRENT_HP_GUI_MAP.containsKey(pokemon.getPersonalityValue())) {
+				currentHp = InfoFrame.CURRENT_HP_GUI_MAP.get(pokemon.getPersonalityValue());
+			}
+			this.renderHPBar((int) Math.round(currentHp), pokemon.getMaxHp(), g2);
 		}
 		
 	}

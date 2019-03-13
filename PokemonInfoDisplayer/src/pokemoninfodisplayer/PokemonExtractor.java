@@ -10,6 +10,7 @@ import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.gba.VBAReader;
 import pokemoninfodisplayer.data.memory.MemoryMap;
 import pokemoninfodisplayer.data.nds.DesmumeReader;
+import pokemoninfodisplayer.graphics.InfoFrame;
 import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonGame;
 import pokemoninfodisplayer.models.PokemonKillHandler;
@@ -83,6 +84,17 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	public void updateParty(PartyModel party) {
 		checkAndPerformAutoUpdate();
 		updatePokemonMemoryModels(pokMemoryModelBuffer, dataSource.getMemoryMap());
+		
+		for (int i = 0; i < 6; i++) {
+			if (party.getPartySlot(i) == null) {
+				continue;
+			}
+			int key = party.getPartySlot(i).getPersonalityValue();
+			if (!InfoFrame.CURRENT_HP_GUI_MAP.containsKey(key)) {
+				InfoFrame.CURRENT_HP_GUI_MAP.put(key, (double) party.getPartySlot(i).getCurrentHp());
+			}
+		}
+		
 		int activePid = getActivePid();
 		
 		for (int i = 0; i < pokMemoryModelBuffer.length; i++) {

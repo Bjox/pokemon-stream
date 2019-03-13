@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
+import java.util.HashMap;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import pokemoninfodisplayer.DisplayerOptions;
@@ -34,6 +35,8 @@ public final class InfoFrame extends JFrame {
 	};
 	
 	private PartyModel party;
+	
+	public final static HashMap<Integer, Double> CURRENT_HP_GUI_MAP = new HashMap<>();
 
 	public InfoFrame() throws HeadlessException {
 		setTitle("PartyInfo");
@@ -45,15 +48,6 @@ public final class InfoFrame extends JFrame {
 			public void paint(Graphics g) {
 				super.paint(g);
 				Graphics2D g2 = (Graphics2D) g;
-
-				/*
-					// Set anti-alias
-					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-					RenderingHints.VALUE_ANTIALIAS_ON); 
-					// Set anti-alias for text
-					g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-					RenderingHints.VALUE_TEXT_ANTIALIAS_ON); 
-				 */
 				this.setBackground(Color.MAGENTA);
 				g2.setColor(Color.WHITE);
 				
@@ -61,7 +55,7 @@ public final class InfoFrame extends JFrame {
 				
 				for (int i = 0; i < 6; i++) {
 					PokemonModel pok = party.getPartySlot(i);
-
+					updateGUIValues(pok);
 					if (pok != null) {
 						Point cellPos = LAYOUT[i];
 						AffineTransform trans = g2.getTransform();
@@ -90,6 +84,28 @@ public final class InfoFrame extends JFrame {
 		this.party = party;
 		repaint();
 		pack();
+	}
+	
+	private void updateGUIValues(PokemonModel pok) {
+		if (pok == null) {
+			return;
+		}
+		if (!CURRENT_HP_GUI_MAP.containsKey(pok.getPersonalityValue())) {
+			return;
+		}
+		var currentHpGUI = CURRENT_HP_GUI_MAP.get(pok.getPersonalityValue());
+		if (currentHpGUI == null || currentHpGUI == pok.getCurrentHp()) {
+			return;
+		}
+		var speed = pok.getMaxHp() * 0.001;
+		var diff = pok.getCurrentHp() - currentHpGUI; 
+		if (Math.abs(diff) < speed) {
+			CURRENT_HP_GUI_MAP.put(pok.getPersonalityValue(), (double) pok.getCurrentHp());
+			return;
+		}
+		var delta = speed * diff/(double)Math.abs(diff); // speed * direction
+		
+		CURRENT_HP_GUI_MAP.put(pok.getPersonalityValue(), currentHpGUI + delta);
 	}
 
 }

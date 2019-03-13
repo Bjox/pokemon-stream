@@ -7,6 +7,7 @@ import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.memory.MemorySegment;
 import pokemoninfodisplayer.data.nds.NDSMemoryMap;
+import pokemoninfodisplayer.graphics.InfoFrame;
 import pokemoninfodisplayer.models.PokemonGame;
 import pokemoninfodisplayer.models.memory.Dword;
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
