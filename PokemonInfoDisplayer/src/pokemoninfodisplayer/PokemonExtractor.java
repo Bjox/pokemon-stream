@@ -11,8 +11,10 @@ import pokemoninfodisplayer.data.gba.VBAReader;
 import pokemoninfodisplayer.data.memory.MemoryMap;
 import pokemoninfodisplayer.data.nds.DesmumeReader;
 import pokemoninfodisplayer.graphics.InfoFrame;
+import pokemoninfodisplayer.models.BattleFlag;
 import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonGame;
+import pokemoninfodisplayer.models.PokemonKillEvent;
 import pokemoninfodisplayer.models.PokemonKillHandler;
 import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.models.TrainerModel;
@@ -36,44 +38,23 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	protected final PokemonGame game;
 	private final TpokMemModel[] pokMemoryModelBuffer;
 	private final TpokMemModel[] pokMemoryModelCheckBuffer;
-	private boolean autoUpdate = false;
 	private final List<PokemonKillHandler> killHandlers;
-	private final int[] partyXpPoints;
 	
 	@SuppressWarnings("unchecked")
 	public PokemonExtractor(PokemonGame game, MemoryDataSource<TmemMap> dataSource, Class<TpokMemModel> memoryModelType) {
 		this.dataSource = dataSource;
 		this.game = game;
 		this.killHandlers = new ArrayList<>();
-		this.partyXpPoints = new int[6];
 		
 		this.pokMemoryModelBuffer = (TpokMemModel[]) Array.newInstance(memoryModelType, 6);
 		this.pokMemoryModelCheckBuffer = (TpokMemModel[]) Array.newInstance(memoryModelType, 6);
 	}
-
-	/**
-	 * Setting auto update will call the update() method automatically whenever getParty(), getTrainer() etc. is called.
-	 * Defaults to true.
-	 * @param autoUpdate 
-	 */
-	public void setAutoUpdate(boolean autoUpdate) {
-		this.autoUpdate = autoUpdate;
-	}
-	
-	private void checkAndPerformAutoUpdate() {
-		if (autoUpdate) {
-			try {
-				update();
-			}
-			catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
 	
 	protected abstract void updatePokemonMemoryModels(TpokMemModel[] party, TmemMap memoryMap);
-	protected abstract boolean getInBattleFlag(TmemMap memoryMap);
+	protected abstract BattleFlag getInBattleFlag(TmemMap memoryMap);
+	@Deprecated
 	protected abstract int extractActivePid(TmemMap memoryMap);
+	protected abstract int getActiveInBattleIndex(TmemMap memoryMap);
 	
 	@Override
 	public void update() throws Exception {
@@ -82,7 +63,6 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 
 	@Override
 	public void updateParty(PartyModel party) {
-		checkAndPerformAutoUpdate();
 		updatePokemonMemoryModels(pokMemoryModelBuffer, dataSource.getMemoryMap());
 		
 		for (int i = 0; i < 6; i++) {
@@ -94,14 +74,13 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 				InfoFrame.CURRENT_HP_GUI_MAP.put(key, (double) party.getPartySlot(i).getCurrentHp());
 			}
 		}
-		
-		int activePid = getActivePid();
+		int activeIndex = getActiveInBattleIndex(dataSource.getMemoryMap());
 		
 		for (int i = 0; i < pokMemoryModelBuffer.length; i++) {
 			
 			TpokMemModel memModel = pokMemoryModelBuffer[i];
 			PokemonModel pok = memModel.toPokemonModel();
-			pok.setActive(pok.getPersonalityValue() == activePid);
+			pok.setActive(activeIndex == i);
 			
 			if (!memModel.isPresent() || pok.getDexEntry() < 1) {
 				if (i == 0 && PokemonInfoDisplayer.DEBUG) {
@@ -148,8 +127,9 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 		boolean equalLvl = pok.getLevel() == previousPok.getLevel();
 		boolean isActive = pok.isActive();
 		
-		if (isInBattle() && xpIncrease && equalLvl && isActive) {
-			notifyPokemonKillHandlers(pok);
+		if (getBattleFlag().isInBattle() && xpIncrease && equalLvl && isActive) {
+			var killEvent = new PokemonKillEvent(pok, getBattleFlag());
+			this.killHandlers.forEach(h -> h.handleKill(killEvent));
 		}
 	}
 	
@@ -164,10 +144,11 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	}
 
 	@Override
-	public boolean isInBattle() {
+	public BattleFlag getBattleFlag() {
 		return getInBattleFlag(dataSource.getMemoryMap());
 	}
 	
+	@Deprecated
 	@Override
 	public int getActivePid() {
 		return extractActivePid(dataSource.getMemoryMap());
@@ -181,10 +162,6 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	@Override
 	public void addPokemonKillHandler(PokemonKillHandler handler) {
 		this.killHandlers.add(handler);
-	}
-	
-	private void notifyPokemonKillHandlers(PokemonModel pokemon) {
-		this.killHandlers.forEach(h -> h.handleKill(pokemon));
 	}
 	
 	public static PokemonExtractor createPokemonExtractor(PokemonGame game) throws ProcessNotFoundException, UnsupportedPlatformException {

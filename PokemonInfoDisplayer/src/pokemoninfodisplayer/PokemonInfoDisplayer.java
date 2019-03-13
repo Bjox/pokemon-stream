@@ -1,18 +1,11 @@
 package pokemoninfodisplayer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.stream.Stream;
 import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JOptionPane;
@@ -22,6 +15,8 @@ import pokemoninfodisplayer.process.exceptions.ProcessNotFoundException;
 import pokemoninfodisplayer.process.exceptions.UnsupportedPlatformException;
 import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonGame;
+import pokemoninfodisplayer.service.PokemonStorageService;
+import pokemoninfodisplayer.service.Service;
 import pokemoninfodisplayer.util.ArgumentParser;
 
 /**
@@ -37,6 +32,8 @@ public class PokemonInfoDisplayer {
 		ArgumentParser argp = new ArgumentParser(args);
 		DEBUG = argp.isPresent("-debug");
 
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> Service.closeAllServices()));
+		
 		// Parse skin
 		DisplayerOptions.setSkin(parseSkinArgument(argp, Skin.PLATINUM));
 
@@ -54,39 +51,7 @@ public class PokemonInfoDisplayer {
 		while (true) {
 			try (PokemonInterface pokemonInterface = PokemonExtractor.createPokemonExtractor(game)) {
 				
-				pokemonInterface.addPokemonKillHandler(pokemon -> {
-					var kcPropFile = new File("kc");
-					var prop = new Properties();
-					var key = String.valueOf(pokemon.getPersonalityValue());
-					
-					try {
-						int newKillCount = 1;
-						if (kcPropFile.exists()) {
-							try (var in = new CipherInputStream(new FileInputStream(kcPropFile), createCipher(Cipher.DECRYPT_MODE, KILL_COUNT_STORAGE_KEY))) {	
-								prop.load(in);
-								var existingValue = prop.getProperty(key);
-								if (existingValue != null) {
-									newKillCount = Integer.parseInt(existingValue) + 1;
-								}
-							}
-						}
-						
-						prop.setProperty(key, String.valueOf(newKillCount));
-						try (var out = new CipherOutputStream(new FileOutputStream(kcPropFile), createCipher(Cipher.ENCRYPT_MODE, KILL_COUNT_STORAGE_KEY))) {
-							prop.store(out, "Pokemon kill count storage. Do not modify");
-						}
-						
-						System.out.println("!!! Detected kill for pokemon " + pokemon.toShortString() + ", killCount=" + newKillCount);
-					}
-					catch (IOException e) {
-						System.err.println("Error updating kill count storage for pokemon " + pokemon.toShortString());
-						if (DEBUG) {
-							throw new RuntimeException(e);
-						} else {
-							JOptionPane.showMessageDialog(null, "Error updating kill count storage: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-						}
-					}
-				});
+				pokemonInterface.addPokemonKillHandler(PokemonStorageService.getInstance());
 				
 				PartyModel party = new PartyModel();
 				(new Thread() {
