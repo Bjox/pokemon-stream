@@ -3,9 +3,7 @@ package pokemoninfodisplayer;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.gba.VBAReader;
 import pokemoninfodisplayer.data.memory.MemoryMap;
@@ -14,14 +12,15 @@ import pokemoninfodisplayer.graphics.InfoFrame;
 import pokemoninfodisplayer.models.BattleFlag;
 import pokemoninfodisplayer.models.PartyModel;
 import pokemoninfodisplayer.models.PokemonGame;
-import pokemoninfodisplayer.models.PokemonKillEvent;
-import pokemoninfodisplayer.models.PokemonKillHandler;
+import pokemoninfodisplayer.models.event.PokemonKillEvent;
+import pokemoninfodisplayer.models.event.PokemonKillHandler;
 import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.models.TrainerModel;
+import pokemoninfodisplayer.models.event.PokemonHitPointChangeEvent;
+import pokemoninfodisplayer.models.event.PokemonHitPointChangeHandler;
 import pokemoninfodisplayer.models.gen3.Gen3Extractor;
 import pokemoninfodisplayer.models.gen4.Gen4Extractor;
 import pokemoninfodisplayer.models.gen5.Gen5Extractor;
-import pokemoninfodisplayer.models.memory.Dword;
 import pokemoninfodisplayer.models.memory.PokemonMemoryModel;
 import pokemoninfodisplayer.process.exceptions.ProcessNotFoundException;
 import pokemoninfodisplayer.process.exceptions.UnsupportedPlatformException;
@@ -39,12 +38,14 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	private final TpokMemModel[] pokMemoryModelBuffer;
 	private final TpokMemModel[] pokMemoryModelCheckBuffer;
 	private final List<PokemonKillHandler> killHandlers;
+	private final List<PokemonHitPointChangeHandler> hpChangeHandlers;
 	
 	@SuppressWarnings("unchecked")
 	public PokemonExtractor(PokemonGame game, MemoryDataSource<TmemMap> dataSource, Class<TpokMemModel> memoryModelType) {
 		this.dataSource = dataSource;
 		this.game = game;
 		this.killHandlers = new ArrayList<>();
+		this.hpChangeHandlers = new ArrayList<>();
 		
 		this.pokMemoryModelBuffer = (TpokMemModel[]) Array.newInstance(memoryModelType, 6);
 		this.pokMemoryModelCheckBuffer = (TpokMemModel[]) Array.newInstance(memoryModelType, 6);
@@ -80,7 +81,7 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 			
 			TpokMemModel memModel = pokMemoryModelBuffer[i];
 			PokemonModel pok = memModel.toPokemonModel();
-			pok.setActive(activeIndex == i);
+			pok.setActive(activeIndex == i && getBattleFlag().isInBattle());
 			
 			if (!memModel.isPresent() || pok.getDexEntry() < 1) {
 				if (i == 0 && PokemonInfoDisplayer.DEBUG) {
@@ -109,7 +110,10 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 				continue;
 			}
 			if (this.pokMemoryModelCheckBuffer[i].equals(memModel)) {
-				doKillDetection(pok, party.getPartySlot(i));
+				var previousPok = party.getPartySlot(i);
+				
+				doKillDetection(pok, previousPok);
+				doHPChangeDetection(pok, previousPok);
 				party.setPartySlot(i, pok);
 				//System.out.println(pok.toShortString());
 			}
@@ -126,11 +130,21 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 		boolean xpIncrease = pok.getExperiencePoints() > previousPok.getExperiencePoints();
 		boolean equalLvl = pok.getLevel() == previousPok.getLevel();
 		boolean isActive = pok.isActive();
+		var battleFlag = getBattleFlag();
 		
-		if (getBattleFlag().isInBattle() && xpIncrease && equalLvl && isActive) {
-			var killEvent = new PokemonKillEvent(pok, getBattleFlag());
-			this.killHandlers.forEach(h -> h.handleKill(killEvent));
+		if (battleFlag.isInBattle() && xpIncrease && equalLvl && isActive) {
+			var killEvent = new PokemonKillEvent(pok, battleFlag);
+			this.killHandlers.forEach(h -> h.handle(killEvent));
 		}
+	}
+	
+	private void doHPChangeDetection(PokemonModel pok, PokemonModel previousPok) {
+		if (pok == null || previousPok == null || pok.getCurrentHp() == previousPok.getCurrentHp()) {
+			return;
+		}
+		
+		var hpChangeEvent = new PokemonHitPointChangeEvent(pok, getBattleFlag(), pok.getCurrentHp(), previousPok.getCurrentHp());
+		this.hpChangeHandlers.forEach(h -> h.handle(hpChangeEvent));
 	}
 	
 	@Override
@@ -161,11 +175,20 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 
 	@Override
 	public void addPokemonKillHandler(PokemonKillHandler handler) {
-		if (killHandlers.contains(handler)) {
+		if (this.killHandlers.contains(handler)) {
 			return;
 		}
 		this.killHandlers.add(handler);
 	}
+
+	@Override
+	public void addPokemonHPChangeHandler(PokemonHitPointChangeHandler handler) {
+		if (this.hpChangeHandlers.contains(handler)) {
+			return;
+		}
+		this.hpChangeHandlers.add(handler);
+	}
+	
 	
 	public static PokemonExtractor createPokemonExtractor(PokemonGame game) throws ProcessNotFoundException, UnsupportedPlatformException {
 		switch (game.generation) {

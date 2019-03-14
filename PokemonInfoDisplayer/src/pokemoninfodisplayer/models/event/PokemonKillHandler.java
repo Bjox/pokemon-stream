@@ -1,4 +1,4 @@
-package pokemoninfodisplayer.models;
+package pokemoninfodisplayer.models.event;
 
 /**
  *
@@ -7,6 +7,6 @@ package pokemoninfodisplayer.models;
 @FunctionalInterface
 public interface PokemonKillHandler {
 	
-	void handleKill(PokemonKillEvent killEvent);
+	void handle(PokemonKillEvent event);
 	
 }

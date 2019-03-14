@@ -52,6 +52,7 @@ public class PokemonInfoDisplayer {
 			try (PokemonInterface pokemonInterface = PokemonExtractor.createPokemonExtractor(game)) {
 				
 				pokemonInterface.addPokemonKillHandler(PokemonStorageService.getInstance());
+				pokemonInterface.addPokemonHPChangeHandler(PokemonStorageService.getInstance());
 				
 				PartyModel party = new PartyModel();
 				(new Thread() {

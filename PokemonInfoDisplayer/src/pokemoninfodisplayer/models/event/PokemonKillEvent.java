@@ -1,4 +1,7 @@
-package pokemoninfodisplayer.models;
+package pokemoninfodisplayer.models.event;
+
+import pokemoninfodisplayer.models.BattleFlag;
+import pokemoninfodisplayer.models.PokemonModel;
 
 /**
  *

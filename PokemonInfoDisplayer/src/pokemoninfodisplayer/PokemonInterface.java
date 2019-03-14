@@ -3,8 +3,9 @@ package pokemoninfodisplayer;
 import java.io.Closeable;
 import pokemoninfodisplayer.models.BattleFlag;
 import pokemoninfodisplayer.models.PartyModel;
-import pokemoninfodisplayer.models.PokemonKillHandler;
+import pokemoninfodisplayer.models.event.PokemonKillHandler;
 import pokemoninfodisplayer.models.TrainerModel;
+import pokemoninfodisplayer.models.event.PokemonHitPointChangeHandler;
 
 /**
  *
@@ -27,5 +28,7 @@ public interface PokemonInterface extends Closeable {
 	BattleFlag getBattleFlag();
 	
 	void addPokemonKillHandler(PokemonKillHandler handler);
+	
+	void addPokemonHPChangeHandler(PokemonHitPointChangeHandler handler);
 	
 }
