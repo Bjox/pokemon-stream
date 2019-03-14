@@ -59,6 +59,11 @@ public class PokemonInfoDisplayer {
 					public void run() {
 						while (true) {
 							frame.updateParty(party);
+							try {
+								Thread.sleep(10); // 100fps
+							}
+							catch (InterruptedException e) {
+							}
 						}
 					}
 				}).start();

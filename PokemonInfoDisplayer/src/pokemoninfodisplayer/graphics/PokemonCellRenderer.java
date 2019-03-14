@@ -151,7 +151,7 @@ public abstract class PokemonCellRenderer {
 	}
 	
 	
-	protected void renderHPBar(int currenthp, int maxhp, Graphics2D g2) {
+	protected void renderHPBar(double currenthp, int maxhp, Graphics2D g2) {
 		double ratio = currenthp / (double) maxhp;
 		HPBarColor hpbarcolor = getHPBarColor(ratio);
 		
@@ -224,7 +224,7 @@ public abstract class PokemonCellRenderer {
 			if (InfoFrame.CURRENT_HP_GUI_MAP.containsKey(pokemon.getPersonalityValue())) {
 				currentHp = InfoFrame.CURRENT_HP_GUI_MAP.get(pokemon.getPersonalityValue());
 			}
-			this.renderHPBar((int) Math.round(currentHp), pokemon.getMaxHp(), g2);
+			this.renderHPBar(currentHp, pokemon.getMaxHp(), g2);
 		}
 		
 	}

@@ -97,7 +97,7 @@ public final class InfoFrame extends JFrame {
 		if (currentHpGUI == null || currentHpGUI == pok.getCurrentHp()) {
 			return;
 		}
-		var speed = pok.getMaxHp() * 0.001;
+		var speed = pok.getMaxHp() * 0.005;
 		var diff = pok.getCurrentHp() - currentHpGUI; 
 		if (Math.abs(diff) < speed) {
 			CURRENT_HP_GUI_MAP.put(pok.getPersonalityValue(), (double) pok.getCurrentHp());
