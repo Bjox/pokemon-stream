@@ -150,6 +150,9 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 
 	@Override
 	public void addPokemonKillHandler(PokemonKillHandler handler) {
+		if (killHandlers.contains(handler)) {
+			return;
+		}
 		this.killHandlers.add(handler);
 	}
 	
