@@ -19,15 +19,17 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JOptionPane;
 import pokemoninfodisplayer.PokemonInfoDisplayer;
 import pokemoninfodisplayer.models.BattleFlag;
-import pokemoninfodisplayer.models.PokemonKillEvent;
-import pokemoninfodisplayer.models.PokemonKillHandler;
+import pokemoninfodisplayer.models.event.PokemonKillEvent;
+import pokemoninfodisplayer.models.event.PokemonKillHandler;
 import pokemoninfodisplayer.models.PokemonModel;
+import pokemoninfodisplayer.models.event.PokemonHitPointChangeEvent;
+import pokemoninfodisplayer.models.event.PokemonHitPointChangeHandler;
 
 /**
  *
  * @author Bjørnar W. Alvestad
  */
-public final class PokemonStorageService extends Service implements PokemonKillHandler {
+public final class PokemonStorageService extends Service implements PokemonKillHandler, PokemonHitPointChangeHandler {
 	
 	private static final boolean ENCRYPT_STORAGE = false;
 	private static final boolean USE_HMAC_VERIFICATION = true;
@@ -212,22 +214,52 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	}
 	
 	@Override
-	public void handleKill(PokemonKillEvent killEvent) {
+	public void handle(PokemonKillEvent killEvent) {
 		if (killEvent.battleType == BattleFlag.WILD_BATTLE && !COUNT_WILD_BATTLE_AS_KILL) {
 			System.out.println("Detected kill for " + killEvent.pokemon.getNickname() + ", ignoring wild battles");
 			return;
 		}
 		
-		String propKey = getKillCountKey(killEvent.pokemon);
-		int killCount = getInt(propKey, 0) + 1;
-		setInt(propKey, killCount);
+		var key = getKillCountKey(killEvent.pokemon);
+		int killCount = getInt(key, 0) + 1;
+		setInt(key, killCount);
 		System.out.println("Detected kill for " + killEvent.pokemon.getNickname() + ", killcount=" + killCount);
 	}
 
 	private String getKillCountKey(PokemonModel pokemon) {
-		return String.format("kc_%X", pokemon.getPersonalityValue());
+		return String.format("kills_%X", pokemon.getPersonalityValue());
 	}
 
+	@Override
+	public void handle(PokemonHitPointChangeEvent event) {
+		// If fainted or hp increased, do nothing
+		if (event.newHp == 0 || event.newHp >= event.oldHp) {
+			return;
+		}
+		
+		if (event.newHp == 1) {
+			System.out.printf("1 HP change event for %s: oldhp=%d, newhp=%d\n", event.pokemon.getNickname(), event.oldHp, event.newHp);
+			var key = get1HPCountKey(event.pokemon);
+			int oneHpCount = getInt(key, 0) + 1;
+			setInt(key, oneHpCount);
+			return;
+		}
+		
+		var redHpLevel = event.pokemon.getMaxHp() * 0.2;
+		
+		if (event.newHp <= redHpLevel) {
+			System.out.printf("Red HP change event for %s: oldhp=%d, newhp=%d\n", event.pokemon.getNickname(), event.oldHp, event.newHp);
+			var key = getRedHPCountKey(event.pokemon);
+			int redHpCount = getInt(key, 0) + 1;
+			setInt(key, redHpCount);
+		}
+	}
+
+	private String get1HPCountKey(PokemonModel pokemon) {
+		return String.format("1hp_%X", pokemon.getPersonalityValue());
+	}
 	
-	
+	private String getRedHPCountKey(PokemonModel pokemon) {
+		return String.format("red_hp_%X", pokemon.getPersonalityValue());
+	}
 }
