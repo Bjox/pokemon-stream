@@ -4,6 +4,7 @@ import pokemoninfodisplayer.PokemonExtractor;
 import pokemoninfodisplayer.data.MemoryDataSource;
 import pokemoninfodisplayer.data.memory.MemorySegment;
 import pokemoninfodisplayer.data.nds.NDSMemoryMap;
+import pokemoninfodisplayer.graphics.InfoFrame;
 import pokemoninfodisplayer.models.BattleFlag;
 import pokemoninfodisplayer.models.PokemonGame;
 import pokemoninfodisplayer.util.Util;
@@ -54,11 +55,13 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 			long inBattleMaxHpAddr = 0x225B1F2 + offset;
 			long inBattleCurrentHpAddr = 0x225B1F4 + offset;
 			long inBattleLevelAddr = 0x225B1FC + offset;
+			long inBattleStatusCondAddr = 0x225B204 + offset;
 			long inBattleXpPointsAddr = 0x225B1EC + offset;
 
 			party[i].maxHP.set(wram, inBattleMaxHpAddr);
 			party[i].currentHP.set(wram, inBattleCurrentHpAddr);
 			party[i].level.set(wram, inBattleLevelAddr);
+			party[i].statusCond.set(wram, inBattleStatusCondAddr);
 			party[i].experiencePoints.set(wram, inBattleXpPointsAddr);
 		}
 	}
