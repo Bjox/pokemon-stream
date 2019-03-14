@@ -54,11 +54,21 @@ public class PokemonInfoDisplayer {
 				pokemonInterface.addPokemonKillHandler(PokemonStorageService.getInstance());
 				
 				PartyModel party = new PartyModel();
+				(new Thread() {
+					@Override
+					public void run() {
+						while (true) {
+							frame.updateParty(party);
+						}
+					}
+				}).start();
+				
+				
 				
 				while (true) {
 					pokemonInterface.update();
 					pokemonInterface.updateParty(party);
-					frame.updateParty(party);
+					//frame.updateParty(party);
 					Thread.sleep(500);
 				}
 				

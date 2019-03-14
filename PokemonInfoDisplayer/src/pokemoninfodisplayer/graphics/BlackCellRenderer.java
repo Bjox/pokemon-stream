@@ -76,7 +76,11 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 	}
 	
 	protected void renderHPAsText(PokemonModel pokemon, Graphics2D g2) {
-		String hpText = pokemon.getCurrentHp() + "/" + pokemon.getMaxHp();
+		int currentHp = pokemon.getCurrentHp();
+		if (InfoFrame.CURRENT_HP_GUI_MAP.containsKey(pokemon.getPersonalityValue())) {
+			currentHp = (int) Math.round(InfoFrame.CURRENT_HP_GUI_MAP.get(pokemon.getPersonalityValue()));
+		}
+		String hpText = currentHp + "/" + pokemon.getMaxHp();
 		this.renderTextWithShadow(hpText, this.POS_TEXT_HP.x, this.POS_TEXT_HP.y, g2);
 	}
 	
