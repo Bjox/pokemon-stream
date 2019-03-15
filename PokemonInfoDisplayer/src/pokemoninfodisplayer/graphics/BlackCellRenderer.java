@@ -95,13 +95,13 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 			currentHp = (int) Math.round(InfoFrame.CURRENT_HP_GUI_MAP.get(pokemon.getPersonalityValue()));
 		}
 		
-		String maxHpStr = String.valueOf(pokemon.getMaxHp()*4);
-		String currHpStr = String.valueOf(currentHp*4);
+		String maxHpStr = String.valueOf(pokemon.getMaxHp());
+		String currHpStr = String.valueOf(currentHp);
 		currHpStr = " ".repeat(Math.max(0, maxHpStr.length() - currHpStr.length())) + currHpStr;
 		
 		String hpText = currHpStr + "/" + maxHpStr;
 		
-		var scale = pokemon.getMaxHp()*4 > 99 ? 0.8 : 1.0;
+		var scale = pokemon.getMaxHp() > 99 ? 0.8 : 1.0;
 		var transform = g2.getTransform();
 		
 		g2.translate(POS_TEXT_HP.x, POS_TEXT_HP.y);
