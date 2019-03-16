@@ -54,14 +54,12 @@ public class Medals implements StorageUpdatedHandler {
 										.filter(pse -> pse.getQuantity() >= medal.MIN_VALUE)
 										.max(Comparator.comparing(PokemonStorageEntry::getQuantity))
 										.orElse(null);
-				if (medalWinner == null && oldMedalWinner == null) {
-					continue;
-				}
-				else if (medalWinner == null || oldMedalWinner.value == medalWinner.getQuantity()) {
+				if (oldMedalWinner != null && (medalWinner == null || oldMedalWinner.value == medalWinner.getQuantity())) {
 					newList.add(oldMedalWinner);
-					continue;
 				}
-				newList.add(new PokemonMedal(medalWinner.getPid(), medal.type, medalWinner.getQuantity()));
+				else if (medalWinner != null) {
+					newList.add(new PokemonMedal(medalWinner.getPid(), medal.type, medalWinner.getQuantity()));
+				}
 			}
 			else {
 				var medalWinners = Stream.of(relevantStoredData)
