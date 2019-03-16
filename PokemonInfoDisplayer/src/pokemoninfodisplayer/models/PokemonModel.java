@@ -113,12 +113,10 @@ public class PokemonModel {
 	private final boolean egg;
 	private final int eggSteps;
 	private final BufferedImage img;
+	private final BufferedImage grayImg;
 	private final Gender gender;
 	private final int experiencePoints;
 	private boolean active;
-	
-	//private final BufferedImage imgGray;
-	//private static final BufferedImage imgEgg; // This can be static because egg is egg no matter what pok it is.
 
 	private PokemonModel(
 			int personalityValue,
@@ -149,9 +147,12 @@ public class PokemonModel {
 		this.experiencePoints = experiencePoints;
 		this.active = active;
 		
-		BufferedImage imgBuff = null;
+		BufferedImage prepareImg = null;
+		BufferedImage prepareGrayImg = null;
+		
 		try {
-			imgBuff = createImage(dexEntry, egg, currentHp == 0, shiny);
+			prepareImg = createImage(dexEntry, egg, false, shiny);
+			prepareGrayImg = createImage(dexEntry, egg, true, shiny);
 		} catch (IOException e) {
 			System.err.println("Error while reading image: " + e.toString());
 			System.err.println("dex: " + dexEntry);
@@ -159,7 +160,9 @@ public class PokemonModel {
 			System.err.println("currenthp: " + currentHp);
 			System.err.println("nickname: " + nickname);
 		}
-		this.img = imgBuff;
+		
+		this.img = prepareImg;
+		this.grayImg = prepareGrayImg;
 	}
 
 	public boolean validate() {
@@ -281,12 +284,12 @@ public class PokemonModel {
 	}
 
 	public BufferedImage getImg() {
-		return img;//IsEgg() ? imgEgg : isFainted() ? imgGray : img;
+		return isFainted() ? grayImg : img; // TODO: consider moving img out of PokemonModel
 	}
 
 	public boolean isFainted() {
 		double hp = this.currentHp;
-		if (InfoFrame.CURRENT_HP_GUI_MAP.containsKey(this.getPersonalityValue())) {
+		if (InfoFrame.CURRENT_HP_GUI_MAP.containsKey(this.getPersonalityValue())) { // TODO: fix hack. InfoFrame should not be referenced from PokemonModel
 			hp = InfoFrame.CURRENT_HP_GUI_MAP.get(this.getPersonalityValue());
 		}
 		return hp <= 0;
