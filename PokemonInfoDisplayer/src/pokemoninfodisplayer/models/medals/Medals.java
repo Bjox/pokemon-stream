@@ -7,15 +7,12 @@ package pokemoninfodisplayer.models.medals;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import pokemoninfodisplayer.models.event.StorageUpdatedEvent;
 import pokemoninfodisplayer.models.event.StorageUpdatedHandler;
 import pokemoninfodisplayer.service.PokemonStorageEntry;
-import pokemoninfodisplayer.util.Pair;
+import pokemoninfodisplayer.service.PokemonStorageService;
 
 /**
  *
@@ -23,11 +20,12 @@ import pokemoninfodisplayer.util.Pair;
  */
 public class Medals implements StorageUpdatedHandler {
 	
+	private static final Medals instance;
+	
 	static {
 		instance = new Medals();
+		PokemonStorageService.getInstance().addListener(instance);
 	}
-	
-	private static final Medals instance;
 	
 	public static Medals getInstance() {
 		return instance;

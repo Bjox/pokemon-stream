@@ -20,7 +20,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JOptionPane;
 import pokemoninfodisplayer.PokemonInfoDisplayer;
 import pokemoninfodisplayer.models.BattleFlag;
-import pokemoninfodisplayer.models.medals.Medals;
 import pokemoninfodisplayer.models.event.PokemonKillEvent;
 import pokemoninfodisplayer.models.event.PokemonKillHandler;
 import pokemoninfodisplayer.models.PokemonModel;
@@ -28,7 +27,6 @@ import pokemoninfodisplayer.models.event.PokemonHitPointChangeEvent;
 import pokemoninfodisplayer.models.event.PokemonHitPointChangeHandler;
 import pokemoninfodisplayer.models.event.StorageUpdatedEvent;
 import pokemoninfodisplayer.models.event.StorageUpdatedHandler;
-import pokemoninfodisplayer.util.Pair;
 
 /**
  *
@@ -43,12 +41,12 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	private static final String ENCRYPTION_KEY = "fyfaenendruscode"; // This is secure
 	private static final boolean COUNT_WILD_BATTLE_AS_KILL = false;
 	
+	private static final PokemonStorageService instance;
+	
 	static {
 		var storageFile = new File(STORAGE_FILE);
 		instance = new PokemonStorageService(storageFile);
 	}
-	
-	private static final PokemonStorageService instance;
 	
 	public static PokemonStorageService getInstance() {
 		return instance;
@@ -65,8 +63,6 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 		this.properties = new CleanProperties();
 		this.persistOnClose = true;
 		this.listeners = new ArrayList();
-				
-		listeners.add(Medals.getInstance());
 		
 		try {
 			loadStorage();
@@ -105,8 +101,6 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 		if (USE_HMAC_VERIFICATION) {
 			validateHmac();
 		}
-		
-		fireStorageUpdatedEvent();
 	}
 	
 	/**
@@ -303,6 +297,11 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	
 	private String getRedHPCountKey(PokemonModel pokemon) {
 		return String.format("red_hp_%X", pokemon.getPersonalityValue());
+	}
+	
+	public void addListener(StorageUpdatedHandler handler) {
+		this.listeners.add(handler);
+		handler.handle(new StorageUpdatedEvent());
 	}
 	
 	private void fireStorageUpdatedEvent() {
