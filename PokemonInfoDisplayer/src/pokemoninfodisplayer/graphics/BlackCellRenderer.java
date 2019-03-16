@@ -3,12 +3,12 @@ package pokemoninfodisplayer.graphics;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import pokemoninfodisplayer.DisplayerOptions;
 import pokemoninfodisplayer.models.Gender;
 import pokemoninfodisplayer.models.PokemonModel;
+import pokemoninfodisplayer.util.Pair;
 
 /**
  *
@@ -57,7 +57,10 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 		this.POS_TEXT_HP = new Point(33, 78);
 		this.POS_OVERLAY_GENDER = new Point(76, POS_TEXT_NAME.y - IMG_OVERLAY_FEMALE.getHeight() + 1);
 		
-		this.hpFont = new BitmapFont(new File(PATH_OVERLAY + "font"));
+		this.hpFont = new BitmapFont(new File(PATH_OVERLAY + "font"),
+				new Pair<>("slash", '/'),
+				new Pair<>("lv", 'L')
+		);
 	}
 	
 	@Override

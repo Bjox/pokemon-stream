@@ -6,9 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
+import pokemoninfodisplayer.util.Pair;
 
 /**
  *
@@ -16,36 +16,39 @@ import javax.imageio.ImageIO;
  */
 public class BitmapFont {
 	
-	private static final Map<String, Character> FONT_FILENAME_EXCEPTIONS = new HashMap<>();
-	
-	static {
-		FONT_FILENAME_EXCEPTIONS.put("slash", '/');
-		FONT_FILENAME_EXCEPTIONS.put("lv", 'L');
-	}
-	
 	private final Map<Character, BufferedImage> bitmaps;
+	private final Map<String, Character> filenameExceptions;
 	private final double averageBitmapWidth;
 
-	public BitmapFont(File bitmapFontFolder) {
+	public BitmapFont(File bitmapFontFolder, Pair<String, Character>... exceptions) {
+		
 		this.bitmaps = new HashMap<>();
+		this.filenameExceptions = new HashMap<>();
 		
 		if (!bitmapFontFolder.isDirectory()) {
 			throw new IllegalArgumentException("Cannot create new BitmapFont. Must provide a directory in constructor");
 		}
 		
-		Predicate<File> isPng = file -> "png".equals(getFileType(file));
+		Stream.of(exceptions).forEach(e -> {
+			var exceptionFilename = e.value1;
+			var exceptionCharKey = e.value2;
+			if (this.filenameExceptions.containsKey(exceptionFilename)) {
+				throw new IllegalArgumentException("Duplicate bitmap exception entry: " + e.toString());
+			}
+			this.filenameExceptions.put(exceptionFilename, exceptionCharKey);
+		});
 		
 		Stream.of(bitmapFontFolder.listFiles())
 				.filter(File::isFile)
-				.filter(isPng)
+				.filter(file -> getFileType(file).equals("png"))
 				.forEach(file -> {
 					var filename = getSimpleFilename(file);
 					char bitmapKey;
 					
 					if (filename.length() == 1) {
 						bitmapKey = filename.charAt(0);
-					} else if (FONT_FILENAME_EXCEPTIONS.containsKey(filename)) {
-						bitmapKey = FONT_FILENAME_EXCEPTIONS.get(filename);
+					} else if (filenameExceptions.containsKey(filename)) {
+						bitmapKey = filenameExceptions.get(filename);
 					} else {
 						throw new RuntimeException("No font filename exception specified for bitmap font file \"" + file.getName() + "\"");
 					}
