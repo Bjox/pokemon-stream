@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import pokemoninfodisplayer.DisplayerOptions;
+import pokemoninfodisplayer.graphics.InfoFrame;
 
 /**
  *
@@ -281,7 +282,11 @@ public class PokemonModel {
 	}
 
 	public boolean isFainted() {
-		return this.currentHp <= 0;
+		double hp = this.currentHp;
+		if (InfoFrame.CURRENT_HP_GUI_MAP.containsKey(this.getPersonalityValue())) {
+			hp = InfoFrame.CURRENT_HP_GUI_MAP.get(this.getPersonalityValue());
+		}
+		return hp <= 0;
 	}
 
 	public int getEggSteps() {

@@ -48,6 +48,8 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 		this.POS_HP_BAR_START = new Point(27, 73); // Done
 		this.POS_HP_BAR_END = new Point(81, 75); // Done
 		
+		this.MEDAL_WIDTH = 9;
+		
 		this.PATH_OVERLAY_FEMALE = PATH_OVERLAY + "female.png";
 		this.PATH_OVERLAY_MALE = PATH_OVERLAY + "male.png";
 		
@@ -55,7 +57,7 @@ public class BlackCellRenderer extends PokemonCellRenderer {
 		this.IMG_OVERLAY_MALE = readImgFromFile(PATH_OVERLAY_MALE);
 		
 		this.POS_TEXT_HP = new Point(33, 78);
-		this.POS_OVERLAY_GENDER = new Point(76, POS_TEXT_NAME.y - IMG_OVERLAY_FEMALE.getHeight() + 1);
+		this.POS_OVERLAY_GENDER = new Point(74, POS_TEXT_NAME.y - IMG_OVERLAY_FEMALE.getHeight() + 1);
 		
 		this.hpFont = new BitmapFont(new File(PATH_OVERLAY + "font"),
 				new Pair<>("slash", '/'),
