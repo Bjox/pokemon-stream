@@ -35,13 +35,13 @@ public class Medals implements StorageUpdatedHandler {
 		
 	}
 	
-	private Medal[] medals = new Medal[] { new Medal(MedalType.MVP, 1, true),
-										   new Medal(MedalType.TANK, 1, true),
+	private Medal[] medals = new Medal[] { new Medal(MedalType.MVP, 10, true),
+										   new Medal(MedalType.TANK, 10, true),
 										   new Medal(MedalType.SURVIVOR, 1, false)};
 
 	@Override
 	public void handle(StorageUpdatedEvent event) {
-		this.PokemonMedals = new ArrayList<>();
+		var newList = new ArrayList<PokemonMedal>();
 		
 		for (Medal medal : this.medals) {
 			PokemonStorageEntry[] relevantStoredData = medal.getStoredData();
@@ -49,23 +49,30 @@ public class Medals implements StorageUpdatedHandler {
 				continue;
 			}
 			if (medal.UNIQUE){
+				var oldMedalWinner = this.PokemonMedals.stream().filter(pm -> pm.medal == medal.type).findFirst().orElse(null);
 				var medalWinner = Stream.of(relevantStoredData)
 										.filter(pse -> pse.getQuantity() >= medal.MIN_VALUE)
 										.max(Comparator.comparing(PokemonStorageEntry::getQuantity))
 										.orElse(null);
-				if (medalWinner != null) {
-					this.PokemonMedals.add(new PokemonMedal(medalWinner.getPid(), medal.type));
+				if (medalWinner == null && oldMedalWinner == null) {
+					continue;
 				}
+				else if (medalWinner == null || oldMedalWinner.value == medalWinner.getQuantity()) {
+					newList.add(oldMedalWinner);
+					continue;
+				}
+				newList.add(new PokemonMedal(medalWinner.getPid(), medal.type, medalWinner.getQuantity()));
 			}
 			else {
 				var medalWinners = Stream.of(relevantStoredData)
 										 .filter(pse -> pse.getQuantity() >= medal.MIN_VALUE)
-										 .map(pse -> new PokemonMedal(pse.getPid(), medal.type))
+										 .map(pse -> new PokemonMedal(pse.getPid(), medal.type, pse.getQuantity()))
 										 .collect(Collectors.toList());
 				
-				this.PokemonMedals.addAll(medalWinners);
+				newList.addAll(medalWinners);
 			}
 		}
+		this.PokemonMedals = newList;
 		
 	}
 	
@@ -88,10 +95,12 @@ public class Medals implements StorageUpdatedHandler {
 		
 		public String pid;
 		public MedalType medal;
+		public int value;
 		
-		public PokemonMedal(String pid, MedalType medal) {
+		public PokemonMedal(String pid, MedalType medal, int value) {
 			this.pid = pid;
 			this.medal = medal;
+			this.value = value;
 		}
 	}
 	
