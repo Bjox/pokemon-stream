@@ -11,6 +11,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import pokemoninfodisplayer.DisplayerOptions.Skin;
+import pokemoninfodisplayer.models.medals.Medals;
+import pokemoninfodisplayer.models.medals.Medals.MedalType;
 import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.models.StatusCondition;
 
@@ -35,6 +37,11 @@ public abstract class PokemonCellRenderer {
 		this.PATH_OVERLAY_POISON		= PATH_OVERLAY_STATUS + "poison.png";
 		this.PATH_OVERLAY_SLEEP			= PATH_OVERLAY_STATUS + "sleep.png";
 		
+		this.PATH_OVERLAY_MEDALS		= PATH_OVERLAY + "medals/";
+		this.PATH_OVERLAY_MVP_MEDAL		= PATH_OVERLAY_MEDALS + "mvp.png";
+		this.PATH_OVERLAY_SURVIVOR_MEDAL= PATH_OVERLAY_MEDALS + "survivor.png";
+		this.PATH_OVERLAY_TANK_MEDAL	= PATH_OVERLAY_MEDALS + "tank.png";
+		
 		this.IMG_OVERLAY_TILE			= readImgFromFile(PATH_OVERLAY_TILE);
 		this.IMG_OVERLAY_TILE_ACTIVE	= readImgFromFile(PATH_OVERLAY_TILE_ACTIVE);
 		this.IMG_OVERLAY_HPBAR			= readImgFromFile(PATH_OVERLAY_HPBAR);
@@ -45,6 +52,9 @@ public abstract class PokemonCellRenderer {
 		this.IMG_OVERLAY_PARALYZE		= readImgFromFile(PATH_OVERLAY_PARALYZE);
 		this.IMG_OVERLAY_POISON			= readImgFromFile(PATH_OVERLAY_POISON);
 		this.IMG_OVERLAY_SLEEP			= readImgFromFile(PATH_OVERLAY_SLEEP);
+		this.IMG_OVERLAY_MVP_MEDAL		= readImgFromFile(PATH_OVERLAY_MVP_MEDAL);
+		this.IMG_OVERLAY_SURVIVOR_MEDAL	= readImgFromFile(PATH_OVERLAY_SURVIVOR_MEDAL);
+		this.IMG_OVERLAY_TANK_MEDAL		= readImgFromFile(PATH_OVERLAY_TANK_MEDAL);
 		
 		this.SIZE_OVERLAY_TILE = new Point(IMG_OVERLAY_TILE.getWidth(), IMG_OVERLAY_TILE.getHeight());
 		this.FONT_NAME = "./res/skins/" + skin.path_prefix + "/font.ttf";
@@ -64,6 +74,10 @@ public abstract class PokemonCellRenderer {
 	protected final String PATH_OVERLAY_PARALYZE;
 	protected final String PATH_OVERLAY_POISON;
 	protected final String PATH_OVERLAY_SLEEP;
+	protected final String PATH_OVERLAY_MEDALS;
+	protected final String PATH_OVERLAY_MVP_MEDAL;
+	protected final String PATH_OVERLAY_SURVIVOR_MEDAL;
+	protected final String PATH_OVERLAY_TANK_MEDAL;
 	
 	protected BufferedImage IMG_OVERLAY_TILE;
 	protected BufferedImage IMG_OVERLAY_TILE_ACTIVE;
@@ -75,6 +89,9 @@ public abstract class PokemonCellRenderer {
 	protected BufferedImage IMG_OVERLAY_PARALYZE;
 	protected BufferedImage IMG_OVERLAY_POISON;
 	protected BufferedImage IMG_OVERLAY_SLEEP;
+	protected BufferedImage IMG_OVERLAY_MVP_MEDAL;
+	protected BufferedImage IMG_OVERLAY_SURVIVOR_MEDAL;
+	protected BufferedImage IMG_OVERLAY_TANK_MEDAL;
 	
 	protected Color COLOR_HP_GREEN_NORMAL;
 	protected Color COLOR_HP_GREEN_SHADOW;
@@ -91,6 +108,8 @@ public abstract class PokemonCellRenderer {
 	protected Point POS_OVERLAY_BAR;
 	protected Point POS_HP_BAR_START;
 	protected Point POS_HP_BAR_END;
+	
+	protected int MEDAL_WIDTH;
 	
 	protected final String FONT_NAME;
 	protected final Font FONT;
@@ -226,7 +245,7 @@ public abstract class PokemonCellRenderer {
 			}
 			this.renderHPBar(currentHp, pokemon.getMaxHp(), g2);
 		}
-		
+		this.renderMedals(pokemon, g2);
 	}
 	
 	protected void renderName(PokemonModel pokekmon, Graphics2D g2) {
@@ -235,6 +254,23 @@ public abstract class PokemonCellRenderer {
 	
 	protected void renderLevelText(PokemonModel pokemon, Graphics2D g2){
 		this.renderTextWithShadow("Lv" + String.valueOf(pokemon.getLevel()), POS_TEXT_LVL.x, POS_TEXT_LVL.y, g2);
+	}
+	
+	protected void renderMedals(PokemonModel pokemon, Graphics2D g2) {
+		var medals = Medals.getInstance().getPokemonMedals(pokemon.getPersonalityValue());
+		
+		for (int i = 0; i < medals.length; i++) {
+			g2.drawImage(getMedalImage(medals[i]), SIZE_OVERLAY_TILE.x - MEDAL_WIDTH, (medals.length-i-1)*15, null);
+		}
+	}
+	
+	private BufferedImage getMedalImage(MedalType medal) {
+		switch (medal) {
+			case MVP: return this.IMG_OVERLAY_MVP_MEDAL;
+			case SURVIVOR: return this.IMG_OVERLAY_SURVIVOR_MEDAL;
+			case TANK: return this.IMG_OVERLAY_TANK_MEDAL;
+			default: return null;
+		}
 	}
 	
 	protected final Font createFont(int style, int size) {
