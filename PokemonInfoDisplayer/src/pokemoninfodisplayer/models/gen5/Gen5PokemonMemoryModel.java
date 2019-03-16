@@ -110,7 +110,7 @@ public class Gen5PokemonMemoryModel extends PokemonMemoryModel {
 				.setNickname(Gen5Util.decodeGen5String(nickname.getBytes()))
 				.setShiny(Gen5Util.isShiny(OTID.getUInt(), personalityValue.getUInt()))
 				.setDexEntry(speciesID.getUInt())
-				.setStatusCondition(StatusCondition.parse(statusCond.getByte()))
+				.setStatusCondition(StatusCondition.parseGen5(statusCond.getByte()))
 				.setEgg((individualValues.getUInt() & 0x40000000) != 0)
 				.setGender(Gen5Util.getGender(fatefulFlag_female_genderless_altForms.getByte()))
 				.setExperiencePoints(experiencePoints.getUInt())

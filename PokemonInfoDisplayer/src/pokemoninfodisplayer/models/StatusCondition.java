@@ -36,4 +36,13 @@ public enum StatusCondition {
 
 		return null;
 	}
+	
+	public static StatusCondition parseGen5(byte statusConditionByte) {
+		switch (statusConditionByte) {
+			case 1: return PARALYSIS;
+			case 2: return SLEEP;
+			default: return null;
+		}
+	}
+	
 }
