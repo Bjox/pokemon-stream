@@ -166,6 +166,9 @@ public class PokemonModel {
 		if (level < 0 || level > 100) {
 			return false;
 		}
+		if (maxHp <= 0) {
+			return false;
+		}
 		if (currentHp < 0 || currentHp > maxHp) {
 			return false;
 		}
