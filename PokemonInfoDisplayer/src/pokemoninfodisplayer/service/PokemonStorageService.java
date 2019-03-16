@@ -35,7 +35,7 @@ import pokemoninfodisplayer.models.event.StorageUpdatedHandler;
 public final class PokemonStorageService extends Service implements PokemonKillHandler, PokemonHitPointChangeHandler {
 	
 	private static final boolean ENCRYPT_STORAGE = false;
-	private static final boolean USE_HMAC_VERIFICATION = false;
+	private static final boolean USE_HMAC_VERIFICATION = true;
 	private static final String STORAGE_FILE = "./pokemon_storage.txt";
 	private static final String HMAC_DIGEST_FILE = "./pokemon_storage_hmac";
 	private static final String ENCRYPTION_KEY = "fyfaenendruscode"; // This is secure
