@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import javax.crypto.Cipher;
@@ -19,11 +20,15 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.swing.JOptionPane;
 import pokemoninfodisplayer.PokemonInfoDisplayer;
 import pokemoninfodisplayer.models.BattleFlag;
+import pokemoninfodisplayer.models.medals.Medals;
 import pokemoninfodisplayer.models.event.PokemonKillEvent;
 import pokemoninfodisplayer.models.event.PokemonKillHandler;
 import pokemoninfodisplayer.models.PokemonModel;
 import pokemoninfodisplayer.models.event.PokemonHitPointChangeEvent;
 import pokemoninfodisplayer.models.event.PokemonHitPointChangeHandler;
+import pokemoninfodisplayer.models.event.StorageUpdatedEvent;
+import pokemoninfodisplayer.models.event.StorageUpdatedHandler;
+import pokemoninfodisplayer.util.Pair;
 
 /**
  *
@@ -53,11 +58,15 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	private final File storageFile;
 	private final Properties properties;
 	private boolean persistOnClose;
+	private final ArrayList<StorageUpdatedHandler> listeners;
 	
 	private PokemonStorageService(File storageFile) {
 		this.storageFile = storageFile;
 		this.properties = new CleanProperties();
 		this.persistOnClose = true;
+		this.listeners = new ArrayList();
+				
+		listeners.add(Medals.getInstance());
 		
 		try {
 			loadStorage();
@@ -96,6 +105,8 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 		if (USE_HMAC_VERIFICATION) {
 			validateHmac();
 		}
+		
+		fireStorageUpdatedEvent();
 	}
 	
 	/**
@@ -224,10 +235,39 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 		int killCount = getInt(key, 0) + 1;
 		setInt(key, killCount);
 		System.out.println("Detected kill for " + killEvent.pokemon.getNickname() + ", killcount=" + killCount);
+		
+		fireStorageUpdatedEvent();
 	}
 
 	private String getKillCountKey(PokemonModel pokemon) {
 		return String.format("kills_%X", pokemon.getPersonalityValue());
+	}
+	
+	public PokemonStorageEntry[] getKillCounts() {
+		return this.properties
+				.entrySet()
+				.stream()
+				.filter(e -> ((String) e.getKey()).contains("kills"))
+				.map(e -> new PokemonStorageEntry(((String) e.getKey()).split("_")[1], getInt((String) e.getKey(), 0)))
+				.toArray(PokemonStorageEntry[]::new);
+	}
+	
+	public PokemonStorageEntry[] getTankCounts() {
+		return this.properties
+				.entrySet()
+				.stream()
+				.filter(e -> ((String) e.getKey()).contains("red_hp"))
+				.map(e -> new PokemonStorageEntry(((String) e.getKey()).split("_")[2], getInt((String) e.getKey(), 0)))
+				.toArray(PokemonStorageEntry[]::new);
+	}
+	
+	public PokemonStorageEntry[] getSurvivorCounts() {
+		return this.properties
+				.entrySet()
+				.stream()
+				.filter(e -> ((String) e.getKey()).contains("1hp"))
+				.map(e -> new PokemonStorageEntry(((String) e.getKey()).split("_")[1], getInt((String) e.getKey(), 0)))
+				.toArray(PokemonStorageEntry[]::new);
 	}
 
 	@Override
@@ -253,6 +293,8 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 			int redHpCount = getInt(key, 0) + 1;
 			setInt(key, redHpCount);
 		}
+		
+		fireStorageUpdatedEvent();
 	}
 
 	private String get1HPCountKey(PokemonModel pokemon) {
@@ -261,5 +303,11 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	
 	private String getRedHPCountKey(PokemonModel pokemon) {
 		return String.format("red_hp_%X", pokemon.getPersonalityValue());
+	}
+	
+	private void fireStorageUpdatedEvent() {
+		for (StorageUpdatedHandler handler : this.listeners) {
+			handler.handle(new StorageUpdatedEvent());
+		}
 	}
 }
