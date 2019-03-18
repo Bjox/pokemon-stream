@@ -26,7 +26,6 @@ import pokemoninfodisplayer.util.ArgumentParser;
 public class PokemonInfoDisplayer {
 
 	public static boolean DEBUG = false;
-	private static final String KILL_COUNT_STORAGE_KEY = "super secret key";
 	
 	public static void main(String[] args) throws Exception {
 		ArgumentParser argp = new ArgumentParser(args);
