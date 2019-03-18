@@ -1,0 +1,1 @@
+cp ../VisualBoyExtractor/x64/Release/VisualBoyExtractor.dll .
