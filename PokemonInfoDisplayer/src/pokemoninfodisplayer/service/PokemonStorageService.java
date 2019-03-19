@@ -276,7 +276,6 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 			var key = get1HPCountKey(event.pokemon);
 			int oneHpCount = getInt(key, 0) + 1;
 			setInt(key, oneHpCount);
-			return;
 		}
 		
 		var redHpLevel = event.pokemon.getMaxHp() * 0.2;
