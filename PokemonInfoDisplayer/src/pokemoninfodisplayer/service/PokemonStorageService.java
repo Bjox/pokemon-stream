@@ -220,29 +220,35 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	
 	@Override
 	public void handle(PokemonKillEvent killEvent) {
-		if (killEvent.battleType == BattleFlag.WILD_BATTLE && !COUNT_WILD_BATTLE_AS_KILL) {
-			System.out.println("Detected kill for " + killEvent.pokemon.getNickname() + ", ignoring wild battles");
-			return;
-		}
+		var totalKillsKey = getTotalKillCountKey(killEvent.pokemon);
+		int totalKillCount = getInt(totalKillsKey, 0) + 1;
+		setInt(totalKillsKey, totalKillCount);
+		System.out.printf("Detected %s kill for %s, totalkills=%d\n", killEvent.battleType, killEvent.pokemon.getNickname(), totalKillCount);
 		
-		var key = getKillCountKey(killEvent.pokemon);
-		int killCount = getInt(key, 0) + 1;
-		setInt(key, killCount);
-		System.out.println("Detected kill for " + killEvent.pokemon.getNickname() + ", killcount=" + killCount);
+		if (killEvent.battleType == BattleFlag.TRAINER_BATTLE || (killEvent.battleType == BattleFlag.WILD_BATTLE && COUNT_WILD_BATTLE_AS_KILL)) {
+			var trainerKillsKey = getTrainerKillCountKey(killEvent.pokemon);
+			int trainerKillCount = getInt(trainerKillsKey, 0) + 1;
+			setInt(trainerKillsKey, trainerKillCount);
+			System.out.printf("trainerkills=%d\n", trainerKillCount);
+		}
 		
 		fireStorageUpdatedEvent();
 	}
 
-	private String getKillCountKey(PokemonModel pokemon) {
-		return String.format("kills_%X", pokemon.getPersonalityValue());
+	private String getTotalKillCountKey(PokemonModel pokemon) {
+		return String.format("total_kills_%X", pokemon.getPersonalityValue());
+	}
+	
+	private String getTrainerKillCountKey(PokemonModel pokemon) {
+		return String.format("trainer_kills_%X", pokemon.getPersonalityValue());
 	}
 	
 	public PokemonStorageEntry[] getKillCounts() {
 		return this.properties
 				.entrySet()
 				.stream()
-				.filter(e -> ((String) e.getKey()).contains("kills"))
-				.map(e -> new PokemonStorageEntry(((String) e.getKey()).split("_")[1], getInt((String) e.getKey(), 0)))
+				.filter(e -> ((String) e.getKey()).contains("trainer_kills"))
+				.map(e -> new PokemonStorageEntry(((String) e.getKey()).split("_")[2], getInt((String) e.getKey(), 0)))
 				.toArray(PokemonStorageEntry[]::new);
 	}
 	
