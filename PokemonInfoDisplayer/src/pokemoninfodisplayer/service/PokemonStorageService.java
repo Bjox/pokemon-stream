@@ -121,12 +121,10 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 		out.flush();
 		out.close();
 		
-		if (USE_HMAC_VERIFICATION) {
-			var hmacBytes = computeHmac();
-			try (var hmacOut = new BufferedOutputStream(new FileOutputStream(HMAC_DIGEST_FILE))) {
-				hmacOut.write(hmacBytes);
-				hmacOut.flush();
-			}
+		var hmacBytes = computeHmac();
+		try (var hmacOut = new BufferedOutputStream(new FileOutputStream(HMAC_DIGEST_FILE))) {
+			hmacOut.write(hmacBytes);
+			hmacOut.flush();
 		}
 	}
 	
