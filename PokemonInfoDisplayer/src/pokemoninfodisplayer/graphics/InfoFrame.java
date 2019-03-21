@@ -37,7 +37,8 @@ public final class InfoFrame extends JFrame {
 	private PartyModel party;
 	
 	public final static HashMap<Integer, Double> CURRENT_HP_GUI_MAP = new HashMap<>();
-
+	private long lastUpdate = System.nanoTime();
+	
 	public InfoFrame() throws HeadlessException {
 		setTitle("PartyInfo");
 		setResizable(false);
@@ -52,10 +53,11 @@ public final class InfoFrame extends JFrame {
 				g2.setColor(Color.WHITE);
 				
 				if (party == null) return;
+				final double deltaTime = getDeltaTime();
 				
 				for (int i = 0; i < 6; i++) {
 					PokemonModel pok = party.getPartySlot(i);
-					updateGUIValues(pok);
+					updateGUIValues(pok, deltaTime);
 					if (pok != null) {
 						Point cellPos = LAYOUT[i];
 						AffineTransform trans = g2.getTransform();
@@ -79,6 +81,13 @@ public final class InfoFrame extends JFrame {
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
+	
+	private double getDeltaTime() {
+		final long now = System.nanoTime();
+		final long nanoDelta = now - lastUpdate;
+		this.lastUpdate = now;
+		return nanoDelta * 0.000000001;
+	}
 
 	public void updateParty(PartyModel party) {
 		this.party = party;
@@ -86,7 +95,7 @@ public final class InfoFrame extends JFrame {
 		pack();
 	}
 	
-	private void updateGUIValues(PokemonModel pok) {
+	private void updateGUIValues(PokemonModel pok, double deltaTime) {
 		if (pok == null) {
 			return;
 		}
@@ -102,7 +111,7 @@ public final class InfoFrame extends JFrame {
 			CURRENT_HP_GUI_MAP.put(pok.getPersonalityValue(), (double) pok.getCurrentHp());
 		}
 		
-		var speed = pok.getMaxHp() * 0.005;
+		var speed = pok.getMaxHp() * 0.5 * deltaTime;
 		var diff = pok.getCurrentHp() - currentHpGUI; 
 		if (Math.abs(diff) < speed) {
 			CURRENT_HP_GUI_MAP.put(pok.getPersonalityValue(), (double) pok.getCurrentHp());
