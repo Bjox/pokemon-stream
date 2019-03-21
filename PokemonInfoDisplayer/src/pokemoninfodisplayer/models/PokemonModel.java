@@ -178,7 +178,7 @@ public class PokemonModel {
 		if (currentHp > maxHp) {
 			return false;
 		}
-		if ((currentHp == 0 || maxHp == 0) && !egg) {
+		if (maxHp == 0 && !egg) {
 			return false;
 		}
 		if (dexEntry < 1 || dexEntry > 999) {

@@ -231,14 +231,16 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 		var totalKillsKey = getTotalKillCountKey(killEvent.pokemon);
 		int totalKillCount = getInt(totalKillsKey, 0) + 1;
 		setInt(totalKillsKey, totalKillCount);
-		System.out.printf("Detected %s kill for %s, totalkills=%d\n", killEvent.battleType, killEvent.pokemon.getNickname(), totalKillCount);
+		
+		var trainerKillsKey = getTrainerKillCountKey(killEvent.pokemon);
+		int trainerKillCount = getInt(trainerKillsKey, 0);
 		
 		if (killEvent.battleType == BattleFlag.TRAINER_BATTLE || (killEvent.battleType == BattleFlag.WILD_BATTLE && COUNT_WILD_BATTLE_AS_KILL)) {
-			var trainerKillsKey = getTrainerKillCountKey(killEvent.pokemon);
-			int trainerKillCount = getInt(trainerKillsKey, 0) + 1;
+			trainerKillCount++;
 			setInt(trainerKillsKey, trainerKillCount);
-			System.out.printf("trainerkills=%d\n", trainerKillCount);
 		}
+		
+		System.out.printf("Detected %s kill for %s, totalkills=%d trainerkills=%d\n", killEvent.battleType, killEvent.pokemon.getNickname(), totalKillCount, trainerKillCount);
 		
 		fireStorageUpdatedEvent();
 	}
