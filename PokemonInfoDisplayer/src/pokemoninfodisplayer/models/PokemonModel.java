@@ -169,13 +169,19 @@ public class PokemonModel {
 		if (level < 0 || level > 100) {
 			return false;
 		}
-		if (maxHp <= 0) {
+		if (maxHp < 0 || maxHp > 999) {
 			return false;
 		}
-		if (currentHp < 0 || currentHp > maxHp) {
+		if (currentHp < 0 || currentHp > 999) {
 			return false;
 		}
-		if (dexEntry < 1) {
+		if (currentHp > maxHp) {
+			return false;
+		}
+		if (maxHp == 0 && !egg) {
+			return false;
+		}
+		if (dexEntry < 1 || dexEntry > 999) {
 			return false;
 		}
 		return true;

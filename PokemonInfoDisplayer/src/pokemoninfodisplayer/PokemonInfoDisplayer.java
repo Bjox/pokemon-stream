@@ -26,12 +26,19 @@ import pokemoninfodisplayer.util.ArgumentParser;
 public class PokemonInfoDisplayer {
 
 	public static boolean DEBUG = false;
+	public static boolean LOW_CPU_MODE = false;
 	
 	public static void main(String[] args) throws Exception {
 		ArgumentParser argp = new ArgumentParser(args);
 		DEBUG = argp.isPresent("-debug");
+		LOW_CPU_MODE = argp.isPresent("-lowcpu");
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> Service.closeAllServices()));
+		
+		if (!LOW_CPU_MODE && !DEBUG) {
+			int lowCpuAnswer = JOptionPane.showConfirmDialog(null, "Enable low CPU usage mode?", "Low CPU usage", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			LOW_CPU_MODE = lowCpuAnswer == JOptionPane.YES_OPTION;
+		}
 		
 		// Parse skin
 		DisplayerOptions.setSkin(parseSkinArgument(argp, Skin.PLATINUM));
@@ -44,6 +51,7 @@ public class PokemonInfoDisplayer {
 
 		System.out.println("Game: " + game);
 		System.out.println("Skin: " + DisplayerOptions.getCurrentSkin());
+		if (LOW_CPU_MODE) System.out.println("Using low cpu usage mode");
 
 		InfoFrame frame = new InfoFrame();
 		
@@ -54,26 +62,29 @@ public class PokemonInfoDisplayer {
 				pokemonInterface.addPokemonHPChangeHandler(PokemonStorageService.getInstance());
 				
 				PartyModel party = new PartyModel();
-				(new Thread() {
-					@Override
-					public void run() {
-						while (true) {
-							frame.updateParty(party);
-							try {
-								Thread.sleep(10); // 100fps
-							}
-							catch (InterruptedException e) {
+				
+				if (!LOW_CPU_MODE) {
+					(new Thread() {
+						@Override
+						public void run() {
+							while (true) {
+								frame.updateParty(party);
+								try {
+									Thread.sleep(10);
+								}
+								catch (InterruptedException e) {
+								}
 							}
 						}
-					}
-				}).start();
-				
-				
+					}).start();
+				}
 				
 				while (true) {
 					pokemonInterface.update();
 					pokemonInterface.updateParty(party);
-					//frame.updateParty(party);
+					if (LOW_CPU_MODE) {
+						frame.updateParty(party);
+					}
 					Thread.sleep(500);
 				}
 				

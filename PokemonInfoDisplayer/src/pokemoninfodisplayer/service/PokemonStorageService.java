@@ -9,6 +9,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
@@ -37,6 +40,7 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	private static final boolean ENCRYPT_STORAGE = false;
 	private static final boolean USE_HMAC_VERIFICATION = true;
 	private static final String STORAGE_FILE = "./pokemon_storage.txt";
+	private static final String STORAGE_BACKUP_FILENAME = "pokemon_storage.txt.bak";
 	private static final String HMAC_DIGEST_FILE = "./pokemon_storage_hmac";
 	private static final String ENCRYPTION_KEY = "fyfaenendruscode"; // This is secure
 	private static final boolean COUNT_WILD_BATTLE_AS_KILL = false;
@@ -108,6 +112,12 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	 * @throws java.io.IOException
 	 */
 	public void persistStorage() throws Exception {
+		// Backup existing storage file
+		if (storageFile.exists()) {
+			var backupDest = new File(storageFile.getParentFile(), STORAGE_BACKUP_FILENAME);
+			Files.copy(storageFile.toPath(), backupDest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+		
 		OutputStream out = new FileOutputStream(storageFile);
 		
 		if (ENCRYPT_STORAGE) {
@@ -121,12 +131,10 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 		out.flush();
 		out.close();
 		
-		if (USE_HMAC_VERIFICATION) {
-			var hmacBytes = computeHmac();
-			try (var hmacOut = new BufferedOutputStream(new FileOutputStream(HMAC_DIGEST_FILE))) {
-				hmacOut.write(hmacBytes);
-				hmacOut.flush();
-			}
+		var hmacBytes = computeHmac();
+		try (var hmacOut = new BufferedOutputStream(new FileOutputStream(HMAC_DIGEST_FILE))) {
+			hmacOut.write(hmacBytes);
+			hmacOut.flush();
 		}
 	}
 	
@@ -223,14 +231,16 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 		var totalKillsKey = getTotalKillCountKey(killEvent.pokemon);
 		int totalKillCount = getInt(totalKillsKey, 0) + 1;
 		setInt(totalKillsKey, totalKillCount);
-		System.out.printf("Detected %s kill for %s, totalkills=%d\n", killEvent.battleType, killEvent.pokemon.getNickname(), totalKillCount);
+		
+		var trainerKillsKey = getTrainerKillCountKey(killEvent.pokemon);
+		int trainerKillCount = getInt(trainerKillsKey, 0);
 		
 		if (killEvent.battleType == BattleFlag.TRAINER_BATTLE || (killEvent.battleType == BattleFlag.WILD_BATTLE && COUNT_WILD_BATTLE_AS_KILL)) {
-			var trainerKillsKey = getTrainerKillCountKey(killEvent.pokemon);
-			int trainerKillCount = getInt(trainerKillsKey, 0) + 1;
+			trainerKillCount++;
 			setInt(trainerKillsKey, trainerKillCount);
-			System.out.printf("trainerkills=%d\n", trainerKillCount);
 		}
+		
+		System.out.printf("Detected %s kill for %s, totalkills=%d trainerkills=%d\n", killEvent.battleType, killEvent.pokemon.getNickname(), totalKillCount, trainerKillCount);
 		
 		fireStorageUpdatedEvent();
 	}
