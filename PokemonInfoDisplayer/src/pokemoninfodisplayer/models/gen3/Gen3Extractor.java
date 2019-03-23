@@ -45,19 +45,20 @@ public class Gen3Extractor extends PokemonExtractor<GBAMemoryMap, Gen3PokemonMem
 		}
 	}
 
+	// TODO: implement methods in Gen3Extractor
 	@Override
 	protected BattleFlag getInBattleFlag(GBAMemoryMap memoryMap) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return BattleFlag.OUT_OF_BATTLE;
 	}
 
 	@Override
 	protected int extractActivePid(GBAMemoryMap memoryMap) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return 0;
 	}
 
 	@Override
 	protected int getActiveInBattleIndex(GBAMemoryMap memoryMap) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return 0;
 	}
 
 	

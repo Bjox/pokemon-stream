@@ -5,10 +5,10 @@ A tool written in Java for streamers to extract their pokemon party from an emul
 _TODO_
 
 #### Supported games:
-* [ ] Fire red/Leaf green
-* [ ] Ruby/Saphire/Emerald
-* [ ] Platinum
-* [ ] Heartgold/Soulsilver
+* [x] Fire red/Leaf green
+* [x] Ruby/Saphire/Emerald
+* [x] Platinum
+* [x] Heartgold/Soulsilver
 * [x] Black 2/White 2
 
 #### Emulator support:

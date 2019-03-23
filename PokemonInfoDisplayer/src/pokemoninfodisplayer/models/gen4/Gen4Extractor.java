@@ -173,19 +173,20 @@ public class Gen4Extractor extends PokemonExtractor<NDSMemoryMap, Gen4PokemonMem
 		}
 	}
 
+	// TODO: implement methods for Gen4Extractor
 	@Override
 	protected BattleFlag getInBattleFlag(NDSMemoryMap memoryMap) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return BattleFlag.OUT_OF_BATTLE;
 	}
 
 	@Override
 	protected int extractActivePid(NDSMemoryMap memoryMap) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return 0;
 	}
 
 	@Override
 	protected int getActiveInBattleIndex(NDSMemoryMap memoryMap) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return 0;
 	}
 	
 
