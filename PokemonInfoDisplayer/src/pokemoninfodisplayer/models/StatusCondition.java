@@ -41,6 +41,7 @@ public enum StatusCondition {
 		switch (statusConditionByte) {
 			case 1: return PARALYSIS;
 			case 2: return SLEEP;
+			case 5: return POISON;
 			default: return null;
 		}
 	}
