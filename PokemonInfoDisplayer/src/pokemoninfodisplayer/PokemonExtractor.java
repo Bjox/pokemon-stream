@@ -131,7 +131,7 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 				doHPChangeDetection(pok, previousPok);
 				
 				party.setPartySlot(i, pok);
-				System.out.println(pok.toShortString());
+				//System.out.println(pok.toShortString());
 			}
 			this.pokMemoryModelCheckBuffer[i] = null;
 			
