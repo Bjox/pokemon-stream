@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pokemoninfodisplayer.models.medals;
 
 import java.util.ArrayList;
@@ -36,7 +31,7 @@ public class Medals implements StorageUpdatedHandler {
 	}
 	
 	private Medal[] medals = new Medal[] { new Medal(MedalType.MVP, 10, true),
-										   new Medal(MedalType.TANK, 10, true),
+										   new Medal(MedalType.TANK, 200, true),
 										   new Medal(MedalType.SURVIVOR, 1, false)};
 
 	@Override

@@ -151,6 +151,16 @@ public class Gen5Extractor extends PokemonExtractor<NDSMemoryMap, Gen5PokemonMem
 		return memoryMap.getWram().getUByte(0x21DB98E);
 	}
 
+	@Override
+	protected boolean isDualBattle(NDSMemoryMap memoryMap) {
+		return memoryMap.getWram().getUWord(0x225C534) != 0; // enemy pok slot 2 dex number
+	}
+
+	@Override
+	protected int getSecondActiveInBattleIndex(NDSMemoryMap memoryMap) {
+		return -1;//return memoryMap.getWram().getUByte(0x225F450); // is wronk
+	}
+
 	private static class PRNG {
 		private int last;
 

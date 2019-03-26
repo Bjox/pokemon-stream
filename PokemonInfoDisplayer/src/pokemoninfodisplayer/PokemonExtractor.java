@@ -56,6 +56,16 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	@Deprecated
 	protected abstract int extractActivePid(TmemMap memoryMap);
 	protected abstract int getActiveInBattleIndex(TmemMap memoryMap);
+	protected abstract int getSecondActiveInBattleIndex(TmemMap memoryMap);
+	protected abstract boolean isDualBattle(TmemMap memoryMap);
+
+	@Override
+	public boolean isDualBattle() {
+		if (!getBattleFlag().isInBattle()) {
+			return false;
+		}
+		return isDualBattle(dataSource.getMemoryMap());
+	}
 	
 	@Override
 	public void update() throws Exception {
@@ -75,13 +85,18 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 				InfoFrame.CURRENT_HP_GUI_MAP.put(key, (double) party.getPartySlot(i).getCurrentHp());
 			}
 		}
+		
 		int activeIndex = getActiveInBattleIndex(dataSource.getMemoryMap());
+		int secondActiveIndex = isDualBattle() ? getSecondActiveInBattleIndex(dataSource.getMemoryMap()) : activeIndex;
 		
 		for (int i = 0; i < pokMemoryModelBuffer.length; i++) {
 			
 			TpokMemModel memModel = pokMemoryModelBuffer[i];
 			PokemonModel pok = memModel.toPokemonModel();
-			pok.setActive(activeIndex == i && getBattleFlag().isInBattle());
+			
+			if (getBattleFlag().isInBattle()) {
+				pok.setActive(i == activeIndex || i == secondActiveIndex);
+			}
 			
 			if (!memModel.isPresent() || pok.getDexEntry() < 1) {
 				if (i == 0 && PokemonInfoDisplayer.DEBUG) {
@@ -114,8 +129,9 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 				
 				doKillDetection(pok, previousPok);
 				doHPChangeDetection(pok, previousPok);
+				
 				party.setPartySlot(i, pok);
-				//System.out.println(pok.toShortString());
+				System.out.println(pok.toShortString());
 			}
 			this.pokMemoryModelCheckBuffer[i] = null;
 			
@@ -123,7 +139,7 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	}
 	
 	private void doKillDetection(PokemonModel pok, PokemonModel previousPok) {
-		if (pok == null || previousPok == null) {
+		if (pok == null || previousPok == null || !pok.equals(previousPok)) {
 			return;
 		}
 		
@@ -139,7 +155,7 @@ public abstract class PokemonExtractor<TmemMap extends MemoryMap, TpokMemModel e
 	}
 	
 	private void doHPChangeDetection(PokemonModel pok, PokemonModel previousPok) {
-		if (pok == null || previousPok == null || pok.getCurrentHp() == previousPok.getCurrentHp()) {
+		if (pok == null || previousPok == null || !pok.equals(previousPok) || pok.getCurrentHp() == previousPok.getCurrentHp()) {
 			return;
 		}
 		

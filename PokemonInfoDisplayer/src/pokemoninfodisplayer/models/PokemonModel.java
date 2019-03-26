@@ -223,6 +223,31 @@ public class PokemonModel {
 	}
 
 	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 73 * hash + this.personalityValue;
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final PokemonModel other = (PokemonModel) obj;
+		if (this.personalityValue != other.personalityValue) {
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
 	public String toString() {
 		return "PokemonModel{" +
 				"personalityValue=" + String.format("0x%X", personalityValue) +

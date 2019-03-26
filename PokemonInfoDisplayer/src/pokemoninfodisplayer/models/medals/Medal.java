@@ -1,15 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pokemoninfodisplayer.models.medals;
 
-import java.util.ArrayList;
 import pokemoninfodisplayer.models.medals.Medals.MedalType;
 import pokemoninfodisplayer.service.PokemonStorageEntry;
 import pokemoninfodisplayer.service.PokemonStorageService;
-import pokemoninfodisplayer.util.Pair;
 
 /**
  *
@@ -36,7 +29,7 @@ public class Medal {
 		
 		switch (this.type) {
 			case MVP: return PokemonStorageService.getInstance().getKillCounts();
-			case TANK: return PokemonStorageService.getInstance().getTankCounts();
+			case TANK: return PokemonStorageService.getInstance().getDamageTaken();
 			case SURVIVOR: return PokemonStorageService.getInstance().getSurvivorCounts();
 			default: return null;
 		}

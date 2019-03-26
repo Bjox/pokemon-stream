@@ -31,4 +31,6 @@ public interface PokemonInterface extends Closeable {
 	
 	void addPokemonHPChangeHandler(PokemonHitPointChangeHandler handler);
 	
+	boolean isDualBattle();
+	
 }
