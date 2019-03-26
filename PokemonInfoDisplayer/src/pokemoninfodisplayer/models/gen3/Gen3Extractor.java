@@ -61,5 +61,15 @@ public class Gen3Extractor extends PokemonExtractor<GBAMemoryMap, Gen3PokemonMem
 		return 0;
 	}
 
+	@Override
+	protected boolean isDualBattle(GBAMemoryMap memoryMap) {
+		return false;
+	}
+
+	@Override
+	protected int getSecondActiveInBattleIndex(GBAMemoryMap memoryMap) {
+		return 0;
+	}
+
 	
 }

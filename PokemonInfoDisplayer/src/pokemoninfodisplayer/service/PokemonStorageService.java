@@ -279,6 +279,15 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 				.map(e -> new PokemonStorageEntry(((String) e.getKey()).split("_")[1], getInt((String) e.getKey(), 0)))
 				.toArray(PokemonStorageEntry[]::new);
 	}
+	
+	public PokemonStorageEntry[] getDamageTaken() {
+		return this.properties
+				.entrySet()
+				.stream()
+				.filter(e -> ((String) e.getKey()).contains("damage_taken"))
+				.map(e -> new PokemonStorageEntry(((String) e.getKey()).split("_")[2], getInt((String) e.getKey(), 0)))
+				.toArray(PokemonStorageEntry[]::new);
+	}
 
 	@Override
 	public void handle(PokemonHitPointChangeEvent event) {
@@ -287,19 +296,26 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 			return;
 		}
 		
+		var damageTaken = event.oldHp - event.newHp;
+		if (damageTaken > 0 && event.newHp > 0) {
+			var key = getDamageTakenKey(event.pokemon);
+			var totalDmgTanked = getInt(key, 0) + damageTaken;
+			System.out.printf("%d damage taken by %s, totaldmgtaken=%d\n", damageTaken, event.pokemon.getNickname(), totalDmgTanked);
+			setInt(key, totalDmgTanked);
+		}
+		
 		if (event.newHp == 1) {
 			System.out.printf("1 HP change event for %s: oldhp=%d, newhp=%d\n", event.pokemon.getNickname(), event.oldHp, event.newHp);
 			var key = get1HPCountKey(event.pokemon);
-			int oneHpCount = getInt(key, 0) + 1;
+			var oneHpCount = getInt(key, 0) + 1;
 			setInt(key, oneHpCount);
 		}
 		
-		var redHpLevel = event.pokemon.getMaxHp() * 0.2;
-		
+		var redHpLevel = event.pokemon.getMaxHp() * 0.2;	
 		if (event.newHp <= redHpLevel) {
 			System.out.printf("Red HP change event for %s: oldhp=%d, newhp=%d\n", event.pokemon.getNickname(), event.oldHp, event.newHp);
 			var key = getRedHPCountKey(event.pokemon);
-			int redHpCount = getInt(key, 0) + 1;
+			var redHpCount = getInt(key, 0) + 1;
 			setInt(key, redHpCount);
 		}
 		
@@ -312,6 +328,10 @@ public final class PokemonStorageService extends Service implements PokemonKillH
 	
 	private String getRedHPCountKey(PokemonModel pokemon) {
 		return String.format("red_hp_%X", pokemon.getPersonalityValue());
+	}
+	
+	private String getDamageTakenKey(PokemonModel pokemon) {
+		return String.format("damage_taken_%X", pokemon.getPersonalityValue());
 	}
 	
 	public void addListener(StorageUpdatedHandler handler) {

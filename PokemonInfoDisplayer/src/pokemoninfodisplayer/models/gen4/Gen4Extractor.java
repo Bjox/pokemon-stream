@@ -188,6 +188,16 @@ public class Gen4Extractor extends PokemonExtractor<NDSMemoryMap, Gen4PokemonMem
 	protected int getActiveInBattleIndex(NDSMemoryMap memoryMap) {
 		return 0;
 	}
+
+	@Override
+	protected boolean isDualBattle(NDSMemoryMap memoryMap) {
+		return false;
+	}
+
+	@Override
+	protected int getSecondActiveInBattleIndex(NDSMemoryMap memoryMap) {
+		return 0;
+	}
 	
 
 	private static class PRNG {
